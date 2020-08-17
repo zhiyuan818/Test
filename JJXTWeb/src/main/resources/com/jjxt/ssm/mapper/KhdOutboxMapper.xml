@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjxt.ssm.mapper.KhdOutboxMapper">
+	<resultMap type="com.jjxt.ssm.entity.KhdOutbox" id="khdMapper">
+		<id column="id" property="id"/>
+		<result column="date_time" property="dateTime"/>
+		<result column="remarks" property="remarks"/>
+		<result column="app_id" property="appId"/>
+		<result column="app_name" property="appName"/>
+		<result column="file_name" property="fileName"/>
+		<result column="content" property="content"/>
+		<result column="send_num" property="sendNum"/>
+		<result column="send_succ_num" property="sendSuccNum"/>
+		<result column="send_fail_num" property="sendFailNum"/>
+		<result column="msg_id" property="msgId"/>
+	</resultMap>
+	
+	<insert id="addKhdOutbox" parameterType="com.jjxt.ssm.entity.KhdOutbox">
+		insert into khd_outbox(date_time,remarks,app_id,file_name,content,send_num,send_succ_num,send_fail_num,msg_id)
+		values(#{dateTime},#{remarks},#{appId},#{fileName},#{content},#{sendNum},#{sendSuccNum},#{sendFailNum},#{msgId});
+	</insert>
+	
+	<select id="findTotal" resultType="int" parameterType="map">
+		select count(1) from sms_manage.khd_outbox where 1=1 
+		<if test="appId != null and appId != ''">
+			and app_id = #{appId}
+		</if>
+	</select>
+	<select id="findKhdOutboxList" resultMap="khdMapper" parameterType="map">
+		select a.id,a.date_time,a.remarks,a.app_id,b.app_name,a.file_name,a.content,a.send_num,a.send_succ_num,a.send_fail_num,a.msg_id from sms_manage.khd_outbox a left JOIN sms_core.ucenter_application b on a.app_id=b.id where 1=1 
+		<if test="appId != null and appId != ''">
+			and a.app_id = #{appId}
+		</if>
+		ORDER BY date_time DESC
+		limit #{start},#{end}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

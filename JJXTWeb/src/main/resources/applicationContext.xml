@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<!-- 扫描service 与 mapper层，注入对应的实体对象 -->
+	<context:annotation-config />
+	<context:component-scan base-package="com.jjxt.ssm.service.*"></context:component-scan>
+	<context:component-scan base-package="com.jjxt.ssm.service.impl.*"></context:component-scan>
+	<context:component-scan base-package="com.jjxt.ssm.mapper.*"></context:component-scan>
+	<context:component-scan base-package="com.jjxt.ssm.aspect.*"></context:component-scan>
+	<context:component-scan base-package="com.jjxt.ssm.common"></context:component-scan>
+	<!-- 数据源 -->
+	<import resource="spring_mybatis.xml" />
+	<import resource="spring_httpclient.xml" />
+	<!-- 配置数据源 -->
+	<context:property-placeholder
+		location="classpath:jdbc.properties,classpath:httpclient.properties,classpath:config.properties" />
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 正常返回通知 -->
+			<!-- <tx:method name="interceptorApplogicA" propagation="REQUIRES_NEW"/> -->
+			<!-- 环绕通知 -->
+			<tx:method name="interceptor" propagation="REQUIRES_NEW" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- aop 切点表达式 日志记录controller -->
+	<aop:config expose-proxy="true">
+		<aop:pointcut id="txPointcut"
+			expression="execution( * com.jjxt.ssm.controller..*.* (..))" />
+		<aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice" />
+	</aop:config>
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<tx:advice id="serviceAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED" />
+            <tx:method name="append*" propagation="REQUIRED" />
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="save*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="modify*" propagation="REQUIRED" />
+            <tx:method name="edit*" propagation="REQUIRED" />
+            <tx:method name="delete*" propagation="REQUIRED" />
+            <tx:method name="remove*" propagation="REQUIRED" />
+            <tx:method name="charge*" propagation="REQUIRED" />
+            <tx:method name="repair" propagation="REQUIRED" />
+            <tx:method name="delAndRepair" propagation="REQUIRED" />
+			
+            <tx:method name="get*" propagation="SUPPORTS" />
+            <tx:method name="find*" propagation="SUPPORTS" />
+            <tx:method name="load*" propagation="SUPPORTS" />
+            <tx:method name="search*" propagation="SUPPORTS" />
+            <tx:method name="datagrid*" propagation="SUPPORTS" />
+
+            <tx:method name="*" propagation="SUPPORTS" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="service"
+			expression="execution(* com.jjxt.ssm..*Service*.*(..))" /><!--声明所有包含Service的类的所有方法使用事务 -->
+		<aop:advisor advice-ref="serviceAdvice" pointcut-ref="service" />
+	</aop:config>
+	
+	<bean id="druid-stat-interceptor"
+        class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+    </bean>
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+        scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.jjxt.ssm.service.*</value>
+            </list>
+        </property>
+    </bean>
+    <aop:config>
+        <aop:advisor advice-ref="druid-stat-interceptor"
+            pointcut-ref="druid-stat-pointcut" />
+    </aop:config>
+
+	<!-- 拦截器 拦截所有菜单go*.action请求 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/*/go*.action" />
+			<bean class="com.jjxt.ssm.interceptor.MenuActionInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+
+</beans>
+

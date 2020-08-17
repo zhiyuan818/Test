@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.LgModelSendMapper">
+	<resultMap type="com.jjxt.ssm.entity.LgModelSend" id="lgModelSend">
+		<id column="id" property="id" />
+		<result column="cmcc_channel_id" property="cmccChannelId" />
+		<result column="cmcc_channel_name" property="cmccChannelName" />
+		<result column="unicom_channel_id" property="unicomChannelId" />
+		<result column="unicom_channel_name" property="unicomChannelName" />
+		<result column="telecom_channel_id" property="telecomChannelId" />
+		<result column="telecom_channel_name" property="telecomChannelName" />
+		<result column="content" property="content" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+	<select id="findTotal" resultType="int" parameterType="map">
+		select
+		count(1) from sms_core.lg_model_send where 1=1
+		<if test="id !=null and id!=''">
+			and id = #{id}
+		</if>
+		<if test="content!=null and content!=''">
+			and content like "%"#{content}"%"
+		</if>
+		<if test="validate!=null and validate !=''">
+			and content = #{validate}
+		</if>
+		<if test="channelId!=null and channelId !=''">
+			and ( cmcc_channel_id = #{channelId} or unicom_channel_id = #{channelId} or telecom_channel_id =#{channelId} )
+		</if>
+	</select>
+
+	<select id="findLgModelSendList" parameterType="map" resultMap="lgModelSend">
+		select id,content,cmcc_channel_id,(select name from
+		sms_core.args_channel where cmcc_channel_id=channel_id)
+		cmcc_channel_name,
+		unicom_channel_id,(select name from
+		sms_core.args_channel where unicom_channel_id=channel_id)
+		unicom_channel_name,
+		telecom_channel_id,(select name from
+		sms_core.args_channel where telecom_channel_id=channel_id)
+		telecom_channel_name,create_time from sms_core.lg_model_send where 1=1
+		<if test="id !=null and id!=''">
+			and id = #{id}
+		</if>
+		<if test="content!=null and content!=''">
+			and content like "%"#{content}"%"
+		</if>
+		<if test="channelId!=null and channelId !=''">
+			and ( cmcc_channel_id = #{channelId} or unicom_channel_id = #{channelId} or telecom_channel_id =#{channelId} )
+		</if>
+		ORDER BY create_time DESC
+		limit #{start},#{end}
+	</select>
+
+	<insert id="addLgModelSend" parameterType="com.jjxt.ssm.entity.LgModelSend">
+		insert into
+		sms_core.lg_model_send(cmcc_channel_id,unicom_channel_id,telecom_channel_id,content,create_time)
+		values(#{cmccChannelId},#{unicomChannelId},#{telecomChannelId},#{content},#{createTime})
+	</insert>
+
+	<select id="findAddEnd" resultMap="lgModelSend">
+		select
+		id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,content,create_time
+		from sms_core.lg_model_send order by id desc limit 0,1
+	</select>
+
+	<select id="findLgModelSendById" resultMap="lgModelSend"
+		parameterType="int">
+		select
+		id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,content,create_time
+		from sms_core.lg_model_send where id=#{id}
+	</select>
+
+	<delete id="deleteLgModelSend" parameterType="int">
+		delete from
+		sms_core.lg_model_send where id=#{id}
+	</delete>
+
+	<update id="updateLgModelSend" parameterType="com.jjxt.ssm.entity.LgModelSend">
+		UPDATE sms_core.lg_model_send
+		<set>
+			<if test="content != null ">
+				content = #{content},
+			</if>
+			<if test="cmccChannelId != null">
+				cmcc_channel_id = #{cmccChannelId},
+			</if>
+			<if test="unicomChannelId != null">
+				unicom_channel_id = #{unicomChannelId},
+			</if>
+			<if test="telecomChannelId != null">
+				telecom_channel_id = #{telecomChannelId},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	<delete id="delLgModelSendBatch">
+	DELETE FROM sms_core.lg_model_send WHERE id in 
+	<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	<select id="findLgModelSendByIds" resultMap="lgModelSend" parameterType="int">
+	select id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,content,create_time
+		from sms_core.lg_model_send where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+</mapper>

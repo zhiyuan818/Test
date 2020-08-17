@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BaseCompanyMapper">
+	<resultMap type="com.jjxt.ssm.entity.BaseCompany" id="baseCompany">
+		<id column="id" property="id" />
+		<result column="sp_id" property="spId" />
+		<result column="sales" property="sales" />
+		<result column="company_type" property="companyType" />
+		<result column="company_name" property="companyName" />
+		<result column="company_key" property="companyKey" />
+		<result column="company_domain" property="companyDomain" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="sale_after" property="saleAfter" />
+		<result column="count" property="count" />
+	</resultMap>
+	<resultMap type="java.util.HashMap" id="linkAccount">
+		<id column="id" property="id" />
+		<result column="app_name" property="appName" />
+		<result column="app_status" property="appStatus" />
+		<result column="price" property="price" />
+	</resultMap>
+	<resultMap type="java.util.HashMap" id="appIdcompanyName">
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="company_name" property="companyName" />
+	</resultMap>
+	<!-- 查询 -->
+	<select id="findAllCompany" resultMap="baseCompany">
+		SELECT
+		id,sales,sale_after,company_type,company_name,company_key,create_time,update_time
+		FROM base_company order by id desc
+	</select>
+
+	<!-- 根据条件查询总数 -->
+	<select id="findTotalByCondition" resultType="int"
+		parameterType="map">
+		select count(1) from base_company where 1=1
+		<if test="companyKey!=null and companyKey!=''">
+			and company_key like "%"#{companyKey}"%"
+		</if>
+		<if test="sales !=null and sales !=''">
+			and sales = #{sales}
+		</if>
+		<if test="saleAfter !=null and saleAfter !=''">
+			and sale_after = #{saleAfter}
+		</if>
+	</select>
+
+	<!-- 根据条件查询总数 -->
+	<select id="findTotalByName" resultType="int" parameterType="map">
+		select count(1) from base_company where 1=1
+		<if test="companyName!=null and companyName!=''">
+			and company_name = #{companyName}
+		</if>
+		<if test="companyKey!=null and companyKey!=''">
+			and company_key = #{companyKey}
+		</if>
+	</select>
+
+	<!-- 查询公司关联帐户 -->
+	<select id="findLinkAcc" parameterType="int" resultMap="linkAccount">
+		SELECT
+		a.app_name,a.app_status,u.price
+		FROM base_company b
+		INNER JOIN
+		ucenter_application_ext u ON b.id = u.company_id
+		INNER JOIN
+		sms_core.ucenter_application a on u.app_id=a.id
+		WHERE b.id = #{id}
+		order by b.id desc
+	</select>
+
+	<select id="findCustomerPageList" resultMap="baseCompany"
+		parameterType="map">
+		select
+		b.id,b.company_name,b.company_key,b.sales,b.sale_after,b.company_type,b.update_time,COUNT(u.company_id)
+		count from sms_manage.base_company b LEFT JOIN
+		sms_manage.ucenter_application_ext u on b.id=u.company_id
+		<where>
+			<if test="companyKey!=null and companyKey!=''">
+				and b.company_key like "%"#{companyKey}"%"
+			</if>
+			<if test="sales !=null and sales !=''">
+				and b.sales = #{sales}
+			</if>
+			<if test="saleAfter !=null and saleAfter !=''">
+				and b.sale_after = #{saleAfter}
+			</if>
+		</where>
+		GROUP BY b.id order by b.id desc limit #{start},#{end}
+	</select>
+
+	<select id="findCustomerById" resultMap="baseCompany"
+		parameterType="int">
+		select id,company_name,company_key,sales,sale_after,company_type
+		from base_company where 1=1
+		and id=#{id}
+	</select>
+
+	<!-- 添加客户 -->
+	<insert id="addBaseCompany" parameterType="com.jjxt.ssm.entity.BaseCompany">
+		insert into
+		base_company(company_name,sales,sale_after,company_key,company_type,create_time,update_time)
+		values(#{companyName},#{sales},#{saleAfter},#{companyKey},#{companyType},#{createTime},#{updateTime})
+	</insert>
+
+	<update id="updateCustomer" parameterType="com.jjxt.ssm.entity.BaseCompany">
+		UPDATE base_company
+		<set>
+			<if test="companyName!=null and companyName!=''">
+				company_name = #{companyName},
+			</if>
+			<if test="companyKey!=null and companyKey!=''">
+				company_key = #{companyKey},
+			</if>
+			<if test="companyType!=null and companyType!=''">
+				company_type = #{companyType},
+			</if>
+			<if test="sales!=null and sales!=''">
+				sales = #{sales},
+			</if>
+			<if test="saleAfter !=null and saleAfter !=''">
+				sale_after = #{saleAfter},
+			</if>
+			update_time= now(),
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<select id="findCompanyDetails" resultMap="baseCompany"
+		parameterType="string">
+		select b.company_name,b.company_key from base_company b
+		LEFT JOIN ucenter_application_ext u on b.id=u.company_id where
+		u.app_id=#{appId}
+	</select>
+
+	<select id="findCustomerByAppId" resultMap="baseCompany"
+		parameterType="int">
+		select bc.id,bc.company_name from
+		sms_manage.base_company bc LEFT JOIN
+		sms_manage.ucenter_application_ext uae on bc.id=uae.company_id where
+		uae.app_id=#{id}
+	</select>
+
+	<select id="findCompanyMapByAppId" resultMap="appIdcompanyName"
+		parameterType="java.util.Set">
+		select ua.id as app_id,ua.app_name,bc.company_name from
+		sms_core.ucenter_application ua LEFT JOIN
+		sms_manage.ucenter_application_ext uae on ua.id=uae.app_id LEFT JOIN
+		sms_manage.base_company bc on uae.company_id=bc.id where ua.id in
+		<foreach collection="set" item="item" index="index" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="findAllCompanyKey" resultMap="baseCompany">
+		SELECT id,company_key
+		FROM
+		sms_manage.base_company;
+	</select>
+
+	<select id="findAllSales" resultMap="baseCompany">
+		SELECT sales FROM
+		sms_manage.base_company GROUP BY sales;
+	</select>
+	
+	<select id="findAllSaleAfter" resultMap="baseCompany">
+		SELECT sale_after FROM
+		sms_manage.base_company where sale_after !='' GROUP BY sale_after;
+	</select>
+	
+	<select id="findCompanyKeyBySort" resultMap="baseCompany" parameterType="map">
+		SELECT c.id,c.company_key
+		FROM
+		sms_manage.base_company c
+		where 
+		CASE
+			WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+				c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+			WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+	</select>
+	
+	<select id="findSalesBySort" resultMap="baseCompany" parameterType="map">
+		SELECT sales FROM
+		sms_manage.base_company c
+		where 
+		CASE
+			WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+				c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+			WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+		GROUP BY sales;
+	</select>
+	
+	<select id="findSaleAfterBySort" resultMap="baseCompany" parameterType="map">
+		SELECT sale_after FROM
+		sms_manage.base_company c 
+		where 
+		CASE
+			WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+				c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+			WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+		and sale_after !='' 
+		GROUP BY sale_after;
+	</select>
+	
+</mapper>

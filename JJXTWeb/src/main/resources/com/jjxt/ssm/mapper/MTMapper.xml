@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.MTMapper">
+
+	<resultMap type="com.jjxt.ssm.entity.MT" id="MTMapper">
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="message_type" property="messageType" />
+		<result column="message_id" property="messageId" />
+		<result column="unique_id" property="uniqueId" />
+		<result column="batch_id" property="batchId" />
+		<result column="dest_number" property="destNumber" />
+		<result column="provider" property="provider" />
+		<result column="province" property="province" />
+		<result column="content" property="content"/>
+		<result column="city" property="city" />
+		<result column="src_number" property="srcNumber" />
+		<result column="ext_src" property="extSrc" />
+		<result column="msg_format" property="msgFormat" />
+		<result column="message_class" property="messageClass" />
+		<result column="send_flag" property="sendFlag" />
+		<result column="product_id" property="productId" />
+		<result column="channel_name" property="channelName" />
+		<result column="channel_msg_id" property="channelMsgId" />
+		<result column="channel_id" property="channelId" />
+		<result column="submit_time" property="submitTime" />
+		<result column="submit_status" property="submitStatus" />
+		<result column="report_time" property="reportTime" />
+		<result column="report_status" property="reportStatus" />
+		<result column="lm_total" property="lmTotal" />
+		<result column="lm_subsidy" property="lmSubsidy" />
+		<result column="log_time" property="logTime" />
+		<result column="report_get_time" property="reportGetTime" />
+		<result column="real_report_status" property="realReportStatus" />
+		<result column="real_report_time" property="realReportTime" />
+		<result column="logic_path" property="logicPath" />
+		<result column="link_id" property="linkId" />
+	</resultMap>
+	<!-- 查询分页总条数 -->
+	<select id="findMTTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) from sms_log.mt_${logDate} mt
+		WHERE 1=1
+		<if test="appId != null and  appId != '' ">
+			AND mt.app_id = #{appId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND mt.dest_number=#{destNumber}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND mt.channel_msg_id=#{channelMsgId}
+		</if>
+		<if test="reportStatus != null and reportStatus!=''">
+			AND
+			<choose>
+				<when test="reportStatus == 'all'">
+					mt.report_status <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.report_status=#{reportStatus}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="sendFlag!=null and sendFlag!=''">
+			AND
+			<choose>
+				<when test="sendFlag == 'all'">
+					mt.send_flag <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.send_flag=#{sendFlag}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="channelId!=null and channelId!=''">
+			AND mt.channel_id=#{channelId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND mt.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND mt.province in ('unknown','unkown','')
+		</if>
+		<if test="submitStatus!=null and submitStatus!=''">
+			AND 
+			<choose>
+				<when test="submitStatus == success">
+					mt.submit_status='success'
+				</when>
+				<otherwise>
+					mt.submit_status &lt;&gt; 'success'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="reportStatus1!=null and reportStatus1!=''">
+			AND
+			<choose>
+				<when test="reportStatus1 == 1">
+					mt.report_status='DELIVRD'
+				</when>
+				<when test="reportStatus1 == 3">
+					mt.report_status is null
+				</when>
+				<otherwise>
+					(mt.report_status &lt;&gt; 'DELIVRD' OR mt.report_status = '')
+				</otherwise>
+			</choose>
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mt.submit_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mt.submit_time &lt;= #{endTime}
+		</if>
+	</select>
+	<!-- 查询分页列表 -->
+	<select id="findMTPageList" resultMap="MTMapper" parameterType="map">
+		SELECT app.id AS app_id,app.app_name,cha.name AS
+		channel_name,mt.dest_number,mt.province,mt.ext_src,mt.content,mt.send_flag,
+		mt.submit_time,mt.report_time,mt.report_status,mt.log_time,mt.link_id,mt.channel_msg_id
+		from sms_log.mt_${logDate} mt left join sms_core.args_channel cha on
+		mt.channel_id=cha.channel_id LEFT JOIN sms_core.ucenter_application app
+		on mt.app_id=app.id
+		WHERE 1=1
+		<if test="appId != null and  appId != '' ">
+			AND mt.app_id = #{appId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND mt.dest_number=#{destNumber}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND mt.channel_msg_id=#{channelMsgId}
+		</if>
+		<if test="reportStatus != null and reportStatus!=''">
+			AND
+			<choose>
+				<when test="reportStatus == 'all'">
+					mt.report_status <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.report_status=#{reportStatus}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="sendFlag!=null and sendFlag!=''">
+			AND
+			<choose>
+				<when test="sendFlag == 'all'">
+					mt.send_flag <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.send_flag=#{sendFlag}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="channelId!=null and channelId!=''">
+			AND mt.channel_id=#{channelId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND mt.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND mt.province in ('unknown','unkown','')
+		</if>
+		<if test="submitStatus!=null and submitStatus!=''">
+			AND 
+			<choose>
+				<when test="submitStatus == success">
+					mt.submit_status='success'
+				</when>
+				<otherwise>
+					mt.submit_status &lt;&gt; 'success'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="reportStatus1!=null and reportStatus1!=''">
+			AND
+			<choose>
+				<when test="reportStatus1 == 1">
+					mt.report_status='DELIVRD'
+				</when>
+				<when test="reportStatus1 == 3">
+					mt.report_status is null
+				</when>
+				<otherwise>
+					(mt.report_status &lt;&gt; 'DELIVRD' OR mt.report_status
+					= '')
+				</otherwise>
+			</choose>
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mt.submit_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mt.submit_time &lt;= #{endTime}
+		</if>
+		ORDER BY mt.submit_time desc
+		limit #{start},#{end}
+	</select>
+	<!-- 根据link_id查询对应的日志记录 -->
+	<select id="findMTByLinkId" resultMap="MTMapper" parameterType="map">
+		SELECT app.app_name,cha.name AS
+		channel_name,mt.app_id,mt.dest_number,mt.province,mt.ext_src,mt.content,mt.send_flag,mt.provider,mt.city,mt.message_class,mt.product_id,mt.channel_msg_id,
+		mt.channel_id,mt.submit_time,mt.submit_status,mt.report_time,mt.report_status,mt.log_time,mt.link_id,mt.src_number,mt.lm_total,mt.logic_path,mt.message_id,mt.unique_id,mt.batch_id
+		from sms_log.mt_${logDate} mt left join sms_core.args_channel cha on
+		mt.channel_id=cha.channel_id LEFT JOIN sms_core.ucenter_application app
+		on mt.app_id=app.id WHERE mt.link_id=#{linkId}
+	</select>
+	<!-- 查询重推状态报告 -->
+	<select id="findPutReportSum" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM sms_log.mt_${logDate} WHERE 1=1
+		<if test="appId != null and appId!=''">
+			AND app_id = #{appId}
+		</if>
+		<if test="provider != null and provider!=''">
+			AND provider = #{provider}
+		</if>
+		<if test="sendFlag != null and sendFlag!=''">
+			AND send_flag = #{sendFlag}
+		</if>
+		<if test="uniqueId != null and uniqueId!=''">
+			AND unique_id = #{uniqueId}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND channel_msg_id = #{channelMsgId}
+		</if>
+		<if test="channelId != null and channelId!=''">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND dest_number = #{destNumber}
+		</if>
+		<if test="sourceSegment != null and sourceSegment !=''">
+			AND src_number = #{sourceSegment}
+		</if>
+		<if test="content != null and content!=''">
+			AND content like "%"#{content,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="beginTime != null and beginTime != ''">
+			AND submit_time &gt;= #{beginTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND submit_time &lt;= #{endTime}
+		</if>
+	</select>
+	
+	<select id="findNewMtTotal" resultType="int" parameterType="map">
+				select count(1) from sms_log.mt_${logDate}
+					WHERE 1=1
+					<if test="appId != null and  appId != '' ">
+						AND app_id = #{appId}
+					</if>
+					<if test="destNumber != null and destNumber!=''">
+						AND dest_number=#{destNumber}
+					</if>
+					<if test="channelMsgId != null and channelMsgId!=''">
+						AND channel_msg_id=#{channelMsgId}
+					</if>
+					<if test="sign != null and sign !=''">
+						AND sign=#{sign}
+					</if>
+					<if test="reportStatus != null and reportStatus!=''">
+						AND
+						<choose>
+							<when test="reportStatus == 'all'">
+								report_status <![CDATA[ <> ]]> ''
+							</when>
+							<otherwise>
+								report_status=#{reportStatus}
+							</otherwise>
+						</choose>
+					</if>
+					<if test="sendFlag!=null and sendFlag!=''">
+						AND
+						<choose>
+							<when test="sendFlag == 'all'">
+								send_flag <![CDATA[ <> ]]> ''
+							</when>
+							<otherwise>
+								send_flag=#{sendFlag}
+							</otherwise>
+						</choose>
+					</if>
+					<if test="channelId!=null and channelId!=''">
+						AND channel_id=#{channelId}
+					</if>
+					<if test="province !=null and province !='' and province !='未知'">
+						AND province = #{province}
+					</if>
+					<if test="province =='未知'">
+						AND province in ('unknown','unkown','')
+					</if>
+					<if test="submitStatus!=null and submitStatus!=''">
+						AND 
+						<choose>
+							<when test="submitStatus == success">
+								submit_status='success'
+							</when>
+							<otherwise>
+								submit_status &lt;&gt; 'success'
+							</otherwise>
+						</choose>
+					</if>
+					<if test="reportStatus1!=null and reportStatus1!=''">
+						AND
+						<choose>
+							<when test="reportStatus1 == 1">
+								report_status='DELIVRD'
+							</when>
+                            <when test="reportStatus1 == 3">
+                                report_status is null
+                            </when>
+							<otherwise>
+								(report_status &lt;&gt; 'DELIVRD' OR report_status
+								= '')
+							</otherwise>
+						</choose>
+					</if>
+					<if test="startTime != null and startTime != ''">
+						AND submit_time &gt;= #{startTime}
+					</if>
+					<if test="endTime != null and endTime != ''">
+						AND submit_time &lt;= #{endTime}
+					</if>
+			
+	</select>
+	
+	<select id="findNewMTPageList" resultMap="MTMapper" parameterType="map">
+		SELECT app.id AS app_id,app.app_name,cha.name AS
+		channel_name,mt.dest_number,mt.province,mt.ext_src,mt.send_flag,
+		mt.submit_time,mt.report_time,mt.report_status,mt.log_time,mt.link_id,mt.channel_msg_id,unique_id
+		from sms_log.mt_${logDate} mt 
+		left join sms_core.args_channel cha on
+		mt.channel_id=cha.channel_id LEFT JOIN sms_core.ucenter_application app
+		on mt.app_id=app.id
+		WHERE 1=1
+		<if test="appId != null and  appId != '' ">
+			AND mt.app_id = #{appId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND mt.dest_number=#{destNumber}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND mt.channel_msg_id=#{channelMsgId}
+		</if>
+		<if test="reportStatus != null and reportStatus!=''">
+			AND
+			<choose>
+				<when test="reportStatus == 'all'">
+					mt.report_status <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.report_status=#{reportStatus}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="sendFlag!=null and sendFlag!=''">
+			AND
+			<choose>
+				<when test="sendFlag == 'all'">
+					mt.send_flag <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.send_flag=#{sendFlag}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="channelId!=null and channelId!=''">
+			AND mt.channel_id=#{channelId}
+		</if>
+		<if test="sign != null and sign!=''">
+			AND mt.sign=#{sign}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND mt.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND mt.province in ('unknown','unkown','')
+		</if>
+		<if test="submitStatus!=null and submitStatus!=''">
+			AND 
+			<choose>
+				<when test="submitStatus == success">
+					mt.submit_status='success'
+				</when>
+				<otherwise>
+					mt.submit_status &lt;&gt; 'success'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="reportStatus1!=null and reportStatus1!=''">
+			AND
+			<choose>
+				<when test="reportStatus1 == 1">
+					mt.report_status='DELIVRD'
+				</when>
+                <when test="reportStatus1 == 3">
+                    mt.report_status is null
+                </when>
+				<otherwise>
+					(mt.report_status &lt;&gt; 'DELIVRD' OR mt.report_status
+					= '')
+				</otherwise>
+			</choose>
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mt.submit_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mt.submit_time &lt;= #{endTime}
+		</if>
+		ORDER BY mt.submit_time desc
+		limit #{start},#{end}
+	</select>
+	<!-- 新查询日志内容表根据unique_id -->
+	<select id="findMtContentByUniqueSet" resultMap="MTMapper" parameterType="map">
+		select
+		id as unique_id,content
+		from sms_log.mt_content_${logDate} where id in 
+		<foreach collection="uniqueSet" item="item" index="index" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	
+	
+	<select id="findMtByUniqueSet" resultMap="MTMapper" parameterType="map">
+		SELECT app.id AS app_id,app.app_name,cha.name AS
+		channel_name,mt.dest_number,mt.province,mt.ext_src,mt.send_flag,
+		mt.submit_time,mt.report_time,mt.report_status,mt.log_time,mt.link_id,mt.channel_msg_id,unique_id
+		from sms_log.mt_${logDate} mt left join sms_core.args_channel cha on
+		mt.channel_id=cha.channel_id LEFT JOIN sms_core.ucenter_application app
+		on mt.app_id=app.id
+		WHERE 1=1
+		<if test="appId != null and  appId != '' ">
+			AND mt.app_id = #{appId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND mt.dest_number=#{destNumber}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND mt.channel_msg_id=#{channelMsgId}
+		</if>
+		<if test="reportStatus != null and reportStatus!=''">
+			AND
+			<choose>
+				<when test="reportStatus == 'all'">
+					mt.report_status <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.report_status=#{reportStatus}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="sendFlag!=null and sendFlag!=''">
+			AND
+			<choose>
+				<when test="sendFlag == 'all'">
+					mt.send_flag <![CDATA[ <> ]]>
+					''
+				</when>
+				<otherwise>
+					mt.send_flag=#{sendFlag}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="channelId!=null and channelId!=''">
+			AND mt.channel_id=#{channelId}
+		</if>
+		<if test="submitStatus!=null and submitStatus!=''">
+			AND 
+			<choose>
+				<when test="submitStatus == success">
+					mt.submit_status='success'
+				</when>
+				<otherwise>
+					mt.submit_status &lt;&gt; 'success'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="reportStatus1!=null and reportStatus1!=''">
+			AND
+			<choose>
+				<when test="reportStatus1 == 1">
+					mt.report_status='DELIVRD'
+				</when>
+                <when test="reportStatus1 == 3">
+                    mt.report_status is null
+                </when>
+				<otherwise>
+					(mt.report_status &lt;&gt; 'DELIVRD' OR mt.report_status
+					= '')
+				</otherwise>
+			</choose>
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mt.submit_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mt.submit_time &lt;= #{endTime}
+		</if>
+			AND mt.unique_id in
+		<foreach collection="uniqueSet" item="item" index="index" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND mt.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND mt.province in ('unknown','unkown','')
+		</if>
+		limit 0,#{end}
+	</select>
+	<!-- 根据link_id查询对应的日志记录 -->
+	<select id="findNewMtByLinkId" resultMap="MTMapper" parameterType="map">
+		SELECT app.app_name,cha.name AS
+		channel_name,mt.app_id,mt.dest_number,mt.province,mt.ext_src,mct.content,mt.send_flag,mt.provider,mt.city,mt.message_class,mt.product_id,mt.channel_msg_id,
+		mt.channel_id,mt.submit_time,mt.submit_status,mt.report_time,mt.report_status,mt.log_time,mt.link_id,mt.src_number,mt.lm_total,mt.logic_path,mt.message_id,mt.unique_id,mt.batch_id
+		from sms_log.mt_${logDate} mt left join sms_log.mt_content_${logDate} mct on mt.unique_id=mct.id
+		left join sms_core.args_channel cha on
+		mt.channel_id=cha.channel_id LEFT JOIN sms_core.ucenter_application app
+		on mt.app_id=app.id WHERE mt.link_id=#{linkId}
+	</select>
+	<!-- 查询重推状态报告 -->
+	<select id="findNewPutReportSum" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM sms_log.mt_${logDate} mt left join sms_log.mt_content_${logDate} mct on mt.unique_id=mct.id WHERE 1=1
+		<if test="appId != null and appId!=''">
+			AND mt.app_id = #{appId}
+		</if>
+		<if test="provider != null and provider!=''">
+			AND mt.provider = #{provider}
+		</if>
+		<if test="sendFlag != null and sendFlag!=''">
+			AND mt.send_flag = #{sendFlag}
+		</if>
+		<if test="uniqueId != null and uniqueId!=''">
+			AND mt.unique_id = #{uniqueId}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND mt.channel_msg_id = #{channelMsgId}
+		</if>
+		<if test="channelId != null and channelId!=''">
+			AND mt.channel_id = #{channelId}
+		</if>
+		<if test="destNumber != null and destNumber!=''">
+			AND mt.dest_number = #{destNumber}
+		</if>
+		<if test="sourceSegment != null and sourceSegment != ''">
+			AND mt.src_number = #{sourceSegment}
+		</if>
+		<if test="content != null and content!=''">
+			AND mct.content like "%"#{content,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="beginTime != null and beginTime != ''">
+			AND mt.submit_time &gt;= #{beginTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mt.submit_time &lt;= #{endTime}
+		</if>
+	</select>
+	
+</mapper>

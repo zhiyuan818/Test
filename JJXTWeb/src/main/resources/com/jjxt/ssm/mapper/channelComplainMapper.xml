@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjxt.ssm.mapper.ChannelComplainMapper">
+	<resultMap type="com.jjxt.ssm.entity.ChannelComplain" id="ChannelComplain">
+		<result column="channel_id" property="channelId" />
+		<result column="channel_name" property="channelName" />
+		<result column="app_name" property="appName" />
+		<result column="submit_count" property="submitCount" />
+		<result column="succeed_count" property="succeedCount" />
+		<result column="complain_count" property="complainCount" />
+		<result column="complain_rate" property="complainRate" />
+	</resultMap>
+
+
+	<select id="findAllLists"  parameterType="map" resultMap="ChannelComplain">
+		SELECT t.channel_id channel_id,
+		t1.`name` channel_name,
+		SUM(t.send_success_charge) submit_count,
+		SUM(t.report_delivrd_charge) succeed_count,
+		(
+		SELECT COUNT(1) FROM
+		sms_core.pre_complain t2 WHERE t2.channel_id = t.channel_id
+		AND
+		t2.submit_time BETWEEN '${beginTime} 00:00:00' AND
+		'${endTime} 23:59:59')
+		complain_count,
+		ROUND(
+		(
+		(SELECT COUNT(1) FROM sms_core.pre_complain t2
+		WHERE t2.channel_id =
+		t.channel_id
+		AND t2.submit_time BETWEEN
+		'${beginTime} 00:00:00' AND '${endTime}
+		23:59:59')
+		) /
+		SUM(t.report_delivrd_charge) * 1000000, 2) complain_rate
+		FROM
+		sms_statistic.realdata_statistic_app_channel t
+		LEFT JOIN sms_core.args_channel t1
+		ON t.channel_id = t1.channel_id
+		WHERE
+		t.log_date BETWEEN #{beginTime}
+		AND #{endTime}
+		GROUP BY
+		t.channel_id
+		HAVING
+		complain_count > 0
+
+	</select>
+
+	<select id="findListByChannelId" resultMap="ChannelComplain"
+		parameterType="map">
+		SELECT
+		t2.app_name,
+		t.channel_id,
+		t1.`name` channel_name,
+		SUM(t.send_success_charge) submit_count,
+		SUM(t.report_delivrd_charge) succeed_count,
+		(
+		SELECT
+		COUNT(1)
+		FROM
+		sms_core.pre_complain t4
+		WHERE
+		t4.channel_id = t.channel_id
+		AND t4.app_id = t.app_id
+		AND t4.submit_time BETWEEN
+		'${beginTime} 00:00:00'
+		AND '${endTime} 23:59:59'
+		) complain_count,
+		ROUND(
+		(
+		(
+		SELECT
+		COUNT(1)
+		FROM
+		sms_core.pre_complain t4
+		WHERE
+		t4.channel_id = t.channel_id
+		AND t4.app_id = t.app_id
+		AND t4.submit_time BETWEEN '${beginTime} 00:00:00'
+		AND '${endTime} 23:59:59'
+		)
+		) / SUM(t.report_delivrd_charge) * 1000000,
+		2
+		) complain_rate
+		FROM
+		sms_statistic.realdata_statistic_app_channel t
+		LEFT JOIN sms_core.args_channel t1 ON t.channel_id = t1.channel_id
+		LEFT JOIN sms_core.ucenter_application t2 ON t.app_id = t2.id
+		WHERE
+		t.channel_id = ${channelId}
+		AND t.log_date BETWEEN #{beginTime}
+		AND #{endTime}
+		GROUP BY
+		t.app_id
+		HAVING
+		complain_count > 0
+
+	</select>
+	
+	<select id="findListChannelId" resultType="int">
+	SELECT c.channel_id FROM sms_core.pre_complain c  GROUP BY c.channel_id
+	</select>
+
+</mapper>
+
+

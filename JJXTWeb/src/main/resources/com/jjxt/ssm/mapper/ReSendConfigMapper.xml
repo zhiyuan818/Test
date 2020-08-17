@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ReSendConfigMapper">
+	<resultMap type="com.jjxt.ssm.entity.ReSendConfig" id="reSendConfig">
+		<id column="id" property="id" />
+		<result column="status" property="status" />
+		<result column="id_type" property="idType" />
+		<result column="app_chan_id" property="appChannelId" />
+		<result column="company_key" property="companyKey" />
+		<result column="app_name" property="appName" />
+		<result column="msg_type" property="msgType" />
+		<result column="to_channel" property="toChannelId" />
+		<result column="channel_name" property="channelName" />
+		<result column="to_channel_name" property="toChannelName" />
+		<result column="create_time" property="createTime" />
+		<result column="ignore_chan_or_acc" property="ignoreChanOrAcc" />
+	</resultMap>
+
+	<select id="findReSendConfigByAppPageList" resultMap="reSendConfig"
+		parameterType="map">
+		SELECT 
+		lg.id,lg.app_chan_id ,lg.id_type,lg.`status`,base.company_key ,app.app_name,lg.msg_type,lg.to_channel as toChannelId,ch.`name` as to_channel_name,lg.create_time,lg.ignore_chan_or_acc 
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.ucenter_application app ON lg.app_chan_id = app.id 
+		LEFT JOIN sms_manage.ucenter_application_ext ext ON app.id = ext.app_id 
+		LEFT JOIN sms_manage.base_company base ON ext.company_id = base.id 
+		LEFT JOIN sms_core.args_channel ch ON lg.to_channel = ch.channel_id
+		WHERE 1=1
+		and lg.id_type = 'account' 
+		<if test="companyId != null and  companyId != ''">
+			and base.id = #{companyId}
+		</if>
+		<if test="appId != null and  appId != ''">
+			and lg.app_chan_id = #{appId}
+		</if>
+		<if test="toChannelId != null and  toChannelId != ''">
+			and lg.to_channel = #{toChannelId}
+		</if>
+		<if test="status != null and  status != ''">
+			and lg.status = #{status}
+		</if>
+		<if test="msgType != null and  msgType != ''">
+			and lg.msg_type = #{msgType}
+		</if>
+		order by lg.id desc
+		LIMIT #{start},#{end}
+	</select>
+	
+	<select id="findTotalByApp" resultType="int"
+		parameterType="map">
+		SELECT 
+		count(1)
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.ucenter_application app ON lg.app_chan_id = app.id 
+		LEFT JOIN sms_manage.ucenter_application_ext ext ON app.id = ext.app_id 
+		LEFT JOIN sms_manage.base_company base ON ext.company_id = base.id 
+		LEFT JOIN sms_core.args_channel ch ON lg.to_channel = ch.channel_id
+		WHERE 1=1
+		and lg.id_type = 'account' 
+		<if test="companyId != null and  companyId != ''">
+			and base.id = #{companyId}
+		</if>
+		<if test="appId != null and  appId != ''">
+			and lg.app_chan_id = #{appId}
+		</if>
+		<if test="toChannelId != null and  toChannelId != ''">
+			and lg.to_channel = #{toChannelId}
+		</if>
+		<if test="status != null and  status != ''">
+			and lg.status = #{status}
+		</if>
+		<if test="msgType != null and  msgType != ''">
+			and lg.msg_type = #{msgType}
+		</if>
+		
+	</select>
+	
+	
+	<select id="findReSendConfigByChannelPageList" resultMap="reSendConfig"
+		parameterType="map">
+		SELECT 
+		lg.id,lg.app_chan_id ,lg.id_type,ch1.`name` as channel_name,lg.`status`,lg.msg_type,lg.to_channel,ch2.`name` as to_channel_name,lg.create_time,lg.ignore_chan_or_acc
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.args_channel ch1 ON lg.app_chan_id = ch1.channel_id 
+		LEFT JOIN sms_core.args_channel ch2 ON ch2.channel_id = lg.to_channel 
+		WHERE 1=1
+		and lg.id_type = 'channel' 
+		<if test="channelId != null and  channelId != ''">
+			and lg.app_chan_id = #{channelId}
+		</if>
+		<if test="toChannelId != null and  toChannelId != ''">
+			and lg.to_channel = #{toChannelId}
+		</if>
+		<if test="status != null and  status != ''">
+			and lg.status = #{status}
+		</if>
+		<if test="msgType != null and  msgType != ''">
+			and lg.msg_type = #{msgType}
+		</if>
+		order by lg.id desc
+		LIMIT #{start},#{end}
+	</select>
+	
+	<select id="findTotalByChannel" resultType="int"
+		parameterType="map">
+		SELECT 
+		count(1)
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.args_channel ch1 ON lg.app_chan_id = ch1.channel_id 
+		LEFT JOIN sms_core.args_channel ch2 ON ch2.channel_id = lg.to_channel 
+		WHERE 1=1
+		and lg.id_type = 'channel' 
+		<if test="channelId != null and  channelId != ''">
+			and lg.app_chan_id = #{channelId}
+		</if>
+		<if test="toChannelId != null and  toChannelId != ''">
+			and lg.to_channel = #{toChannelId}
+		</if>
+		<if test="status != null and  status != ''">
+			and lg.status = #{status}
+		</if>
+		<if test="msgType != null and  msgType != ''">
+			and lg.msg_type = #{msgType}
+		</if>
+	</select>
+	
+	
+	<select id="findReSendConfigByAppId" resultMap="reSendConfig" parameterType="int">
+		SELECT 
+		lg.id,lg.app_chan_id ,lg.id_type,lg.`status`,base.company_key ,app.app_name,lg.msg_type,lg.to_channel as toChannelId,ch.`name` as to_channel_name,lg.create_time,lg.ignore_chan_or_acc 
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.ucenter_application app ON lg.app_chan_id = app.id 
+		LEFT JOIN sms_manage.ucenter_application_ext ext ON app.id = ext.app_id 
+		LEFT JOIN sms_manage.base_company base ON ext.company_id = base.id 
+		LEFT JOIN sms_core.args_channel ch ON lg.to_channel = ch.channel_id
+		WHERE 1=1
+		and lg.id_type = 'account'
+		and lg.id=#{id}
+	</select>
+	
+
+	
+	<select id="findReSendConfigByChannelId" resultMap="reSendConfig" parameterType="int">
+		SELECT 
+		lg.id,lg.app_chan_id ,lg.id_type,lg.id_type,ch1.`name` as channel_name,lg.`status`,lg.msg_type,lg.to_channel,ch2.`name` as to_channel_name,lg.create_time,lg.ignore_chan_or_acc
+		FROM 
+		sms_core.lg_resend_config lg 
+		LEFT JOIN sms_core.args_channel ch1 ON lg.app_chan_id = ch1.channel_id 
+		LEFT JOIN sms_core.args_channel ch2 ON ch2.channel_id = lg.to_channel 
+		WHERE 1=1
+		and lg.id_type = 'channel'
+		and lg.id=#{id}
+	</select>
+	
+	<update id="updateReSendConfigByAppId" parameterType="map">
+		UPDATE
+		sms_core.lg_resend_config SET `status`=#{status},
+		`app_chan_id`=#{appId}, `msg_type`=#{msgType},
+		`to_channel`=#{toChannelId},ignore_chan_or_acc=#{ignoreChanOrAcc}
+		WHERE id_type = 'account' and id=#{id}
+	</update>
+	
+	<update id="updateReSendConfigByChannelId" parameterType="map">
+		UPDATE
+		sms_core.lg_resend_config SET `status`=#{status},
+		`app_chan_id`=#{channelId}, `msg_type`=#{msgType},
+		`to_channel`=#{toChannelId},ignore_chan_or_acc=#{ignoreChanOrAcc}
+		 WHERE id_type = 'channel' and id=#{id}
+	</update>
+	
+	
+	<select id="findReSendConfigIsRepeat" resultType="int" parameterType="map">
+		SELECT 
+		count(1)
+		FROM 
+		sms_core.lg_resend_config 
+		where id_type=#{idType}
+		and `app_chan_id`=#{appChanId} 
+		and `status`=#{status}
+	</select>
+	
+	<insert id="addReSendConfig" parameterType="map">
+		INSERT INTO
+		sms_core.lg_resend_config (`status`, `app_chan_id`,
+		`id_type`, `msg_type`, `to_channel`, `create_time`
+		<if test="ignoreChanOrAcc!='' and ignoreChanOrAcc!=null">
+			,`ignore_chan_or_acc`
+		</if>
+		)
+		VALUES (#{status}, #{appChanId}, #{idType}, #{msgType}, #{toChannelId}, NOW()
+		<if test="ignoreChanOrAcc!='' and ignoreChanOrAcc!=null">
+			,#{ignoreChanOrAcc}
+		</if>
+		);
+	</insert>
+	
+	
+	<select id="findEndAddReSendConfig" resultMap="reSendConfig" parameterType="string">
+		SELECT 
+		*
+		FROM 
+		sms_core.lg_resend_config 
+		where id_type=#{idType}
+		ORDER BY id desc limit 0,1
+		
+	</select>
+	 
+	<delete id="delReSendConfig" parameterType="int">
+		DELETE FROM
+		sms_core.lg_resend_config  WHERE id=#{id}
+	</delete>
+	
+	<select id="findResendConfigByIds" parameterType="int" resultMap="reSendConfig">
+		SELECT * FROM sms_core.lg_resend_config WHERE id IN 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<delete id="delResendConfigByIdBatch" parameterType="int">
+		DELETE FROM sms_core.lg_resend_config WHERE id IN 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

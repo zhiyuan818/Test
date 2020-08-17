@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.GlobalSettingMapper">
+	<resultMap type="com.jjxt.ssm.entity.GlobalSetting" id="GlobalSettingMapper">
+		<id column="id" property="id" />
+		<result column="key" property="key" />
+		<result column="val" property="val" />
+	</resultMap>
+
+	<select id="findAll" resultMap="GlobalSettingMapper">
+		SELECT * FROM
+		sms_core.t_global_setting
+	</select>
+
+	<insert id="addToGlobalSetting" parameterType="com.jjxt.ssm.entity.GlobalSetting">
+		INSERT INTO
+		sms_core.t_global_setting (`id`, `key`, `val`,`remark`)
+		VALUES(NULL,#{key},#{val},#{remark})
+	</insert>
+
+	<delete id="deleteGlobalById" parameterType="int">
+		DELETE FROM
+		sms_core.t_global_setting WHERE id=#{id}
+	</delete>
+
+	<select id="findGlobalSettingById" resultMap="GlobalSettingMapper"
+		parameterType="int">
+		SELECT * FROM sms_core.t_global_setting WHERE id=#{id}
+	</select>
+
+	<select id="findGlobalByKey" resultType="int"
+		parameterType="com.jjxt.ssm.entity.GlobalSetting">
+		SELECT COUNT(1) FROM sms_core.t_global_setting WHERE
+		key=#{key}
+	</select>
+
+	<update id="updateGlobal" parameterType="com.jjxt.ssm.entity.GlobalSetting">
+		UPDATE
+		sms_core.t_global_setting SET `key`=#{key},val=#{val},remark=#{remark} WHERE id=#{id}
+	</update>
+	
+	<select id="findGlobalValueByKey" parameterType="string" resultType="string">
+		SELECT val FROM sms_core.t_global_setting WHERE `key`=#{key}
+	</select>	
+</mapper>

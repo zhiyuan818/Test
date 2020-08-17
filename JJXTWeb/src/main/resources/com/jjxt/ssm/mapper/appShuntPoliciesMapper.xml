@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.AppShuntPoliciesMapper">
+	<resultMap type="com.jjxt.ssm.entity.AppShuntPolicies" id="appShuntPolicies">
+		<id column="id" property="id"/>
+		<result column="app_id" property="appId"/>
+		<result column="app_Name" property="appName"/>
+		<result column="company_key" property="companyName"/>
+		<result column="ignored_provinces" property="ignoredProvinces"/>
+		<result column="ignored_carriers" property="ignoredCarriers"/>
+		<result column="ignored_pack_min" property="ignoredPackMin"/>
+		<result column="ignored_pack_head" property="ignoredPackHead"/>
+		<result column="ignored_pack_tail" property="ignoredPackTail"/>
+		<result column="app_shunt_level" property="appShuntLevel"/>
+		<result column="content" property="content"/>
+		<result column="percent" property="percent"/>
+	</resultMap>
+	
+	<select id="findAppShuntPoliciesTotalByCondition" resultType="int" parameterType="map">
+		SELECT
+	count(a.app_id)
+	FROM
+	(
+		SELECT
+			t.id,
+			t1.id AS app_id,
+			t3.company_key,
+			t1.app_name,
+			t.ignored_provinces,
+			t.ignored_carriers,
+			t.ignored_pack_min,
+			t.ignored_pack_head,
+			t.ignored_pack_tail,
+			t1.app_shunt_level
+		FROM
+			sms_core.ucenter_application t1
+		INNER JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+		INNER JOIN sms_manage.base_company t3 ON t3.id = t2.company_id
+		LEFT JOIN sms_core.t_account_shunt_policies t ON t1.id = t.app_id
+		WHERE
+			1 = 1
+		AND t1.app_shunt_level > 0
+		UNION
+			SELECT
+				t.id,
+				t1.id AS app_id,
+				t3.company_key,
+				t1.app_name,
+				t.ignored_provinces,
+				t.ignored_carriers,
+				t.ignored_pack_min,
+				t.ignored_pack_head,
+				t.ignored_pack_tail,
+				t1.app_shunt_level
+			FROM
+				sms_core.ucenter_application t1
+			INNER JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+			INNER JOIN sms_manage.base_company t3 ON t3.id = t2.company_id
+			RIGHT JOIN sms_core.t_account_shunt_policies t ON t1.id = t.app_id
+		) a where 
+		a.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+			<if test="ignoredProvinces!=null and ignoredProvinces!=''">
+				and a.ignored_provinces like "%"#{ignoredProvinces}"%"
+			</if>
+			<if test="ignoredCarriers!=null and ignoredCarriers!=''">
+				and a.ignored_carriers like "%"#{ignoredCarriers}"%"
+			</if>
+			<if test="ignoredPackMin !=null and ignoredPackMin !=''">
+                AND  at.ignored_pack_min = #{ignoredPackMin}
+			</if>
+			<if test="ignoredPackHead !=null and ignoredPackHead !=''">
+			 AND  a.ignored_pack_head = #{ignoredPackHead}
+			</if>
+			<if test="ignoredPackTail !=null and ignoredPackTail !=''">
+			 AND  a.ignored_pack_tail = #{ignoredPackTail}
+			</if>
+			<if test="appName !=null and appName !=''">
+			 AND  a.app_name = #{appName}
+			</if>
+	</select>
+	
+	<select id="findAppShuntPoliciesPageList" resultMap="appShuntPolicies" parameterType="map">
+		select a.app_id,a.app_name,a.app_shunt_level,a.company_key,a.ignored_carriers,a.ignored_pack_head,a.ignored_pack_min,a.ignored_pack_tail,a.ignored_provinces,a.content,a.percent from (SELECT
+		t.id,
+		t1.id as app_id,
+		t3.company_key,
+		t1.app_name,
+		t.ignored_provinces,
+		t.ignored_carriers,
+		t.ignored_pack_min,
+		t.ignored_pack_head,
+		t.ignored_pack_tail,
+		t1.app_shunt_level,
+		t.content,
+		t.percent
+		FROM
+		sms_core.ucenter_application t1
+		INNER JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+		INNER JOIN sms_manage.base_company t3 ON t3.id = t2.company_id LEFT JOIN 
+		sms_core.t_account_shunt_policies t on t1.id=t.app_id
+		WHERE
+			1 = 1
+		and t1.app_shunt_level > 0
+		union
+		SELECT
+		t.id,
+		t1.id as app_id,
+		t3.company_key,
+		t1.app_name,
+		t.ignored_provinces,
+		t.ignored_carriers,
+		t.ignored_pack_min,
+		t.ignored_pack_head,
+		t.ignored_pack_tail,
+		t1.app_shunt_level,
+		t.content,
+		t.percent
+		FROM
+		sms_core.ucenter_application t1
+		INNER JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+		INNER JOIN sms_manage.base_company t3 ON t3.id = t2.company_id right JOIN 
+		sms_core.t_account_shunt_policies t on t1.id=t.app_id) a  
+		where a.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="ignoredProvinces!=null and ignoredProvinces!=''">
+			and a.ignored_provinces like "%"#{ignoredProvinces}"%"
+		</if>
+		<if test="ignoredCarriers!=null and ignoredCarriers!=''">
+			and a.ignored_carriers like "%"#{ignoredCarriers}"%"
+		</if>
+		<if test="ignoredPackMin !=null and ignoredPackMin !=''">
+		 AND  a.ignored_pack_min = #{ignoredPackMin}
+		</if>
+		<if test="ignoredPackHead !=null and ignoredPackHead !=''">
+		 AND  a.ignored_pack_head = #{ignoredPackHead}
+		</if>
+		<if test="ignoredPackTail !=null and ignoredPackTail !=''">
+		 AND  a.ignored_pack_tail = #{ignoredPackTail}
+		</if>
+		<if test="appName !=null and appName !=''">
+		 AND  a.app_name = #{appName}
+		</if>
+		GROUP BY a.app_id
+		ORDER BY a.app_id DESC
+		LIMIT #{start},#{end}
+	</select>
+	
+	<insert id="addAppShuntPolicies" parameterType="com.jjxt.ssm.entity.AppShuntPolicies">
+		insert into sms_core.t_account_shunt_policies set
+		app_id=#{appId},ignored_provinces=#{ignoredProvinces},ignored_carriers=#{ignoredCarriers},ignored_pack_min=#{ignoredPackMin},
+		ignored_pack_head=#{ignoredPackHead},ignored_pack_tail=#{ignoredPackTail},content=#{content},percent=#{percent}
+		ON DUPLICATE KEY UPDATE 
+		app_id=#{appId},ignored_provinces=#{ignoredProvinces},ignored_carriers=#{ignoredCarriers},ignored_pack_min=#{ignoredPackMin},
+		ignored_pack_head=#{ignoredPackHead},ignored_pack_tail=#{ignoredPackTail},content=#{content},percent=#{percent}
+	</insert>
+	
+	<select id="findAppShuntPoliciesById" resultMap="appShuntPolicies" parameterType="int">
+		SELECT t.id,t.app_id,t1.app_name, t.ignored_provinces, t.ignored_carriers,t.ignored_pack_min,t.ignored_pack_head,t.ignored_pack_tail,t1.app_shunt_level
+		from sms_core.t_account_shunt_policies t
+		LEFT JOIN sms_core.ucenter_application t1 ON t.app_id = t1.id
+		where t.id=#{id}
+	</select>
+	
+	<select id="findAppShuntPoliciesByAppId" resultMap="appShuntPolicies" parameterType="int">
+		SELECT t.id,t1.id as app_id,t1.app_name, t.ignored_provinces, t.ignored_carriers,t.ignored_pack_min,t.ignored_pack_head,t.ignored_pack_tail,t1.app_shunt_level,t.content,t.percent
+		from sms_core.ucenter_application t1
+		LEFT JOIN sms_core.t_account_shunt_policies t ON t.app_id = t1.id
+		where t1.id=#{appId}
+	</select>
+	
+	<update id="updateAppShuntPolicies" parameterType="com.jjxt.ssm.entity.AppShuntPolicies">
+	
+		 UPDATE sms_core.t_account_shunt_policies
+	    <set>
+    	  <if test="ignoredProvinces !=null " >
+	        ignored_provinces = #{ignoredProvinces}, 
+	      </if>
+     	  <if test="ignoredCarriers !=null " >
+	        ignored_carriers = #{ignoredCarriers},
+	      </if>
+	       
+     	  <!-- <if test="ignoredPackMin !=null or  ignoredPackMin==0" > -->
+     	  <if test="ignoredPackMin !=null" >
+	        ignored_pack_min = #{ignoredPackMin},
+	      </if>
+	     <!--  <if test="ignoredPackHead !=null or  ignoredPackHead ==0" > -->
+	      <if test="ignoredPackHead !=null " >
+	        ignored_pack_head = #{ignoredPackHead},
+	      </if>
+     	  <if test="ignoredPackTail !=null " >
+	        ignored_pack_tail = #{ignoredPackTail},
+	      </if>
+	      <if test="content !=null " >
+	        content = #{content},
+	      </if>
+	      <if test="percent !=null " >
+	        percent = #{percent}
+	      </if>
+	    </set>
+	    WHERE app_id = #{appId}
+	</update>
+	
+	<delete id="deleteAppShuntPoliciesByAppId" parameterType="int">
+		DELETE FROM sms_core.t_account_shunt_policies  WHERE app_id= #{appId}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,106 @@
+package com.jjm.common.model;
+
+option java_package = "com.jjxt.ssm.entity";
+
+message Message {
+
+	optional string id = 1;
+	optional string ticket = 2;
+	optional string to = 3;
+	optional string from = 4;	
+	optional string ext = 5;
+	optional string content = 6;
+	optional string contentHash = 7;
+	optional string sign = 8;
+	optional string flag = 9;
+	optional string ref = 10;
+	optional string dateRequested = 11;
+	optional int64 priority = 12;
+	optional int32 accountId = 13;
+	optional int32 productId = 14;
+	optional int32 cls = 15;
+	optional int32 format = 16;
+	optional int64 jobId = 17;
+	optional int32 retries = 18;
+	optional int32 version = 19;
+	
+}
+
+message MtReport {
+
+	optional string channelMsgId = 1;
+	optional string from = 2;
+	optional string to = 3;
+	optional string status = 4;	
+	optional string dateReported = 5;
+	optional string dateReportGot = 6;
+	optional int64 jobId = 7;
+	optional int32 version = 8;
+	optional string sendTime = 9;
+		
+}
+
+message Mo {
+	
+	optional string messageId = 1;
+	optional string channelMsgId = 2;
+	optional string from = 3;
+	optional string to = 4;
+	optional string content = 5;	
+	optional string dateReceived = 6;
+	optional string dateMoGot = 7;
+	optional string ref = 8;
+	optional bool isBlack = 9;
+	optional int32 accountId = 10;
+	optional int32 channelId = 11;
+	optional int64 jobId = 12;
+	optional int32 version = 13;
+		
+}
+
+message Deliver {
+
+    optional int32 isReport = 1;
+	optional string messageId = 2;
+	optional string ticket = 3;
+	optional string status = 4;	
+	optional string from = 5;
+	optional string to = 6;	
+	optional string date = 7;
+	optional string ref = 8;
+	optional string content = 9;
+	optional string ext = 10;	
+	optional string channelMsgId = 11;
+	optional int32 channelId = 12;
+	optional int32 accountId = 13;
+	optional int32 isBlack = 14;
+	optional int32 pieceCount = 15;
+	optional int64 jobId = 16;
+	optional string sendTime = 17;
+		
+}
+
+message MoMatch {
+
+    optional int32 accountId = 1;
+	optional string messageId = 2;
+	optional string ticket = 3;
+	optional string ref = 4;
+		
+}
+
+message MtMatch {
+	
+    optional int32 accountId = 1;
+    optional int32 pieceCount = 2;
+	optional string messageId = 3;
+	optional string ticket = 4;
+	optional string from = 5;
+	optional string to = 6;
+	optional string ref = 7;
+	optional string ext = 8;
+	optional string sendTime = 9;
+	optional string linkId = 10;
+}
+
+

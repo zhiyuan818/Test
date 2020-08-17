@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.AccountIgnoreBlackShuntMapper">
+    <resultMap type="com.jjxt.ssm.entity.AccountIgnoreBlackShunt" id="application">
+        <id column="id" property="id"/>
+        <result column="app_id" property="appId"/>
+        <result column="app_name" property="appName"/>
+        <result column="content" property="content"/>
+        <result column="add_time" property="addTime"/>
+        <result column="level" property="level"/>
+        <result column="level_name" property="levelName"/>
+    </resultMap>
+
+    <!-- 添加用户 -->
+    <insert id="addAccountIgnoreBlackShunt" parameterType="com.jjxt.ssm.entity.AccountIgnoreBlackShunt"
+            useGeneratedKeys="true" keyProperty="id">
+		insert into sms_core.t_account_ignore_black_shunt(app_id,content,`level`,add_time) values(#{appId},#{content},#{level},now()); 
+	</insert>
+
+    <!-- id查询对象 -->
+    <select id="findAccountIgnoreBlackShuntById" resultMap="application"
+            parameterType="int">
+		select a.id,a.app_id,b.app_name,a.content,a.level,a.add_time from sms_core.t_account_ignore_black_shunt a left join sms_core.ucenter_application b on a.app_id = b.id where 1=1 and a.id=#{id}
+	</select>
+
+    <!-- 根据条件查询总数 -->
+    <select id="findTotal" resultType="int" parameterType="map">
+        select count(1) from sms_core.t_account_ignore_black_shunt  
+        where app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+        <if test="appId!=null and appId!=''">
+            and app_id = #{appId}
+        </if>
+        <if test="level!=null and level!=''">
+            and level = #{level}
+        </if>
+        <if test="content!=null and content!=''">
+            and content like "%"#{content}"%"
+        </if>
+    </select>
+
+    <select id="findAccountIgnoreBlackShuntPageList" resultMap="application"
+            parameterType="map">
+        select a.id,a.app_id,b.app_name,a.content,a.level,a.add_time from sms_core.t_account_ignore_black_shunt a left join sms_core.ucenter_application b on a.app_id = b.id 
+        where a.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="appId!=null and appId!=''">
+            and a.app_id = #{appId}
+        </if>
+		<if test="level!=null and level!=''">
+            and a.level = #{level}
+        </if>
+        <if test="content!=null and content!=''">
+            and a.content like "%"#{content}"%"
+        </if>
+        ORDER BY a.id desc
+        limit #{start},#{end}
+    </select>
+
+    <delete id="delAccountIgnoreBlackShuntById" parameterType="int">
+		delete from sms_core.t_account_ignore_black_shunt where id=#{id}
+	</delete>
+
+    <update id="updateAccountIgnoreBlackShunt" parameterType="com.jjxt.ssm.entity.AccountIgnoreBlackShunt">
+       update sms_core.t_account_ignore_black_shunt
+       <set>
+       	<if test="appId != null and appId !=''">
+       		app_id =#{appId},
+       	</if>
+       	<if test="level != null and level !=''">
+       		level =#{level},
+       	</if>
+       	<if test="content != null and content !=''">
+       		content =#{content},
+       	</if>
+       </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="findEndAdd" resultMap="application">
+		select
+		id,app_id,content,`level`,add_time
+		from sms_core.t_account_ignore_black_shunt order by id desc limit 0,1
+	</select>
+	<delete id="delAccountIgnoreBlackShuntByIdBatch">
+		DELETE FROM sms_core.t_account_ignore_black_shunt WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<select id="findAccountIgnoreBlackShuntByIds" resultMap="application"
+		parameterType="int">
+		SELECT
+		id,content,add_time,app_id,`level`
+		FROM sms_core.t_account_ignore_black_shunt
+		WHERE id IN
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	<select id="findShuntLevels" resultMap="application">
+		SELECT `level`, CASE WHEN `level`<![CDATA[<>]]>'all' THEN CONCAT(`level`,'级黑') ELSE '全局' END AS level_name FROM sms_core.t_account_ignore_black_shunt GROUP BY `level`
+	</select>
+	
+</mapper>

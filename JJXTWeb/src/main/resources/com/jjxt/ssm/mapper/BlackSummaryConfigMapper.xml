@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BlackSummaryConfigMapper">
+	<resultMap type="com.jjxt.ssm.entity.BlackSummaryConfig" id="blackSummaryConfig">
+		<id column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="type" property="type" />
+		<result column="level" property="level" />
+		<result column="result" property="result" />
+		<result column="send_flag" property="sendFlag" />
+		<result column="priority" property="priority" />
+		<result column="status" property="status" />
+		<result column="remark" property="remark" />
+		<result column="phone" property="phone" />
+	</resultMap>
+
+    <select id="findTotal" resultType="int" parameterType="map">
+		select count(1) from sms_core.pre_summary_config where 1=1
+		<if test="appId!='' and appId!=null">
+			and app_id =#{appId}
+		</if>
+		<if test="type !='' and type !=null">
+            and type=#{type}
+        </if>
+		<if test="level !=null and level.size() > 0">
+			and level in 
+			<foreach collection="level" index="index" item="level" open="("
+				separator="," close=")">
+				#{level}
+			</foreach>
+		</if>
+		<if test="result !='' and result !=null">
+            and result=#{result}
+        </if>
+        <if test="sendFlag !='' and sendFlag !=null">
+            and send_flag=#{sendFlag}
+        </if>
+		<if test="status !='' and status !=null">
+			and status =#{status}
+		</if>
+	</select>	
+	
+	<select id="findBlackSummaryConfigPageList" resultMap="blackSummaryConfig"
+		parameterType="map">
+		select psc.id,psc.app_id,psc.type,psc.level,psc.result,psc.send_flag,psc.priority,psc.status,psc.remark,app.app_name, 
+		<choose>
+            <when test="phone !='' and phone !=null">
+            	'${phone}' as phone 
+            </when>
+            <otherwise>
+	            '' as phone 
+            </otherwise>
+        </choose>
+		from sms_core.pre_summary_config psc LEFT JOIN sms_core.ucenter_application app on psc.app_id=app.id where 1=1
+		<if test="appId!='' and appId!=null">
+            and app_id =#{appId}
+        </if>
+        <if test="type !='' and type !=null">
+            and type=#{type}
+        </if>
+        <if test="level !=null and level.size() > 0">
+			and level in 
+			<foreach collection="level" index="index" item="level" open="("
+				separator="," close=")">
+				#{level}
+			</foreach>
+		</if>
+        <if test="result !='' and result !=null">
+            and result=#{result}
+        </if>
+        <if test="sendFlag !='' and sendFlag !=null">
+            and send_flag=#{sendFlag}
+        </if>
+        <if test="status !='' and status !=null">
+            and status =#{status}
+        </if>
+		order by psc.app_id,psc.priority desc
+		limit #{start},#{end}
+	</select>
+	
+	<select id="validatorAppIdAndTypeAndLevel" resultMap="blackSummaryConfig" parameterType="map">
+        select id,app_id,type,level,result,send_flag,priority,status,remark from sms_core.pre_summary_config
+        where app_id=#{appId} and type = #{type} and level = #{level}
+    </select>
+	
+	<insert id="addBlackSummaryConfig" parameterType="com.jjxt.ssm.entity.BlackSummaryConfig">
+		insert into
+		sms_core.pre_summary_config(app_id,type,level,result,send_flag,priority,status,remark) values(
+		#{appId},#{type,jdbcType=VARCHAR},#{level},#{result,jdbcType=VARCHAR},#{sendFlag,jdbcType=VARCHAR}
+		,#{priority},#{status,jdbcType=VARCHAR},#{remark,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<select id="findAddEnd" resultMap="blackSummaryConfig">
+		select
+		id,app_id,type,level,result,send_flag,priority,status,remark from sms_core.pre_summary_config ORDER BY
+		id DESC LIMIT 1;
+	</select>
+	
+	<select id="findBlackSummaryConfigById" resultMap="blackSummaryConfig"
+		parameterType="int">
+		SELECT
+		id,app_id,type,level,result,send_flag,priority,status,remark
+		FROM
+		sms_core.pre_summary_config WHERE id =#{id}
+	</select>
+	
+	<update id="updateBlackSummaryConfig" parameterType="com.jjxt.ssm.entity.BlackSummaryConfig">
+		UPDATE sms_core.pre_summary_config 
+		<set>
+			<if test="appId !=null">
+				app_id = #{appId},
+			</if>
+			<if test="type !='' and type !=null">
+				type = #{type},
+			</if>
+			<if test="level !='' and level !=null">
+                level = #{level},
+            </if>
+            <if test="result !='' and result !=null">
+                result = #{result},
+            </if>
+            <if test="sendFlag !='' and sendFlag !=null">
+                send_flag = #{sendFlag},
+            </if>
+            <if test="priority !='' and priority !=null">
+                priority = #{priority},
+            </if>
+            <if test="status !='' and status !=null">
+                status = #{status},
+            </if>
+            <if test="remark !='' and remark !=null">
+                remark = #{remark}
+            </if>
+            
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteBlackSummaryConfig" parameterType="int">
+		DELETE FROM
+		sms_core.pre_summary_config where id = #{id}
+	</delete>
+	
+	<select id="findBlackSummaryConfigByIds" resultMap="blackSummaryConfig"
+		parameterType="int">
+		SELECT
+		id,app_id,type,level,result,send_flag,priority,status,remark
+		FROM sms_core.pre_summary_config
+		WHERE id IN
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<delete id="deleteBlackSummaryConfigBatch">
+		DELETE FROM sms_core.pre_summary_config WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<update id="startSummaryConfig" parameterType="int">
+        update sms_core.pre_summary_config set `status`='normal' where id=#{id}
+    </update>
+    
+    <update id="pauseSummaryConfig" parameterType="int">
+        update sms_core.pre_summary_config set `status`='paused' where id=#{id}
+    </update>
+    
+    <update id="startSummaryConfigBatch" parameterType="int">
+        update sms_core.pre_summary_config set `status`='normal' where id in 
+        <foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+    
+	<update id="pauseSummaryConfigBatch" parameterType="int">
+        update sms_core.pre_summary_config set `status`='paused' where id in 
+        <foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+    
+    <select id="findAlllevel" resultMap="blackSummaryConfig">
+        SELECT DISTINCT `level` FROM sms_core.pre_summary_config;
+    </select>
+    
+</mapper>

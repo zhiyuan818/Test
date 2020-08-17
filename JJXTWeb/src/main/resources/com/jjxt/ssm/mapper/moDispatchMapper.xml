@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.MoDispatchMapper">
+	<resultMap type="com.jjxt.ssm.entity.Dispatch" id="MoDispatch">
+		<result column="id" property="id" />
+		<result column="app_name" property="appName" />
+		<result column="long_number" property="longNum" />
+		<result column="company_key" property="companyName" />
+	</resultMap>
+	<select id="findAllList" resultMap="MoDispatch">
+		SELECT d.id id,f.app_name app_name,d.long_number long_number,c.company_key company_key FROM
+		sms_core.args_dispatch_mo d LEFT JOIN sms_core.ucenter_application f ON
+		d.app_id=f.id LEFT JOIN sms_manage.base_company c ON d.company_id=c.id WHERE 1=1 
+		<if test="appName !=''">
+		AND f.app_name=#{appName}
+		</if>
+		<if test="longNum !=''">
+		AND d.long_number like "%"#{longNum}"%"
+		</if>
+	</select>
+
+	<insert id="addToDispatch" parameterType="map">
+		INSERT INTO sms_core.args_dispatch_mo (`id`, `sp_id`, `company_id`,
+		`app_id`, `long_number`, `command`) VALUES (NULL, 1, #{companyId},
+		#{appId}, #{longNum}, '');
+	</insert>
+
+	<select id="findTwoId" resultType="map" parameterType="string">
+		SELECT f.id appId,g.company_id companyId FROM sms_core.ucenter_application f
+		LEFT JOIN sms_manage.ucenter_application_ext g ON f.id=g.app_id WHERE
+		f.app_name=#{appName}
+	</select>
+	
+	<select id="findListById" resultType="map" parameterType="int">
+	SELECT company_id,app_id,long_number FROM sms_core.args_dispatch_mo WHERE id=#{id}
+	</select>
+	
+	<delete id="delDispatchById" parameterType="int">
+	DELETE FROM sms_core.args_dispatch_mo WHERE id=#{id}
+	</delete>
+	
+	<select id="findIdsByName" resultType="map" parameterType="string">
+	SELECT f.id appId,g.company_id companyId FROM sms_core.ucenter_application f LEFT JOIN sms_manage.ucenter_application_ext g ON f.id=g.app_id WHERE f.app_name=#{appName}
+	</select>
+	
+	<update id="updateDispatch" parameterType="map">
+	UPDATE sms_core.args_dispatch_mo d SET d.app_id=#{appId},d.company_id=#{companyId},long_number=#{longNum} WHERE d.id=#{id}
+	</update>
+	
+	<select id="findMoDispatchById" resultMap="MoDispatch">
+	SELECT d.id id,f.app_name app_name,d.long_number long_number FROM sms_core.args_dispatch_mo d LEFT JOIN sms_core.ucenter_application f ON d.app_id=f.id WHERE d.id=#{id}
+	</select>
+	
+	<select id="findMoDispatchData" resultType="int" parameterType="string">
+	SELECT COUNT(1) FROM sms_core.args_dispatch_mo WHERE long_number=#{longNum}
+	</select>
+	
+	<select id="findTotal" parameterType="map" resultType="int">
+		select count(1) from sms_core.args_dispatch_mo where 1=1 
+		<if test="num != null">
+			and long_number = #{num}
+		</if>
+		
+	</select>
+	
+	<delete id="deleteDispatch" parameterType="map">
+		delete from sms_core.args_dispatch_mo where 1=1 
+		and app_id = #{appId}
+	</delete>
+</mapper>

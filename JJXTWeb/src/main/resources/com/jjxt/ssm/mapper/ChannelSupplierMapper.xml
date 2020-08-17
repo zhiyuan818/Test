@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ChannelSupplierMapper">
+	<resultMap type="com.jjxt.ssm.entity.BaseChannelSupplier" id="baseChannelSupplier">
+		<id column="id" property="id" />
+		<result column="head" property="head" />
+		<result column="supplier_name" property="supplierName" />
+		<result column="supplier_key" property="supplierKey" />
+		<result column="supplier_type" property="supplierType" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="count" property="count" />
+	</resultMap>
+	<resultMap type="java.util.HashMap" id="linkChannel">
+		<id column="channel_id" property="channelId" />
+		<result column="name" property="channelName" />
+		<result column="channel_status" property="channelStatus" />
+		<result column="channel_price" property="channelPrice" />
+	</resultMap>
+	
+	
+	<select id="findTotalByCondition" resultType="int"
+		parameterType="map">
+		select count(1) from base_channel_supplier where 1=1
+		<if test="supplierKey !=null and supplierKey !=''">
+			and supplier_key like "%"#{supplierKey}"%"
+		</if>
+		<if test="head !=null and head !=''">
+			and head = #{head}
+		</if>
+	</select>
+	
+	<select id="findChannelSupplierPageList" resultMap="baseChannelSupplier"
+		parameterType="map">
+		select
+		b.id,b.head,b.supplier_name,b.supplier_key,b.supplier_type,b.update_time,COUNT(a.supplier_id)
+		count from sms_manage.base_channel_supplier b LEFT JOIN
+		sms_manage.args_channel_ext a on b.id=a.supplier_id where 1=1
+		<if test="supplierKey !=null and supplierKey !=''">
+			and b.supplier_key like "%"#{supplierKey}"%"
+		</if>
+		<if test="head !=null and head !=''">
+			and b.head = #{head}
+		</if>
+		GROUP BY b.id order by b.id desc limit #{start},#{end}
+	</select>
+	
+	<insert id="addChannelSupplier" parameterType="com.jjxt.ssm.entity.BaseChannelSupplier">
+		insert into
+		base_channel_supplier(head,supplier_name,supplier_key,supplier_type,create_time,update_time)
+		values(#{head},#{supplierName},#{supplierKey},#{supplierType},#{createTime},#{updateTime})
+	</insert>
+	
+	<select id="findChannelSupplierById" resultMap="baseChannelSupplier"
+		parameterType="int">
+		select id,head,supplier_name,supplier_key,supplier_type,update_time
+		from base_channel_supplier where 1=1
+		and id=#{id}
+	</select>
+	
+	<update id="updateChannelSupplier" parameterType="com.jjxt.ssm.entity.BaseChannelSupplier">
+		UPDATE base_channel_supplier
+		<set>
+			<if test="supplierName !=null and supplierName !=''">
+				supplier_name = #{supplierName},
+			</if>
+			<if test="supplierKey !=null and supplierKey !=''">
+				supplier_key = #{supplierKey},
+			</if>
+			<if test="supplierType !=null and supplierType !=''">
+				supplier_type = #{supplierType},
+			</if>
+			<if test="head !=null and head !=''">
+				head = #{head},
+			</if>
+			update_time= now(),
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findTotalByName" resultType="int"
+		parameterType="map">
+		select count(1) from base_channel_supplier where 1=1
+		<if test="supplierKey !=null and supplierKey !=''">
+			and supplier_key = #{supplierKey}
+		</if>
+		<if test="supplierName !=null and supplierName !=''">
+			and supplier_name = #{supplierName}
+		</if>
+	</select>
+
+	<select id="findLinkChannel" parameterType="int" resultMap="linkChannel">
+		SELECT
+		c.channel_id,c.`name`,c.channel_status,c.channel_price
+		FROM base_channel_supplier b
+		INNER JOIN
+		args_channel_ext e ON b.id = e.supplier_id
+		INNER JOIN
+		sms_core.args_channel c on e.channel_id=c.channel_id
+		WHERE b.id = #{id}
+		order by b.id desc
+	</select>
+	
+	<delete id="delChannelSupplierById" parameterType="int">
+		DELETE FROM
+		base_channel_supplier WHERE id=#{id}
+	</delete>
+	
+	<select id="findChannelSupplierByIds" resultMap="baseChannelSupplier" parameterType="int">
+		select id,head,supplier_name,supplier_key,supplier_type,update_time
+		from base_channel_supplier where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="delChannelSupplierBatch">
+		DELETE FROM base_channel_supplier WHERE id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	
+	<select id="findAllChannelSupplier" resultMap="baseChannelSupplier">
+		select id,head,supplier_name,supplier_key,supplier_type,create_time,update_time
+		FROM base_channel_supplier order by id desc
+	</select>
+	
+	<select id="findAllSupplierKey" resultMap="baseChannelSupplier">
+		SELECT id,supplier_key
+		FROM
+		sms_manage.base_channel_supplier;
+	</select>
+
+	<select id="findAllHead" resultMap="baseChannelSupplier">
+		SELECT head FROM
+		sms_manage.base_channel_supplier GROUP BY head;
+	</select>
+	
+	<select id="findSupplierKeyBySort" resultMap="baseChannelSupplier" parameterType="map">
+		SELECT id,supplier_key
+		FROM
+		sms_manage.base_channel_supplier b
+		WHERE
+		CASE
+			WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+				b.head = '${chineseName}'
+			WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+	</select>
+
+	<select id="findHeadBySort" resultMap="baseChannelSupplier" parameterType="map">
+		SELECT head FROM
+		sms_manage.base_channel_supplier b
+		WHERE
+		CASE
+			WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+				b.head = '${chineseName}'
+			WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+		GROUP BY head
+	</select>
+
+</mapper>

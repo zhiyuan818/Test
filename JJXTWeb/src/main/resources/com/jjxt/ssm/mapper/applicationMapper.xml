@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ApplicationMapper">
+    <resultMap type="com.jjxt.ssm.entity.Application" id="application">
+        <id column="id" property="id"/>
+        <result column="app_name" property="appName"/>
+        <result column="app_password" property="appPassword"/>
+        <result column="app_status" property="appStatus"/>
+        <result column="rpt_sync_model" property="rptSyncModel"/>
+        <result column="rpt_sync_address" property="rptSyncAddress"/>
+        <result column="mo_sync_model" property="moSyncModel"/>
+        <result column="mo_sync_address" property="moSyncAddress"/>
+        <result column="is_day_limit" property="isDayLimit"/>
+        <result column="day_limit_count" property="dayLimitCount"/>
+        <result column="is_min_limit" property="isMinLimit"/>
+        <result column="min_limit_count" property="minLimitCount"/>
+        <result column="is_day_content_limit" property="isDayContentLimit"/>
+        <result column="day_limit_content_count" property="dayLimitContentCount"/>
+        <result column="skip_must_words" property="skipMustWords"/>
+        <result column="check_words_type" property="checkWordsType"/>
+        <result column="is_model" property="isModel"/>
+        <result column="price" property="price"/>
+        <result column="price_cmcc" property="priceCmcc"/>
+        <result column="price_unicom" property="priceUnicom"/>
+        <result column="price_telecom" property="priceTelecom"/>
+        <result column="black_levels" property="blackLevel"/>
+        <result column="product_id" property="productId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="sales" property="sales"/>
+        <result column="sale_after" property="saleAfter"/>
+        <result column="default_sign" property="defaultSign"/>
+        <result column="test_model" property="testModel"/>
+        <result column="is_shunt_phone" property="isShuntPhone"/>
+        <result column="app_ext_src" property="appExtSrc"/>
+
+        <result column="app_ext_src_cmcc" property="appExtSrcCmcc"/>
+        <result column="app_ext_src_unicom" property="appExtSrcUnicom"/>
+        <result column="app_ext_src_telecom" property="appExtSrcTelecom"/>
+
+        <result column="source_segment" property="sourceSegment"/>
+        <result column="max_connection" property="maxConnection"/>
+        <result column="mo_flag" property="moFlag"/>
+        <result column="is_cont_audit" property="isContAudit"/>
+        <result column="is_ext" property="isExt"/>
+        <result column="cont_audit_count" property="contAuditCount"/>
+        <result column="limit_count" property="limitCount"/>
+        <result column="sent_count" property="sentCount"/>
+        <result column="pay_count" property="payCount"/>
+        <result column="app_shunt_level" property="appShuntLevel"/>
+        <result column="create_time" property="createTime"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_key" property="companyKey"/>
+        <result column="product_name" property="productName"/>
+        <result column="app_parent_id" property="appParentId"/>
+        <result column="app_parent_name" property="appParentName"/>
+        <result column="payment" property="payment"/>
+        <result column="charge_by" property="chargeBy"/>
+        <result column="subNum" property="subNum"/>
+        <result column="auth_ip" property="authIp"/>
+        <result column="service_time_begin" property="serviceTimeBegin"/>
+        <result column="service_time_end" property="serviceTimeEnd"/>
+        <result column="is_template" property="isTemplate"/>
+        <result column="is_month_limit" property="isMonthLimit"/>
+        <result column="month_limit_count" property="monthLimitCount"/>
+        <result column="is_day_limit_check" property="isDayLimitCheck"/>
+        <result column="is_default_sign_submit" property="isDefaultSignSubmit"/>
+        <result column="mo_source_segment" property="moSourceSegment"/>
+        <result column="app_roles" property="appRoles"/>
+        <result column="is_sgip" property="isSgip"/>
+        <result column="app_extras" property="appExtras"/>
+        <result column="redis_flag" property="redisFlag"/>
+    </resultMap>
+    <resultMap type="java.util.Map" id="appMap">
+        <id column="id" property="id"/>
+        <result column="app_name" property="appName"/>
+        <result column="app_status" property="appStatus"/>
+        <result column="limit_count" property="limitCount"/>
+        <result column="sent_count" property="sentCount"/>
+        <result column="pay_count" property="payCount"/>
+        <result column="priority" property="priority"/>
+        <result column="default_sign" property="defaultSign"/>
+        <result column="test_model" property="testModel"/>
+        <result column="payment" property="payment"/>
+        <result column="charge_by" property="chargeBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="price" property="price"/>
+        <result column="price_cmcc" property="priceCmcc"/>
+        <result column="price_telecom" property="priceTelecom"/>
+        <result column="price_unicom" property="priceUnicom"/>
+        <result column="cmcc_channel_id" property="cmccChannelId"/>
+        <result column="telecom_channel_id" property="telecomChannelId"/>
+        <result column="unicom_channel_id" property="unicomChannelId"/>
+        <result column="cmcc_channelName" property="cmccChannelName"/>
+        <result column="unicom_channelName" property="unicomChannelName"/>
+        <result column="telecom_channelName" property="telecomChannelName"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+
+    </resultMap>
+
+    <resultMap type="java.util.Map" id="accMap">
+        <id column="id" property="id"/>
+        <result column="app_name" property="name"/>
+    </resultMap>
+    <!-- 添加用户 -->
+    <insert id="addAccount" parameterType="com.jjxt.ssm.entity.Application"
+            useGeneratedKeys="true" keyProperty="id">
+		insert into
+		sms_core.ucenter_application(app_name,app_password,app_status,rpt_sync_model,rpt_sync_address,
+		mo_sync_model,mo_sync_address,is_day_limit,day_limit_count,is_min_limit,min_limit_count,
+		is_day_content_limit,day_limit_content_count,priority,skip_must_words,check_words_type,is_model,
+		limit_count,product_id,app_ext_src,app_ext_src_cmcc,app_ext_src_unicom,app_ext_src_telecom,default_sign,is_ext,source_segment,test_model,max_connection,mo_flag,is_cont_audit,
+		cont_audit_count,black_levels,service_time_begin,service_time_end,is_shunt_phone,create_time,auth_ip,payment,charge_by,is_template,
+		is_month_limit,month_limit_count,is_day_limit_check,is_default_sign_submit,mo_source_segment,redis_flag)
+		values(
+		#{appName},#{appPassword},#{appStatus},#{rptSyncModel},#{rptSyncAddress},#{moSyncModel},#{moSyncAddress},
+		#{isDayLimit},#{dayLimitCount},#{isMinLimit},#{minLimitCount},#{isDayContentLimit},#{dayLimitContentCount},
+		#{priority},#{skipMustWords},#{checkWordsType},#{isModel},#{limitCount},#{productId},#{appExtSrc},#{appExtSrcCmcc},#{appExtSrcUnicom},#{appExtSrcTelecom},
+		#{defaultSign},#{isExt},#{sourceSegment},#{testModel},#{maxConnection},#{moFlag},#{isContAudit},#{contAuditCount},
+		#{blackLevel},#{serviceTimeBegin},#{serviceTimeEnd},#{isShuntPhone},#{createTime},#{authIp},#{payment},#{chargeBy},#{isTemplate},
+		#{isMonthLimit},#{monthLimitCount},#{isDayLimitCheck},#{isDefaultSignSubmit},#{moSourceSegment},#{redisFlag})
+	</insert>
+
+    <!-- id查询对象 -->
+    <select id="findApplicationById" resultMap="application"
+            parameterType="int">
+		select
+		a.id,a.app_name,a.app_password,a.app_status,a.is_day_limit,a.day_limit_count,a.is_min_limit,a.min_limit_count,a.is_day_content_limit,a.limit_count,a.pay_count,a.sent_count,
+		a.day_limit_content_count,a.priority,a.skip_must_words,a.check_words_type,a.is_model,a.rpt_sync_model,a.service_time_begin,a.service_time_end,
+		a.black_levels,a.product_id,a.default_sign,a.test_model,a.is_shunt_phone,a.app_ext_src,a.source_segment,
+		a.rpt_sync_address,a.mo_sync_model,a.mo_sync_address,a.max_connection,a.mo_flag,a.is_cont_audit,a.cont_audit_count,
+		a.app_shunt_level,a.is_ext,a.payment,a.charge_by,a.auth_ip,a.is_template,a.is_month_limit,a.month_limit_count,a.is_day_limit_check,a.is_default_sign_submit,a.mo_source_segment,a.app_roles,a.is_sgip,a.app_extras,a.redis_flag,
+		e.price,e.price_cmcc,e.price_telecom,e.price_unicom,e.company_id,e.app_parent_id,f.product_name,c.company_name,c.company_key,(select s.app_name from sms_core.ucenter_application s where s.id= e.app_parent_id) as app_parent_name,(select count(1) from sms_manage.ucenter_application_ext uae where uae.app_parent_id=a.id) as subNum
+		from sms_core.ucenter_application a
+		INNER JOIN sms_manage.ucenter_application_ext e on a.id=e.app_id
+		LEFT JOIN sms_core.fors_product f on a.product_id=f.id
+		LEFT JOIN sms_manage.base_company c on e.company_id=c.id
+		where a.id=#{id}
+	</select>
+
+    <!-- 根据条件查询总数 -->
+    <select id="findTotalByCondition" resultType="int"
+            parameterType="map">
+        select count(1) from sms_core.ucenter_application f
+        LEFT JOIN sms_manage.ucenter_application_ext e on f.id=e.app_id
+        LEFT JOIN sms_manage.base_company c on e.company_id=c.id
+        LEFT JOIN sms_core.fors_product as p on f.product_id=p.id
+        where 1=1
+        <if test="appId!=null and appId!=''">
+            and f.id=#{appId}
+        </if>
+        <if test="validator!=null and validator!=''">
+            and f.app_name =#{validator}
+        </if>
+        <if test="validatorAppExt!=null and validatorAppExt!=''">
+            and f.app_ext_src =#{validatorAppExt}
+        </if>
+        <if test="validatorId!=null and validatorId!=''">
+            and f.id !=#{validatorId}
+        </if>
+        <if test="appStatus!=null and appStatus!=''">
+            and f.app_status = #{appStatus}
+        </if>
+        <if test="productId!=null and productId!=''">
+            and f.product_id = #{productId}
+        </if>
+        <if test="companyId!=null and companyId!=''">
+            and c.id=#{companyId}
+        </if>
+        <if test="channelId!=null and channelId!=''">
+            and #{channelId} in (p.cmcc_channel_id,unicom_channel_id,telecom_channel_id,unknown_channel_id)
+        </if>
+        <if test="appExtSrc!=null and appExtSrc!=''">
+            and f.app_ext_src=#{appExtSrc}
+        </if>
+        <if test="sales !=null and sales !=''">
+            and c.sales=#{sales}
+        </if>
+        <if test="saleAfter !=null and saleAfter !=''">
+            and c.sale_after=#{saleAfter}
+        </if>
+    </select>
+
+    <select id="findAccoutPageList" resultMap="application"
+            parameterType="map">
+        select
+        a.id,a.app_name,a.app_status,a.is_day_limit,a.day_limit_count,a.is_min_limit,a.min_limit_count,a.is_day_content_limit,a.limit_count,a.sent_count,
+        a.day_limit_content_count,a.priority,a.skip_must_words,a.check_words_type,a.is_model,a.rpt_sync_model,
+        a.black_levels,a.product_id,a.default_sign,a.test_model,a.is_shunt_phone,a.app_ext_src,a.source_segment,
+        a.rpt_sync_address,a.mo_sync_model,a.mo_sync_address,a.max_connection,a.mo_flag,a.is_cont_audit,a.cont_audit_count,
+        a.app_shunt_level,a.is_ext,a.payment,a.charge_by,a.create_time,a.app_roles,
+        e.price,e.price_cmcc,e.price_telecom,e.price_unicom,e.company_id,e.app_parent_id,f.product_name,c.company_name,c.company_key,c.sales,c.sale_after,(select
+        s.app_name from sms_core.ucenter_application s where s.id= e.app_parent_id) as app_parent_name
+        from sms_core.ucenter_application a INNER JOIN
+        sms_manage.ucenter_application_ext e
+        on a.id=e.app_id
+        LEFT JOIN sms_core.fors_product f on a.product_id=f.id
+        LEFT JOIN
+        sms_manage.base_company c on e.company_id=c.id
+        where 1=1
+        <if test="appId!=null and appId!=''">
+            and a.id=#{appId}
+        </if>
+        <if test="appStatus!=null and appStatus!=''">
+            and a.app_status = #{appStatus}
+        </if>
+        <if test="productId!=null and productId!=''">
+            and a.product_id = #{productId}
+        </if>
+        <if test="companyId!=null and companyId!=''">
+            and c.id=#{companyId}
+        </if>
+        <if test="channelId!=null and channelId!=''">
+            and #{channelId} in (f.cmcc_channel_id,f.unicom_channel_id,f.telecom_channel_id,f.unknown_channel_id)
+        </if>
+        <if test="appExtSrc!=null and appExtSrc!=''">
+            and a.app_ext_src=#{appExtSrc}
+        </if>
+        <if test="sales !=null and sales !=''">
+            and c.sales=#{sales}
+        </if>
+        <if test="saleAfter !=null and saleAfter !=''">
+            and c.sale_after=#{saleAfter}
+        </if>
+        ORDER BY a.id desc
+        limit #{start},#{end}
+    </select>
+
+    <delete id="deleteAccountById" parameterType="int">
+		DELETE
+		sms_core.ucenter_application,ucenter_application_ext FROM
+		sms_core.ucenter_application inner JOIN ucenter_application_ext
+		ON
+		sms_core.ucenter_application.id = ucenter_application_ext.app_id
+		WHERE
+		sms_core.ucenter_application.id= #{id}
+	</delete>
+
+    <update id="updateAccount" parameterType="com.jjxt.ssm.entity.Application">
+        UPDATE sms_core.ucenter_application
+        <set>
+            <if test="appStatus!=null and appStatus!=''">
+                app_status = #{appStatus},
+            </if>
+            <if test="isDayLimit!=null and isDayLimit!=''">
+                is_day_limit = #{isDayLimit},
+            </if>
+            <if test="dayLimitCount!=null">
+                day_limit_count = #{dayLimitCount},
+            </if>
+            <if test="isMinLimit!=null and isMinLimit!=''">
+                is_min_limit = #{isMinLimit},
+            </if>
+            <if test="minLimitCount!=null">
+                min_limit_count = #{minLimitCount},
+            </if>
+            <if test="isDayContentLimit!=null and isDayContentLimit!=''">
+                is_day_content_limit = #{isDayContentLimit},
+            </if>
+            <if test="dayLimitContentCount!=null">
+                day_limit_content_count = #{dayLimitContentCount},
+            </if>
+            <if test="rptSyncModel!=null and rptSyncModel!=''">
+                rpt_sync_model = #{rptSyncModel},
+            </if>
+            <if test="rptSyncAddress!=null">
+                rpt_sync_address = #{rptSyncAddress},
+            </if>
+            <if test="moSyncModel!=null and moSyncModel!=''">
+                mo_sync_model = #{moSyncModel},
+            </if>
+            <if test="moSyncAddress!=null">
+                mo_sync_address = #{moSyncAddress},
+            </if>
+            <if test="priority!=null and priority!=''">
+                priority = #{priority},
+            </if>
+            <if test="isExt!=null">
+                is_ext = #{isExt},
+            </if>
+            <if test="skipMustWords!=null and skipMustWords!=''">
+                skip_must_words = #{skipMustWords},
+            </if>
+            <if test="isModel!=null and isModel!=''">
+                is_model = #{isModel},
+            </if>
+            <if test="checkWordsType!=null and checkWordsType!=''">
+                check_words_type = #{checkWordsType},
+            </if>
+            <if test="blackLevel!=null">
+                black_levels = #{blackLevel},
+            </if>
+            <if test="productId!=null and productId!=''">
+                product_id = #{productId},
+            </if>
+            <if test="defaultSign!=null and defaultSign!=''">
+                default_sign = #{defaultSign},
+            </if>
+            <if test="isShuntPhone!=null and isShuntPhone!=''">
+                is_shunt_phone = #{isShuntPhone},
+            </if>
+            <if test="appExtSrc!=null">
+                app_ext_src = #{appExtSrc},
+            </if>
+            <if test="appExtSrcCmcc !=null">
+                app_ext_src_cmcc = #{appExtSrcCmcc},
+            </if>
+            <if test="appExtSrcUnicom !=null">
+                app_ext_src_unicom = #{appExtSrcUnicom},
+            </if>
+            <if test="appExtSrcTelecom !=null">
+                app_ext_src_telecom = #{appExtSrcTelecom},
+            </if>
+            <if test="sourceSegment!=null">
+                source_segment = #{sourceSegment},
+            </if>
+            <if test="maxConnection!=null and maxConnection!=''">
+                max_connection = #{maxConnection},
+            </if>
+            <if test="moFlag!=null">
+                mo_flag = #{moFlag},
+            </if>
+            <if test="isContAudit!=null and isContAudit!=''">
+                is_cont_audit = #{isContAudit},
+            </if>
+            <if test="contAuditCount!=null">
+                cont_audit_count = #{contAuditCount},
+            </if>
+            <if test="appShuntLevel!=null and appShuntLevel!=''">
+                app_shunt_level = #{appShuntLevel},
+            </if>
+            <if test="testModel!=null and testModel!=''">
+                test_model = #{testModel},
+            </if>
+            <if test="chargeBy!=null and chargeBy!=''">
+                charge_by = #{chargeBy},
+            </if>
+            <if test="payment!=null and payment!=''">
+                payment = #{payment},
+            </if>
+            <if test="authIp!=null">
+                auth_ip = #{authIp},
+            </if>
+            <if test="serviceTimeBegin!=null and serviceTimeBegin!=''">
+                service_time_begin = #{serviceTimeBegin},
+            </if>
+            <if test="serviceTimeEnd!=null and serviceTimeEnd!=''">
+                service_time_end = #{serviceTimeEnd},
+            </if>
+            <if test="isTemplate!=null and isTemplate!=''">
+                is_template = #{isTemplate},
+            </if>
+            <if test="isMonthLimit!=null and isMonthLimit!=''">
+                is_month_limit = #{isMonthLimit},
+            </if>
+            <if test="monthLimitCount!=null">
+                month_limit_count = #{monthLimitCount},
+            </if>
+            <if test="isDayLimitCheck !=null and isDayLimitCheck!=''">
+                is_day_limit_check = #{isDayLimitCheck},
+            </if>
+            <if test="isDefaultSignSubmit!=null and isDefaultSignSubmit!=''">
+                is_default_sign_submit = #{isDefaultSignSubmit},
+            </if>
+            <if test="moSourceSegment!=null">
+                mo_source_segment = #{moSourceSegment},
+            </if>
+            <if test="appRoles!=null">
+                app_roles = #{appRoles},
+            </if>
+            <if test=" isSgip !=null">
+                is_sgip = #{isSgip},
+            </if>
+            <if test=" appExtras !=null">
+                app_extras = #{appExtras},
+            </if>
+            <if test="redisFlag != null">
+            	redis_flag = #{redisFlag}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAccountExt" parameterType="com.jjxt.ssm.entity.Application">
+        UPDATE ucenter_application_ext
+        <set>
+            price = #{price},
+            price_unicom = #{priceUnicom},
+            price_cmcc = #{priceCmcc},
+            price_telecom = #{priceTelecom},
+            <if test="companyId!=null and companyId!=''">
+                company_id = #{companyId}
+            </if>
+        </set>
+        WHERE app_id = #{id}
+    </update>
+    <update id="updateSubAccountCompany" parameterType="com.jjxt.ssm.entity.Application">
+        UPDATE ucenter_application_ext
+        <set>
+            <if test="companyId!=null and companyId!=''">
+                company_id = #{companyId}
+            </if>
+        </set>
+        WHERE app_parent_id = #{id}
+    </update>
+
+    <!-- 帐户充值 -->
+    <update id="chargeAccount" parameterType="com.jjxt.ssm.entity.Application">
+        UPDATE sms_core.ucenter_application
+        <set>
+            limit_count = limit_count + #{payCount},
+            pay_count = pay_count +
+            #{payCount}
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="findAppName" resultMap="application">
+		SELECT id,app_name from
+		sms_core.ucenter_application where app_status != 'deleted' ORDER BY id DESC
+	</select>
+
+    <select id="findAppByName" resultType="int" parameterType="string">
+		SELECT COUNT(1) FROM sms_core.ucenter_application WHERE
+		app_name=#{appName}
+	</select>
+
+    <!-- 查询所有1级帐户 -->
+    <select id="findAllParent" resultMap="application">
+		SELECT t.id,t.app_name
+		FROM
+		sms_core.ucenter_application t
+		INNER JOIN sms_manage.ucenter_application_ext t1 ON
+		t.id = t1.app_id
+		WHERE
+		t1.app_parent_id = 0
+	</select>
+
+    <insert id="addAccountExt" parameterType="com.jjxt.ssm.entity.Application">
+		insert into
+		ucenter_application_ext(company_id,app_id,app_parent_id,price,price_cmcc,price_unicom,
+		price_telecom)
+		values(#{companyId},#{id},#{appParentId},#{price},#{priceCmcc},#{priceUnicom},#{priceTelecom})
+	</insert>
+
+    <select id="findCompanyNameById" resultType="string"
+            parameterType="int">
+		select com.company_name from sms_manage.base_company com
+		LEFT JOIN sms_manage.ucenter_application_ext ext on
+		com.id=ext.company_id where app_id=#{id}
+	</select>
+
+    <select id="findEndAdd" resultMap="application">
+		select
+		id,app_name,app_password,app_status,rpt_sync_model,rpt_sync_address,
+		mo_sync_model,mo_sync_address,is_day_limit,day_limit_count,is_min_limit,min_limit_count,
+		is_day_content_limit,day_limit_content_count,priority,skip_must_words,check_words_type,is_model,
+		limit_count,product_id,app_ext_src,default_sign,is_ext,source_segment,test_model,max_connection,is_cont_audit,
+		cont_audit_count,black_levels,service_time_begin,service_time_end,is_shunt_phone,app_shunt_level,create_time,is_template,is_month_limit,month_limit_count,is_day_limit_check,is_default_sign_submit,mo_source_segment
+		from sms_core.ucenter_application order by id desc limit 0,1
+	</select>
+
+    <select id="findChildByParentId" resultMap="application"
+            parameterType="int">
+		SELECT t.id,t.app_name
+		FROM sms_core.ucenter_application
+		t
+		INNER JOIN ucenter_application_ext t1 ON t.id = t1.app_id
+		WHERE
+		t1.app_parent_id =#{id}
+	</select>
+
+
+    <select id="findAccountSub" resultMap="application"
+            parameterType="int">
+		select
+		a.id,a.app_name,a.app_status,a.is_day_limit,a.day_limit_count,a.is_min_limit,a.min_limit_count,a.is_day_content_limit,a.limit_count,
+		a.day_limit_content_count,a.priority,a.skip_must_words,a.check_words_type,a.is_model,a.rpt_sync_model,
+		a.black_levels,a.product_id,a.default_sign,a.test_model,a.is_shunt_phone,a.app_ext_src,a.source_segment,
+		a.rpt_sync_address,a.mo_sync_model,a.mo_sync_address,a.max_connection,a.is_cont_audit,a.cont_audit_count,
+		a.app_shunt_level,a.is_ext,a.is_template,a.is_month_limit,a.month_limit_count,a.is_day_limit_check,a.is_default_sign_submit,a.mo_source_segment,a.is_sgip,a.app_extras,
+		e.price,e.price_cmcc,e.price_telecom,e.price_unicom,e.company_id
+		from
+		sms_core.ucenter_application a INNER JOIN
+		sms_manage.ucenter_application_ext e
+		on a.id=e.app_id where
+		e.app_parent_id=#{id}
+	</select>
+
+    <update id="chargeAccountShuntPolicies" parameterType="map">
+        UPDATE sms_core.ucenter_application
+        <set>
+            app_shunt_level = #{appShuntLevel}
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="findAccountSet" parameterType="java.util.Set" resultMap="application">
+        select
+        a.id,a.app_name,a.app_password,a.app_status,a.is_day_limit,a.day_limit_count,a.is_min_limit,a.min_limit_count,a.is_day_content_limit,a.limit_count,
+        a.day_limit_content_count,a.priority,a.skip_must_words,a.check_words_type,a.is_model,a.rpt_sync_model,
+        a.black_levels,a.product_id,a.default_sign,a.test_model,a.is_shunt_phone,a.app_ext_src,a.source_segment,
+        a.rpt_sync_address,a.mo_sync_model,a.mo_sync_address,a.max_connection,a.mo_flag,a.is_cont_audit,a.cont_audit_count,
+        a.app_shunt_level,a.is_ext,a.payment,a.charge_by,a.auth_ip,a.is_template,a.is_month_limit,a.month_limit_count,a.is_day_limit_check,a.is_default_sign_submit,a.mo_source_segment,
+        e.price,e.price_cmcc,e.price_telecom,e.price_unicom,e.company_id,e.app_parent_id,f.product_name,c.company_name,c.company_key,(select
+        s.app_name from sms_core.ucenter_application s where s.id= e.app_parent_id) as app_parent_name,(select count(1)
+        from sms_manage.ucenter_application_ext uae where uae.app_parent_id=a.id) as subNum
+        from sms_core.ucenter_application a INNER JOIN
+        sms_manage.ucenter_application_ext e
+        on a.id=e.app_id LEFT JOIN
+        sms_core.fors_product f on a.product_id=f.id
+        LEFT JOIN
+        sms_manage.base_company c on e.company_id=c.id where
+        a.id in
+        <foreach collection="set" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDetailByName" resultMap="appMap" parameterType="string">
+	SELECT t.id,t.app_name,t.app_status,t.limit_count,t.sent_count,t.pay_count,t.priority,t.default_sign,t.test_model,t.payment,
+		t.charge_by,t.create_time,t.price,t.price_cmcc,t.price_telecom,t.price_unicom,t.cmcc_channel_id,t.telecom_channel_id,
+t.unicom_channel_id,t.product_id,t.product_name,(SELECT c.`name` FROM sms_core.args_channel c WHERE c.channel_id=t.cmcc_channel_id) AS cmcc_channelName,
+(SELECT c.`name` FROM sms_core.args_channel c WHERE c.channel_id=t.unicom_channel_id) AS unicom_channelName,
+(SELECT c.`name` FROM sms_core.args_channel c WHERE c.channel_id=t.telecom_channel_id) AS telecom_channelName
+
+FROM (select a.id,a.app_name,a.app_status,a.limit_count,a.sent_count,a.pay_count,a.priority,
+		a.product_id,p.product_name,(SELECT p.cmcc_channel_id FROM sms_core.fors_product p WHERE p.id=a.product_id) AS cmcc_channel_id,
+(SELECT p.unicom_channel_id FROM sms_core.fors_product p WHERE p.id=a.product_id) AS unicom_channel_id,
+(SELECT p.telecom_channel_id FROM sms_core.fors_product p WHERE p.id=a.product_id) AS telecom_channel_id,
+a.default_sign,a.test_model,
+		a.payment,a.charge_by,a.create_time,
+		e.price,e.price_cmcc,e.price_telecom,e.price_unicom
+		from sms_core.ucenter_application a LEFT JOIN
+		sms_manage.ucenter_application_ext e 
+		on a.id=e.app_id LEFT JOIN sms_core.fors_product p ON a.product_id=p.id where app_id=#{appId}) t
+	</select>
+
+    <select id="findAccount" resultMap="accMap">
+		select id,app_name from sms_core.ucenter_application 
+	</select>
+
+    <select id="findAppIdByCompanyId" parameterType="string" resultType="string">
+		select app_id from sms_manage.ucenter_application_ext where company_id=#{companyId}
+	</select>
+	
+	<select id="findAppNameBySort" resultMap="application" parameterType="map">
+		SELECT a.id,a.app_name from
+		sms_core.ucenter_application a
+		INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+		LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+		where 
+		CASE
+			WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+				c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+			WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+		and app_status != 'deleted' ORDER BY id DESC
+	</select>
+
+</mapper>

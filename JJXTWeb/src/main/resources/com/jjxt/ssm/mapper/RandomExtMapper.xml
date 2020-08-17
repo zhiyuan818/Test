@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.RandomExtMapper">
+	<resultMap type="com.jjxt.ssm.entity.RandomExt" id="randomExt">
+		<id column="id" property="id" />
+		<result column="random_ext" property="randomExt" />
+		<result column="msgext" property="msgext" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="updatetime" property="updateTime" />
+	</resultMap>
+	
+	
+	<select id="findRandomExtTotal" resultType="int" parameterType="map">
+		SELECT count(1) FROM
+		sms_core.t_ranext_msgext r 
+		LEFT JOIN sms_core.ucenter_application t ON r.app_id = t.id
+		where 1=1 
+		<if test="appId !=null and appId !=''">
+			and r.app_id = #{appId}
+		</if>
+		<if test="randomExt !=null and randomExt !=''">
+			and r.random_ext like "%"#{randomExt}"%"
+		</if>
+		<if test="msgext !=null and msgext !=''">
+			and r.msgext like "%"#{msgext}"%"
+		</if>
+	</select>
+
+	<select id="findRandomExtPageList" resultMap="randomExt" parameterType="map">
+		SELECT r.id,r.random_ext,r.msgext,r.app_id,t.app_name,r.updatetime FROM
+		sms_core.t_ranext_msgext r 
+		LEFT JOIN sms_core.ucenter_application t ON r.app_id = t.id
+		where 1=1 
+		<if test="appId !=null and appId !=''">
+			and r.app_id = #{appId}
+		</if>
+		<if test="randomExt !=null and randomExt !=''">
+			and r.random_ext like "%"#{randomExt}"%"
+		</if>
+		<if test="msgext !=null and msgext !=''">
+			and r.msgext like "%"#{msgext}"%"
+		</if>
+		 order by id desc
+		LIMIT #{start},#{end}
+	</select>
+	
+	<select id="findRandomExtById" resultMap="randomExt"
+		parameterType="int">
+		SELECT r.id,r.random_ext,r.msgext,r.app_id,t.app_name,r.updatetime FROM
+		sms_core.t_ranext_msgext r 
+		LEFT JOIN sms_core.ucenter_application t ON r.app_id = t.id
+		WHERE r.id=#{id}
+	</select>
+	
+	<delete id="deleteRandomExtById" parameterType="int">
+		DELETE FROM
+		sms_core.t_ranext_msgext WHERE id=#{id}
+	</delete>
+	
+	<select id="findRandomExtByIds" resultMap="randomExt" parameterType="int">
+		SELECT r.id,r.random_ext,r.msgext,r.app_id,t.app_name,r.updatetime FROM
+		sms_core.t_ranext_msgext r 
+		LEFT JOIN sms_core.ucenter_application t ON r.app_id = t.id
+		WHERE r.id in
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="delRandomExtBatch">
+		DELETE FROM sms_core.t_ranext_msgext WHERE id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	
+</mapper>
+
+
+

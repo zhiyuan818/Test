@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BillingMapper">
+	<resultMap type="com.jjxt.ssm.entity.Statistics" id="statistics">
+		<id column="id" property="id" />
+		<result column="log_date" property="logDate" />
+		<result column="app_id" property="appId" />
+		<result column="provider" property="provider" />
+		<result column="send_total_charge" property="sendTotalCharge" />
+		<result column="report_delivrd_charge" property="reportDelivrdCharge" />
+		<result column="report_undeliv_charge" property="reportUndelivCharge" />
+		<result column="report_unknown_charge" property="reportUnknownCharge" />
+		<result column="app_name" property="appName" />
+		<result column="app_price" property="appPrice" />
+		<result column="company_id" property="companyId" />
+		<result column="company_name" property="companyName" />
+	</resultMap>
+	
+	<select id="findStatisticSum" parameterType="map" resultMap="statistics">
+		SELECT a.id as app_id,a.app_name as app_name,ae.price as appPrice,ae.company_id,c.company_name,
+		<if test="selectType == 2">
+		d.provider,
+		</if>
+		sum(d.send_total_charge) as
+		send_total_charge,sum(d.report_delivrd_charge) as
+		report_delivrd_charge,sum(d.report_undeliv_charge) as
+		report_undeliv_charge,sum(d.report_unknown_charge) as
+		report_unknown_charge
+		FROM
+		sms_statistic.data_statistic_app_provider d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 1=1
+		<if test="companyId !=null and companyId !=''">
+			AND ae.company_id = #{companyId}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+		group by d.app_id
+		<if test="selectType == 2">
+		,d.provider
+		</if>
+	</select>
+	
+	<select id="findStatistic" parameterType="map" resultMap="statistics">
+		SELECT d.log_date,a.id as app_id,a.app_name as app_name,ae.price as appPrice,
+		<if test="selectType == 2">
+			d.provider,
+		</if>
+		sum(d.send_total_charge) as
+		send_total_charge,sum(d.report_delivrd_charge) as
+		report_delivrd_charge,sum(d.report_undeliv_charge) as
+		report_undeliv_charge,sum(d.report_unknown_charge) as
+		report_unknown_charge
+		FROM
+		sms_statistic.data_statistic_app_provider d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 1=1
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+		group by d.log_date
+		<if test="selectType == 2">
+			,d.provider
+		</if>
+	</select>
+	
+	<select id="validatorBillAccount" parameterType="map" resultType="int">
+		SELECT COUNT(1) FROM sms_core.ucenter_application uc 
+		LEFT JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+		WHERE 1=1
+			AND uc.app_name = #{appName}
+			AND ext.company_id = #{companyId}
+	</select>
+	
+</mapper>

@@ -1,0 +1,1465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.GrossProfitMapper">
+	<resultMap type="com.jjxt.ssm.entity.Statistics" id="statistics">
+		<result column="app_id" property="appId" />
+		<result column="channel_id" property="channelId" />
+		<result column="provider" property="provider" />
+		<result column="company_key" property="companyKey" />
+		<result column="app_name" property="appName" />
+		<result column="channel_name" property="channelName" />
+		<result column="product_id" property="productId" />
+		<result column="product_name" property="productName" />
+		<result column="app_price" property="appPrice" />
+		<result column="channel_price" property="channelPrice" />
+		<result column="profit" property="profit" />
+		<result column="type" property="type" />
+	</resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.Application" id="application">
+        <id column="id" property="id"/>
+        <result column="app_name" property="appName"/>
+        <result column="app_password" property="appPassword"/>
+        <result column="app_status" property="appStatus"/>
+        <result column="rpt_sync_model" property="rptSyncModel"/>
+        <result column="rpt_sync_address" property="rptSyncAddress"/>
+        <result column="mo_sync_model" property="moSyncModel"/>
+        <result column="mo_sync_address" property="moSyncAddress"/>
+        <result column="is_day_limit" property="isDayLimit"/>
+        <result column="day_limit_count" property="dayLimitCount"/>
+        <result column="is_min_limit" property="isMinLimit"/>
+        <result column="min_limit_count" property="minLimitCount"/>
+        <result column="is_day_content_limit" property="isDayContentLimit"/>
+        <result column="day_limit_content_count" property="dayLimitContentCount"/>
+        <result column="skip_must_words" property="skipMustWords"/>
+        <result column="check_words_type" property="checkWordsType"/>
+        <result column="is_model" property="isModel"/>
+        <result column="price" property="price"/>
+        <result column="price_cmcc" property="priceCmcc"/>
+        <result column="price_unicom" property="priceUnicom"/>
+        <result column="price_telecom" property="priceTelecom"/>
+        <result column="black_levels" property="blackLevel"/>
+        <result column="product_id" property="productId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="default_sign" property="defaultSign"/>
+        <result column="test_model" property="testModel"/>
+        <result column="is_shunt_phone" property="isShuntPhone"/>
+        <result column="app_ext_src" property="appExtSrc"/>
+
+        <result column="app_ext_src_cmcc" property="appExtSrcCmcc"/>
+        <result column="app_ext_src_unicom" property="appExtSrcUnicom"/>
+        <result column="app_ext_src_telecom" property="appExtSrcTelecom"/>
+
+        <result column="source_segment" property="sourceSegment"/>
+        <result column="max_connection" property="maxConnection"/>
+        <result column="mo_flag" property="moFlag"/>
+        <result column="is_cont_audit" property="isContAudit"/>
+        <result column="is_ext" property="isExt"/>
+        <result column="cont_audit_count" property="contAuditCount"/>
+        <result column="limit_count" property="limitCount"/>
+        <result column="sent_count" property="sentCount"/>
+        <result column="pay_count" property="payCount"/>
+        <result column="app_shunt_level" property="appShuntLevel"/>
+        <result column="create_time" property="createTime"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_key" property="companyKey"/>
+        <result column="product_name" property="productName"/>
+        <result column="app_parent_id" property="appParentId"/>
+        <result column="app_parent_name" property="appParentName"/>
+        <result column="payment" property="payment"/>
+        <result column="charge_by" property="chargeBy"/>
+        <result column="subNum" property="subNum"/>
+        <result column="auth_ip" property="authIp"/>
+        <result column="service_time_begin" property="serviceTimeBegin"/>
+        <result column="service_time_end" property="serviceTimeEnd"/>
+        <result column="is_template" property="isTemplate"/>
+        <result column="is_month_limit" property="isMonthLimit"/>
+        <result column="month_limit_count" property="monthLimitCount"/>
+        <result column="is_day_limit_check" property="isDayLimitCheck"/>
+        <result column="is_default_sign_submit" property="isDefaultSignSubmit"/>
+        <result column="mo_source_segment" property="moSourceSegment"/>
+        <result column="app_roles" property="appRoles"/>
+    </resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.LgModelSend" id="lgModelSend">
+		<id column="id" property="id" />
+		<result column="cmcc_channel_id" property="cmccChannelId" />
+		<result column="cmcc_channel_name" property="cmccChannelName" />
+		<result column="unicom_channel_id" property="unicomChannelId" />
+		<result column="unicom_channel_name" property="unicomChannelName" />
+		<result column="telecom_channel_id" property="telecomChannelId" />
+		<result column="telecom_channel_name" property="telecomChannelName" />
+		<result column="content" property="content" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.Template" id="template">
+		<id column="id" property="id" />
+		<result column="template_info" property="templateInfo"/>
+		<result column="strategy" property="strategy"/>
+		<result column="result" property="result"/>
+		<result column="app_id" property="appId"/>
+		<result column="app_name" property="appName"/>
+		<result column="key_word" property="keyWord"/>
+		<result column="rule" property="rule"/>
+		<result column="rule_index" property="ruleIndex"/>
+	</resultMap>
+	
+	<select id="findAccountProfitList" resultMap="statistics" parameterType="map">
+		SELECT
+	m.company_key,
+	m.app_id,
+	m.app_name,
+	m.channel_id,
+	m.channel_name,
+	m.type,
+	m.provider,
+	FORMAT(m.app_price, 2) AS app_price,
+	m.channel_price,
+	FORMAT(
+		m.app_price - m.channel_price,
+		2
+	) AS profit
+FROM
+	(
+		SELECT
+			base.company_key,
+			uc.id AS app_id,
+			uc.app_name,
+			fo.cmcc_channel_id AS channel_id,
+			ar. NAME AS channel_name,
+			'主用' AS type,
+			'cmcc' AS provider,
+			(
+				CASE
+				WHEN ext.price != 0 THEN
+					ext.price
+				ELSE
+					ext.price_cmcc
+				END
+			) AS app_price,
+			ar.channel_price
+		FROM
+			sms_core.ucenter_application uc
+		INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+		INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+		INNER JOIN sms_core.args_channel ar ON fo.cmcc_channel_id = ar.channel_id
+		INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+		WHERE
+			fo.product_status = 'normal'
+		AND ar.channel_status = 'normal'
+		AND uc.app_status = 'normal'
+		AND ar.to_cmcc = 'yes'
+		AND ar.channel_id != 0
+		UNION
+			SELECT
+				base.company_key,
+				uc.id AS app_id,
+				uc.app_name,
+				fo.unicom_channel_id AS channel_id,
+				ar. NAME AS channel_name,
+				'主用' AS type,
+				'unicom' AS provider,
+				(
+					CASE
+					WHEN ext.price != 0 THEN
+						ext.price
+					ELSE
+						ext.price_unicom
+					END
+				) AS app_price,
+				ar.channel_price
+			FROM
+				sms_core.ucenter_application uc
+			INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+			INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+			INNER JOIN sms_core.args_channel ar ON fo.unicom_channel_id = ar.channel_id
+			INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+			WHERE
+				fo.product_status = 'normal'
+			AND ar.channel_status = 'normal'
+			AND uc.app_status = 'normal'
+			AND ar.to_unicom = 'yes'
+			AND ar.channel_id != 0
+			UNION
+				SELECT
+					base.company_key,
+					uc.id AS app_id,
+					uc.app_name,
+					fo.telecom_channel_id AS channel_id,
+					ar. NAME AS channel_name,
+					'主用' AS type,
+					'telecom' AS provider,
+					(
+						CASE
+						WHEN ext.price != 0 THEN
+							ext.price
+						ELSE
+							ext.price_telecom
+						END
+					) AS app_price,
+					ar.channel_price
+				FROM
+					sms_core.ucenter_application uc
+				INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+				INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+				INNER JOIN sms_core.args_channel ar ON fo.telecom_channel_id = ar.channel_id
+				INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+				WHERE
+					fo.product_status = 'normal'
+				AND ar.channel_status = 'normal'
+				AND uc.app_status = 'normal'
+				AND ar.to_telecom = 'yes'
+				AND ar.channel_id != 0
+				UNION
+					SELECT
+						base.company_key,
+						uc.id AS app_id,
+						uc.app_name,
+						lg.channel_id,
+						ar. NAME AS channel_name,
+						CONCAT(
+							'账户分省-',
+							lg.province
+						) AS type,
+						lg.carriers AS provider,
+						(
+							CASE
+							WHEN ext.price != 0 THEN
+								ext.price
+							ELSE
+								(
+									CASE
+									WHEN lg.carriers = 'cmcc' THEN
+										ext.price_cmcc
+									WHEN lg.carriers = 'unicom' THEN
+										ext.price_unicom
+									WHEN lg.carriers = 'telecom' THEN
+										ext.price_telecom
+									ELSE
+										'0'
+									END
+								)
+							END
+						) AS app_price,
+						ar.channel_price
+					FROM
+						sms_core.ucenter_application uc
+					INNER JOIN sms_core.lg_provinces_send lg ON uc.product_id = lg.product_id
+					INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+					INNER JOIN sms_core.args_channel ar ON lg.channel_id = ar.channel_id
+					INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+					WHERE
+						lg.`status` = 'normal'
+					AND ar.channel_status = 'normal'
+					AND uc.app_status = 'normal'
+					AND ar.channel_id != 0
+					UNION
+						SELECT
+							base.company_key,
+							uc.id AS app_id,
+							uc.app_name,
+							re.to_channel AS channel_id,
+							ar. NAME AS channel_name,
+							'按账户重发' AS type,
+							'cmcc' AS provider,
+							(
+								CASE
+								WHEN ext.price != 0 THEN
+									ext.price
+								ELSE
+									ext.price_cmcc
+								END
+							) AS app_price,
+							ar.channel_price
+						FROM
+							sms_core.ucenter_application uc
+						INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+						INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+						INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+						INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+						WHERE
+							re.id_type = 'account'
+						AND ar.to_cmcc = 'yes'
+						AND ar.channel_status = 'normal'
+						AND uc.app_status = 'normal'
+						AND ar.channel_id != 0
+						UNION
+							SELECT
+								base.company_key,
+								uc.id AS app_id,
+								uc.app_name,
+								re.to_channel AS channel_id,
+								ar. NAME AS channel_name,
+								'按账户重发' AS type,
+								'unicom' AS provider,
+								(
+									CASE
+									WHEN ext.price != 0 THEN
+										ext.price
+									ELSE
+										ext.price_unicom
+									END
+								) AS app_price,
+								ar.channel_price
+							FROM
+								sms_core.ucenter_application uc
+							INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+							INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+							INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+							INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+							WHERE
+								re.id_type = 'account'
+							AND ar.to_unicom = 'yes'
+							AND ar.channel_status = 'normal'
+							AND uc.app_status = 'normal'
+							AND ar.channel_id != 0
+							UNION
+								SELECT
+									base.company_key,
+									uc.id AS app_id,
+									uc.app_name,
+									re.to_channel AS channel_id,
+									ar. NAME AS channel_name,
+									'按账户重发' AS type,
+									'telecom' AS provider,
+									(
+										CASE
+										WHEN ext.price != 0 THEN
+											ext.price
+										ELSE
+											ext.price_telecom
+										END
+									) AS app_price,
+									ar.channel_price
+								FROM
+									sms_core.ucenter_application uc
+								INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+								INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+								INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+								INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+								WHERE
+									re.id_type = 'account'
+								AND ar.to_telecom = 'yes'
+								AND ar.channel_status = 'normal'
+								AND uc.app_status = 'normal'
+								AND ar.channel_id != 0
+								UNION
+									SELECT
+										base.company_key,
+										uc.id AS app_id,
+										uc.app_name,
+										re.to_channel AS channel_id,
+										ar. NAME AS channel_name,
+										'按通道重发' AS type,
+										'cmcc' AS provider,
+										(
+											CASE
+											WHEN ext.price != 0 THEN
+												ext.price
+											ELSE
+												ext.price_cmcc
+											END
+										) AS app_price,
+										ar.channel_price
+									FROM
+										sms_core.lg_resend_config re
+									INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.cmcc_channel_id
+									INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+									INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+									INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+									INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+									WHERE
+										re.id_type = 'channel'
+									AND ar.to_cmcc = 'yes'
+									AND ar.channel_status = 'normal'
+									AND uc.app_status = 'normal'
+									AND ar.channel_id != 0
+									UNION
+										SELECT
+											base.company_key,
+											uc.id AS app_id,
+											uc.app_name,
+											re.to_channel AS channel_id,
+											ar. NAME AS channel_name,
+											'按通道重发' AS type,
+											'unicom' AS provider,
+											(
+												CASE
+												WHEN ext.price != 0 THEN
+													ext.price
+												ELSE
+													ext.price_unicom
+												END
+											) AS app_price,
+											ar.channel_price
+										FROM
+											sms_core.lg_resend_config re
+										INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.unicom_channel_id
+										INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+										INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+										INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+										INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+										WHERE
+											re.id_type = 'channel'
+										AND ar.to_unicom = 'yes'
+										AND ar.channel_status = 'normal'
+										AND uc.app_status = 'normal'
+										AND ar.channel_id != 0
+										UNION
+											SELECT
+												base.company_key,
+												uc.id AS app_id,
+												uc.app_name,
+												re.to_channel AS channel_id,
+												'按通道重发' AS type,
+												ar. NAME AS channel_name,
+												'telecom' AS provider,
+												(
+													CASE
+													WHEN ext.price != 0 THEN
+														ext.price
+													ELSE
+														ext.price_telecom
+													END
+												) AS app_price,
+												ar.channel_price
+											FROM
+												sms_core.lg_resend_config re
+											INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.telecom_channel_id
+											INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+											INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+											INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+											INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+											WHERE
+												re.id_type = 'channel'
+											AND ar.to_telecom = 'yes'
+											AND ar.channel_status = 'normal'
+											AND uc.app_status = 'normal'
+											AND ar.channel_id != 0
+											UNION
+												SELECT
+													base.company_key,
+													uc.id AS app_id,
+													uc.app_name,
+													t2.to_channel AS channel_id,
+													ar. NAME AS channel_name,
+													CONCAT(
+														'通道分省-',
+														t2.province
+													) AS type,
+													'cmcc' AS provider,
+													(
+														CASE
+														WHEN ext.price != 0 THEN
+															ext.price
+														ELSE
+															ext.price_cmcc
+														END
+													) AS app_price,
+													ar.channel_price
+												FROM
+													(
+														SELECT
+															SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+															SUBSTRING_INDEX(
+																SUBSTRING_INDEX(val, ':', 2),
+																':' ,- 1
+															) AS province,
+															SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+														FROM
+															(
+																SELECT
+																	substring_index(
+																		substring_index(
+																			t.val,
+																			',',
+																			h.help_topic_id + 1
+																		),
+																		',' ,- 1
+																	) val
+																FROM
+																	sms_core.t_global_setting t
+																JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																	length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																)
+																WHERE
+																	t.KEY = 'channel_province_forwards'
+															) t1
+													) t2
+												INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.cmcc_channel_id
+												INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+												INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+												INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+												INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+												WHERE
+													ar.to_cmcc = 'yes'
+												AND ar.channel_status = 'normal'
+												AND uc.app_status = 'normal'
+												AND ar.channel_id != 0
+												UNION
+													SELECT
+														base.company_key,
+														uc.id AS app_id,
+														uc.app_name,
+														t2.to_channel AS channel_id,
+														ar. NAME AS channel_name,
+														CONCAT(
+															'通道分省-',
+															t2.province
+														) AS type,
+														'unicom' AS provider,
+														(
+															CASE
+															WHEN ext.price != 0 THEN
+																ext.price
+															ELSE
+																ext.price_unicom
+															END
+														) AS app_price,
+														ar.channel_price
+													FROM
+														(
+															SELECT
+																SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+																SUBSTRING_INDEX(
+																	SUBSTRING_INDEX(val, ':', 2),
+																	':' ,- 1
+																) AS province,
+																SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+															FROM
+																(
+																	SELECT
+																		substring_index(
+																			substring_index(
+																				t.val,
+																				',',
+																				h.help_topic_id + 1
+																			),
+																			',' ,- 1
+																		) val
+																	FROM
+																		sms_core.t_global_setting t
+																	JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																		length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																	)
+																	WHERE
+																		t.KEY = 'channel_province_forwards'
+																) t1
+														) t2
+													INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.unicom_channel_id
+													INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+													INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+													INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+													INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+													WHERE
+														ar.to_unicom = 'yes'
+													AND ar.channel_status = 'normal'
+													AND uc.app_status = 'normal'
+													AND ar.channel_id != 0
+													UNION
+														SELECT
+															base.company_key,
+															uc.id AS app_id,
+															uc.app_name,
+															t2.to_channel AS channel_id,
+															ar. NAME AS channel_name,
+															CONCAT(
+																'通道分省-',
+																t2.province
+															) AS type,
+															'telecom' AS provider,
+															(
+																CASE
+																WHEN ext.price != 0 THEN
+																	ext.price
+																ELSE
+																	ext.price_telecom
+																END
+															) AS app_price,
+															ar.channel_price
+														FROM
+															(
+																SELECT
+																	SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+																	SUBSTRING_INDEX(
+																		SUBSTRING_INDEX(val, ':', 2),
+																		':' ,- 1
+																	) AS province,
+																	SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+																FROM
+																	(
+																		SELECT
+																			substring_index(
+																				substring_index(
+																					t.val,
+																					',',
+																					h.help_topic_id + 1
+																				),
+																				',' ,- 1
+																			) val
+																		FROM
+																			sms_core.t_global_setting t
+																		JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																			length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																		)
+																		WHERE
+																			t.KEY = 'channel_province_forwards'
+																	) t1
+															) t2
+														INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.telecom_channel_id
+														INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+														INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+														INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+														INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+														WHERE
+															ar.to_telecom = 'yes'
+														AND ar.channel_status = 'normal'
+														AND uc.app_status = 'normal'
+														AND ar.channel_id != 0
+														UNION
+															SELECT
+																base.company_key,
+																uc.id AS app_id,
+																uc.app_name,
+																'' AS channel_id,
+																'' AS channel_name,
+																CONCAT(
+																	'优化-',
+																	uc.app_shunt_level,
+																	'%'
+																) AS type,
+																'cmcc' AS provider,
+																(
+																	CASE
+																	WHEN ext.price != 0 THEN
+																		ext.price
+																	ELSE
+																		ext.price_cmcc
+																	END
+																) AS app_price,
+																0 AS channel_price
+															FROM
+																sms_core.ucenter_application uc
+															INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+															INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+															WHERE
+																uc.app_shunt_level &gt; 0
+															AND uc.app_status = 'normal'
+															UNION
+																SELECT
+																	base.company_key,
+																	uc.id AS app_id,
+																	uc.app_name,
+																	'' AS channel_id,
+																	'' AS channel_name,
+																	CONCAT(
+																		'优化-',
+																		uc.app_shunt_level,
+																		'%'
+																	) AS type,
+																	'unicom' AS provider,
+																	(
+																		CASE
+																		WHEN ext.price != 0 THEN
+																			ext.price
+																		ELSE
+																			ext.price_unicom
+																		END
+																	) AS app_price,
+																	0 AS channel_price
+																FROM
+																	sms_core.ucenter_application uc
+																INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+																INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+																WHERE
+																	uc.app_shunt_level &gt; 0
+																AND uc.app_status = 'normal'
+																UNION
+																	SELECT
+																		base.company_key,
+																		uc.id AS app_id,
+																		uc.app_name,
+																		'' AS channel_id,
+																		'' AS channel_name,
+																		CONCAT(
+																			'优化-',
+																			uc.app_shunt_level,
+																			'%'
+																		) AS type,
+																		'telecom' AS provider,
+																		(
+																			CASE
+																			WHEN ext.price != 0 THEN
+																				ext.price
+																			ELSE
+																				ext.price_telecom
+																			END
+																		) AS app_price,
+																		0 AS channel_price
+																	FROM
+																		sms_core.ucenter_application uc
+																	INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+																	INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+																	WHERE
+																		uc.app_shunt_level &gt; 0
+																	AND uc.app_status = 'normal'
+	) m
+		WHERE 1=1
+		<if test="companyKey !=null and companyKey !=''">
+			AND m.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND m.app_id = #{appId}
+		</if>
+		<if test="channelId !=null and channelId !=''">
+			AND m.channel_id = #{channelId}
+		</if>
+		<if test="provider !=null and provider !=''">
+			AND m.provider = #{provider}
+		</if>
+		<if test="type !=null and type !=''">
+			AND m.type like "%"#{type,jdbcType=VARCHAR}"%"
+		</if>
+		ORDER BY m.app_id desc,m.channel_id desc
+	</select>
+	
+	
+	<select id="findChannelProfitList" resultMap="statistics" parameterType="map">
+		SELECT
+	m.company_key,
+	m.app_id,
+	m.app_name,
+	m.channel_id,
+	m.channel_name,
+	m.product_id,
+	m.product_name,
+	m.type,
+	m.provider,
+	FORMAT(m.app_price, 2) AS app_price,
+	m.channel_price,
+	FORMAT(
+		m.app_price - m.channel_price,
+		2
+	) AS profit
+FROM
+	(
+		SELECT
+			base.company_key,
+			uc.id AS app_id,
+			uc.app_name,
+			fo.cmcc_channel_id AS channel_id,
+			ar. NAME AS channel_name,
+			fo.id AS product_id,
+			fo.product_name AS product_name,
+			'主用' AS type,
+			'cmcc' AS provider,
+			(
+				CASE
+				WHEN ext.price != 0 THEN
+					ext.price
+				ELSE
+					ext.price_cmcc
+				END
+			) AS app_price,
+			ar.channel_price
+		FROM
+			sms_core.ucenter_application uc
+		INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+		INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+		INNER JOIN sms_core.args_channel ar ON fo.cmcc_channel_id = ar.channel_id
+		INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+		WHERE
+			fo.product_status = 'normal'
+		AND ar.channel_status = 'normal'
+		AND uc.app_status = 'normal'
+		AND ar.to_cmcc = 'yes'
+		AND ar.channel_id != 0
+		UNION
+			SELECT
+				base.company_key,
+				uc.id AS app_id,
+				uc.app_name,
+				fo.unicom_channel_id AS channel_id,
+				ar. NAME AS channel_name,
+				fo.id AS product_id,
+				fo.product_name AS product_name,
+				'主用' AS type,
+				'unicom' AS provider,
+				(
+					CASE
+					WHEN ext.price != 0 THEN
+						ext.price
+					ELSE
+						ext.price_unicom
+					END
+				) AS app_price,
+				ar.channel_price
+			FROM
+				sms_core.ucenter_application uc
+			INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+			INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+			INNER JOIN sms_core.args_channel ar ON fo.unicom_channel_id = ar.channel_id
+			INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+			WHERE
+				fo.product_status = 'normal'
+			AND ar.channel_status = 'normal'
+			AND uc.app_status = 'normal'
+			AND ar.to_unicom = 'yes'
+			AND ar.channel_id != 0
+			UNION
+				SELECT
+					base.company_key,
+					uc.id AS app_id,
+					uc.app_name,
+					fo.telecom_channel_id AS channel_id,
+					ar. NAME AS channel_name,
+					fo.id AS product_id,
+					fo.product_name AS product_name,
+					'主用' AS type,
+					'telecom' AS provider,
+					(
+						CASE
+						WHEN ext.price != 0 THEN
+							ext.price
+						ELSE
+							ext.price_telecom
+						END
+					) AS app_price,
+					ar.channel_price
+				FROM
+					sms_core.ucenter_application uc
+				INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+				INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+				INNER JOIN sms_core.args_channel ar ON fo.telecom_channel_id = ar.channel_id
+				INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+				WHERE
+					fo.product_status = 'normal'
+				AND ar.channel_status = 'normal'
+				AND uc.app_status = 'normal'
+				AND ar.to_telecom = 'yes'
+				AND ar.channel_id != 0
+				UNION
+					SELECT
+						base.company_key,
+						uc.id AS app_id,
+						uc.app_name,
+						lg.channel_id,
+						ar. NAME AS channel_name,
+						fo.id AS product_id,
+						fo.product_name AS product_name,
+						CONCAT(
+							'账户分省-',
+							lg.province
+						) AS type,
+						lg.carriers AS provider,
+						(
+							CASE
+							WHEN ext.price != 0 THEN
+								ext.price
+							ELSE
+								(
+									CASE
+									WHEN lg.carriers = 'cmcc' THEN
+										ext.price_cmcc
+									WHEN lg.carriers = 'unicom' THEN
+										ext.price_unicom
+									WHEN lg.carriers = 'telecom' THEN
+										ext.price_telecom
+									ELSE
+										'0'
+									END
+								)
+							END
+						) AS app_price,
+						ar.channel_price
+					FROM
+						sms_core.ucenter_application uc
+					INNER JOIN sms_core.lg_provinces_send lg ON uc.product_id = lg.product_id
+					INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+					INNER JOIN sms_core.args_channel ar ON lg.channel_id = ar.channel_id
+					INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+					INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+					WHERE
+						lg.`status` = 'normal'
+					AND ar.channel_status = 'normal'
+					AND uc.app_status = 'normal'
+					AND ar.channel_id != 0
+					AND fo.product_status = 'normal'
+					UNION
+						SELECT
+							base.company_key,
+							uc.id AS app_id,
+							uc.app_name,
+							re.to_channel AS channel_id,
+							ar. NAME AS channel_name,
+							fo.id AS product_id,
+							fo.product_name AS product_name,
+							'按账户重发' AS type,
+							'cmcc' AS provider,
+							(
+								CASE
+								WHEN ext.price != 0 THEN
+									ext.price
+								ELSE
+									ext.price_cmcc
+								END
+							) AS app_price,
+							ar.channel_price
+						FROM
+							sms_core.ucenter_application uc
+						INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+						INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+						INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+						INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+						INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+						WHERE
+							re.id_type = 'account'
+						AND ar.to_cmcc = 'yes'
+						AND ar.channel_status = 'normal'
+						AND uc.app_status = 'normal'
+						AND ar.channel_id != 0
+						AND fo.product_status = 'normal'
+						UNION
+							SELECT
+								base.company_key,
+								uc.id AS app_id,
+								uc.app_name,
+								re.to_channel AS channel_id,
+								ar. NAME AS channel_name,
+								fo.id AS product_id,
+								fo.product_name AS product_name,
+								'按账户重发' AS type,
+								'unicom' AS provider,
+								(
+									CASE
+									WHEN ext.price != 0 THEN
+										ext.price
+									ELSE
+										ext.price_unicom
+									END
+								) AS app_price,
+								ar.channel_price
+							FROM
+								sms_core.ucenter_application uc
+							INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+							INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+							INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+							INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+							INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+							WHERE
+								re.id_type = 'account'
+							AND ar.to_unicom = 'yes'
+							AND ar.channel_status = 'normal'
+							AND uc.app_status = 'normal'
+							AND ar.channel_id != 0
+							AND fo.product_status = 'normal'
+							UNION
+								SELECT
+									base.company_key,
+									uc.id AS app_id,
+									uc.app_name,
+									re.to_channel AS channel_id,
+									ar. NAME AS channel_name,
+									fo.id AS product_id,
+									fo.product_name AS product_name,
+									'按账户重发' AS type,
+									'telecom' AS provider,
+									(
+										CASE
+										WHEN ext.price != 0 THEN
+											ext.price
+										ELSE
+											ext.price_telecom
+										END
+									) AS app_price,
+									ar.channel_price
+								FROM
+									sms_core.ucenter_application uc
+								INNER JOIN sms_core.lg_resend_config re ON uc.id = re.app_chan_id
+								INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+								INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+								INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+								INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+								WHERE
+									re.id_type = 'account'
+								AND ar.to_telecom = 'yes'
+								AND ar.channel_status = 'normal'
+								AND uc.app_status = 'normal'
+								AND ar.channel_id != 0
+								AND fo.product_status = 'normal'
+								UNION
+									SELECT
+										base.company_key,
+										uc.id AS app_id,
+										uc.app_name,
+										re.to_channel AS channel_id,
+										ar. NAME AS channel_name,
+										fo.id AS product_id,
+										fo.product_name AS product_name,
+										'按通道重发' AS type,
+										'cmcc' AS provider,
+										(
+											CASE
+											WHEN ext.price != 0 THEN
+												ext.price
+											ELSE
+												ext.price_cmcc
+											END
+										) AS app_price,
+										ar.channel_price
+									FROM
+										sms_core.lg_resend_config re
+									INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.cmcc_channel_id
+									INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+									INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+									INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+									INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+									WHERE
+										re.id_type = 'channel'
+									AND ar.to_cmcc = 'yes'
+									AND ar.channel_status = 'normal'
+									AND uc.app_status = 'normal'
+									AND ar.channel_id != 0
+									AND fo.product_status = 'normal'
+									UNION
+										SELECT
+											base.company_key,
+											uc.id AS app_id,
+											uc.app_name,
+											re.to_channel AS channel_id,
+											ar. NAME AS channel_name,
+											fo.id AS product_id,
+											fo.product_name AS product_name,
+											'按通道重发' AS type,
+											'unicom' AS provider,
+											(
+												CASE
+												WHEN ext.price != 0 THEN
+													ext.price
+												ELSE
+													ext.price_unicom
+												END
+											) AS app_price,
+											ar.channel_price
+										FROM
+											sms_core.lg_resend_config re
+										INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.unicom_channel_id
+										INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+										INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+										INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+										INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+										WHERE
+											re.id_type = 'channel'
+										AND ar.to_unicom = 'yes'
+										AND ar.channel_status = 'normal'
+										AND uc.app_status = 'normal'
+										AND ar.channel_id != 0
+										AND fo.product_status = 'normal'
+										UNION
+											SELECT
+												base.company_key,
+												uc.id AS app_id,
+												uc.app_name,
+												re.to_channel AS channel_id,
+												ar. NAME AS channel_name,
+												fo.id AS product_id,
+												fo.product_name AS product_name,
+												'按通道重发' AS type,												
+												'telecom' AS provider,
+												(
+													CASE
+													WHEN ext.price != 0 THEN
+														ext.price
+													ELSE
+														ext.price_telecom
+													END
+												) AS app_price,
+												ar.channel_price
+											FROM
+												sms_core.lg_resend_config re
+											INNER JOIN sms_core.fors_product fo ON re.app_chan_id = fo.telecom_channel_id
+											INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+											INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+											INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+											INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+											WHERE
+												re.id_type = 'channel'
+											AND ar.to_telecom = 'yes'
+											AND ar.channel_status = 'normal'
+											AND uc.app_status = 'normal'
+											AND ar.channel_id != 0
+											AND fo.product_status = 'normal'
+											UNION
+												SELECT
+													base.company_key,
+													uc.id AS app_id,
+													uc.app_name,
+													t2.to_channel AS channel_id,
+													ar. NAME AS channel_name,
+													fo.id AS product_id,
+													fo.product_name AS product_name,
+													CONCAT(
+														'通道分省-',
+														t2.province
+													) AS type,
+													'cmcc' AS provider,
+													(
+														CASE
+														WHEN ext.price != 0 THEN
+															ext.price
+														ELSE
+															ext.price_cmcc
+														END
+													) AS app_price,
+													ar.channel_price
+												FROM
+													(
+														SELECT
+															SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+															SUBSTRING_INDEX(
+																SUBSTRING_INDEX(val, ':', 2),
+																':' ,- 1
+															) AS province,
+															SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+														FROM
+															(
+																SELECT
+																	substring_index(
+																		substring_index(
+																			t.val,
+																			',',
+																			h.help_topic_id + 1
+																		),
+																		',' ,- 1
+																	) val
+																FROM
+																	sms_core.t_global_setting t
+																JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																	length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																)
+																WHERE
+																	t.KEY = 'channel_province_forwards'
+															) t1
+													) t2
+												INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.cmcc_channel_id
+												INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+												INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+												INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+												INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+												WHERE
+													ar.to_cmcc = 'yes'
+												AND ar.channel_status = 'normal'
+												AND uc.app_status = 'normal'
+												AND ar.channel_id != 0
+												AND fo.product_status = 'normal'
+												UNION
+													SELECT
+														base.company_key,
+														uc.id AS app_id,
+														uc.app_name,
+														t2.to_channel AS channel_id,
+														ar. NAME AS channel_name,
+														fo.id AS product_id,
+														fo.product_name AS product_name,
+														CONCAT(
+															'通道分省-',
+															t2.province
+														) AS type,
+														'unicom' AS provider,
+														(
+															CASE
+															WHEN ext.price != 0 THEN
+																ext.price
+															ELSE
+																ext.price_unicom
+															END
+														) AS app_price,
+														ar.channel_price
+													FROM
+														(
+															SELECT
+																SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+																SUBSTRING_INDEX(
+																	SUBSTRING_INDEX(val, ':', 2),
+																	':' ,- 1
+																) AS province,
+																SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+															FROM
+																(
+																	SELECT
+																		substring_index(
+																			substring_index(
+																				t.val,
+																				',',
+																				h.help_topic_id + 1
+																			),
+																			',' ,- 1
+																		) val
+																	FROM
+																		sms_core.t_global_setting t
+																	JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																		length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																	)
+																	WHERE
+																		t.KEY = 'channel_province_forwards'
+																) t1
+														) t2
+													INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.unicom_channel_id
+													INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+													INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+													INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+													INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+													WHERE
+														ar.to_unicom = 'yes'
+													AND ar.channel_status = 'normal'
+													AND uc.app_status = 'normal'
+													AND ar.channel_id != 0
+													AND fo.product_status = 'normal'
+													UNION
+														SELECT
+															base.company_key,
+															uc.id AS app_id,
+															uc.app_name,
+															t2.to_channel AS channel_id,
+															ar. NAME AS channel_name,
+															fo.id AS product_id,
+															fo.product_name AS product_name,
+															CONCAT(
+																'通道分省-',
+																t2.province
+															) AS type,
+															'telecom' AS provider,
+															(
+																CASE
+																WHEN ext.price != 0 THEN
+																	ext.price
+																ELSE
+																	ext.price_telecom
+																END
+															) AS app_price,
+															ar.channel_price
+														FROM
+															(
+																SELECT
+																	SUBSTRING_INDEX(val, ':', 1) AS channel_id,
+																	SUBSTRING_INDEX(
+																		SUBSTRING_INDEX(val, ':', 2),
+																		':' ,- 1
+																	) AS province,
+																	SUBSTRING_INDEX(val, ':' ,- 1) AS to_channel
+																FROM
+																	(
+																		SELECT
+																			substring_index(
+																				substring_index(
+																					t.val,
+																					',',
+																					h.help_topic_id + 1
+																				),
+																				',' ,- 1
+																			) val
+																		FROM
+																			sms_core.t_global_setting t
+																		JOIN mysql.help_topic h ON h.help_topic_id &lt; (
+																			length(t.val) - length(REPLACE(t.val, ',', '')) + 1
+																		)
+																		WHERE
+																			t.KEY = 'channel_province_forwards'
+																	) t1
+															) t2
+														INNER JOIN sms_core.fors_product fo ON t2.channel_id = fo.telecom_channel_id
+														INNER JOIN sms_core.ucenter_application uc ON fo.id = uc.product_id
+														INNER JOIN sms_core.args_channel ar ON ar.channel_id = t2.to_channel
+														INNER JOIN sms_manage.ucenter_application_ext ext ON ext.app_id = uc.id
+														INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+														WHERE
+															ar.to_telecom = 'yes'
+														AND ar.channel_status = 'normal'
+														AND uc.app_status = 'normal'
+														AND ar.channel_id != 0
+														AND fo.product_status = 'normal'
+														UNION
+															SELECT
+																base.company_key,
+																uc.id AS app_id,
+																uc.app_name,
+																'' AS channel_id,
+																'' AS channel_name,
+																fo.id AS product_id,
+																fo.product_name AS product_name,
+																CONCAT(
+																	'优化-',
+																	uc.app_shunt_level,
+																	'%'
+																) AS type,
+																'cmcc' AS provider,
+																(
+																	CASE
+																	WHEN ext.price != 0 THEN
+																		ext.price
+																	ELSE
+																		ext.price_cmcc
+																	END
+																) AS app_price,
+																0 AS channel_price
+															FROM
+																sms_core.ucenter_application uc
+															INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+															INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+															INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+															WHERE
+																uc.app_shunt_level &gt; 0
+															AND uc.app_status = 'normal'
+															AND fo.product_status = 'normal'
+															UNION
+																SELECT
+																	base.company_key,
+																	uc.id AS app_id,
+																	uc.app_name,
+																	'' AS channel_id,
+																	'' AS channel_name,
+																	fo.id AS product_id,
+																	fo.product_name AS product_name,
+																	CONCAT(
+																		'优化-',
+																		uc.app_shunt_level,
+																		'%'
+																	) AS type,
+																	'unicom' AS provider,
+																	(
+																		CASE
+																		WHEN ext.price != 0 THEN
+																			ext.price
+																		ELSE
+																			ext.price_unicom
+																		END
+																	) AS app_price,
+																	0 AS channel_price
+																FROM
+																	sms_core.ucenter_application uc
+																INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+																INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+																INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+																WHERE
+																	uc.app_shunt_level &gt; 0
+																AND uc.app_status = 'normal'
+																AND fo.product_status = 'normal'
+																UNION
+																	SELECT
+																		base.company_key,
+																		uc.id AS app_id,
+																		uc.app_name,
+																		'' AS channel_id,
+																		'' AS channel_name,
+																		fo.id AS product_id,
+																		fo.product_name AS product_name,
+																		CONCAT(
+																			'优化-',
+																			uc.app_shunt_level,
+																			'%'
+																		) AS type,
+																		'telecom' AS provider,
+																		(
+																			CASE
+																			WHEN ext.price != 0 THEN
+																				ext.price
+																			ELSE
+																				ext.price_telecom
+																			END
+																		) AS app_price,
+																		0 AS channel_price
+																	FROM
+																		sms_core.ucenter_application uc
+																	INNER JOIN sms_manage.ucenter_application_ext ext ON uc.id = ext.app_id
+																	INNER JOIN sms_manage.base_company base ON ext.company_id = base.id
+																	INNER JOIN sms_core.fors_product fo ON uc.product_id = fo.id
+																	WHERE
+																		uc.app_shunt_level &gt; 0
+																	AND uc.app_status = 'normal'
+																	AND fo.product_status = 'normal'
+	) m
+		WHERE 1=1
+		<if test="channelId !=null and channelId !=''">
+			AND m.channel_id = #{channelId}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND m.app_id = #{appId}
+		</if>
+		<if test="productId !=null and productId !=''">
+			AND m.product_id = #{productId}
+		</if>
+		<if test="provider !=null and provider !=''">
+			AND m.provider = #{provider}
+		</if>
+		<if test="type !=null and type !=''">
+			AND m.type like "%"#{type,jdbcType=VARCHAR}"%"
+		</if>
+		ORDER BY m.app_id desc,m.channel_id desc
+	</select>
+	
+	
+	<select id="findApplication" resultMap="application" parameterType="map">
+		select
+		a.id,a.app_name,a.app_password,a.app_status,a.is_day_limit,a.day_limit_count,a.is_min_limit,a.min_limit_count,a.is_day_content_limit,a.limit_count,a.pay_count,a.sent_count,
+		a.day_limit_content_count,a.priority,a.skip_must_words,a.check_words_type,a.is_model,a.rpt_sync_model,a.service_time_begin,a.service_time_end,
+		a.black_levels,a.product_id,a.default_sign,a.test_model,a.is_shunt_phone,a.app_ext_src,a.source_segment,
+		a.rpt_sync_address,a.mo_sync_model,a.mo_sync_address,a.max_connection,a.mo_flag,a.is_cont_audit,a.cont_audit_count,
+		a.app_shunt_level,a.is_ext,a.payment,a.charge_by,a.auth_ip,a.is_template,a.is_month_limit,a.month_limit_count,a.is_day_limit_check,a.is_default_sign_submit,a.mo_source_segment,a.app_roles,
+		e.price,e.price_cmcc,e.price_telecom,e.price_unicom,e.company_id,e.app_parent_id,f.product_name,c.company_name,c.company_key,(select s.app_name from sms_core.ucenter_application s where s.id= e.app_parent_id) as app_parent_name,(select count(1) from sms_manage.ucenter_application_ext uae where uae.app_parent_id=a.id) as subNum
+		from sms_core.ucenter_application a
+		INNER JOIN sms_manage.ucenter_application_ext e on a.id=e.app_id
+		INNER JOIN sms_core.fors_product f on a.product_id=f.id
+		INNER JOIN sms_manage.base_company c on e.company_id=c.id
+		WHERE 1=1
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND a.id = #{appId}
+		</if>
+	</select>
+	
+	<select id="findLgModelSendList" parameterType="map" resultMap="lgModelSend">
+		select id,content,cmcc_channel_id,(select name from
+		sms_core.args_channel where cmcc_channel_id=channel_id)
+		cmcc_channel_name,
+		unicom_channel_id,(select name from
+		sms_core.args_channel where unicom_channel_id=channel_id)
+		unicom_channel_name,
+		telecom_channel_id,(select name from
+		sms_core.args_channel where telecom_channel_id=channel_id)
+		telecom_channel_name,create_time from sms_core.lg_model_send where 1=1
+		
+		<if test="channelId!=null and channelId !=''">
+			and ( cmcc_channel_id = #{channelId} or unicom_channel_id = #{channelId} or telecom_channel_id =#{channelId} )
+		</if>
+		ORDER BY create_time DESC
+	</select>
+	
+	<select id="findTemplatePageListByIds" resultMap="template">
+		select temp.id,temp.template_info,temp.strategy,temp.result,temp.app_id,app.app_name,temp.key_word,temp.rule,temp.rule_index
+		from sms_core.args_msg_template temp 
+		left join sms_core.ucenter_application app on temp.app_id=app.id  
+		left join sms_manage.ucenter_application_ext ext ON ext.app_id = app.id
+		left join sms_manage.base_company base ON ext.company_id = base.id
+		where temp.app_id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			 #{id}
+		</foreach>
+		order by temp.app_id desc,temp.rule_index desc
+	</select>
+	
+	<select id="findAllTemplate" resultMap="template">
+		select temp.id,temp.template_info,temp.strategy,temp.result,temp.app_id,app.app_name,temp.key_word,temp.rule,temp.rule_index
+		from sms_core.args_msg_template temp 
+		left join sms_core.ucenter_application app on temp.app_id=app.id  
+		left join sms_manage.ucenter_application_ext ext ON ext.app_id = app.id
+		left join sms_manage.base_company base ON ext.company_id = base.id
+		order by temp.app_id desc,temp.rule_index desc
+	</select>
+	
+</mapper>

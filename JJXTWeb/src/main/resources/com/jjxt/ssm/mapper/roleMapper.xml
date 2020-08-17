@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.RoleMapper">
+  
+	<resultMap type="com.jjxt.ssm.entity.Role" id="roleReleation">
+		<id column="id" property="id" />
+		<result column="manager_id" property="managerId" />
+		<result column="role_id" property="roleId" />
+		<result column="manager_name" property="managerName" />
+		<result column="chinese_name" property="chineseName" />
+		<result column="role_name" property="roleName" />
+	</resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.Role" id="roleMap">
+		<id column="id" property="roleId"/>
+		<result column="role_name" property="roleName" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.Role" id="managerMap">
+		<id column="id" property="managerId"/>
+		<id column="chinese_name" property="chineseName"/>
+	</resultMap>
+	
+
+	<!-- 查询角色关系总数 -->
+	 
+	<select id="findTotal" resultType="int" 
+	parameterType="map">
+		select count(1) from
+		sms_manage.ucenter_manager_role where 1=1
+		<if test="managerId != null and  managerId != ''">
+			and manager_id = #{managerId}
+		</if>
+		<if test="roleId != null and roleId != ''">
+			and role_id=#{roleId}
+		</if>
+	</select>
+	
+	<!-- 分页查询角色关系列表 -->
+	 
+	<select id="findRolePageList" resultMap="roleReleation"
+		parameterType="map">
+		select
+		un.id as id, un.role_name as role_name, um.manager_name as manager_name, um.chinese_name as chinese_name
+		from 
+		(SELECT
+		mr.id, mr.manager_id, mr.role_id,r.role_name
+		FROM sms_manage.ucenter_manager_role AS mr 
+		LEFT JOIN sms_manage.ucenter_role AS r ON mr.role_id = r.id) un
+		LEFT JOIN sms_manage.ucenter_manager um ON un.manager_id = um.id
+		 where 1=1 
+		<if test="managerId != null and  managerId != ''">
+			and un.manager_id = #{managerId}
+		</if>
+		<if test="roleId != null and roleId != ''">
+			and role_id=#{roleId}
+		</if>
+		order by un.id limit
+		#{start}, #{end}
+	</select>
+	
+	<!-- 查询所有角色 -->	
+	<select id="findAllRole" resultMap="roleMap">
+		select id,role_name from  sms_manage.ucenter_role order by id 
+	</select>
+	
+	<!-- 查询所有用户 -->	
+	<select id="findAllManager" resultMap="managerMap">
+		select id,chinese_name from sms_manage.ucenter_manager order by id
+	</select>
+	 
+	 <!-- 查询最后添加的角色关系 -->	 
+	<select id="findEndAddRoleRelation" resultMap="roleReleation">
+		select
+		un.id as id, un.role_name as role_name, um.manager_name as manager_name, um.chinese_name as chinese_name
+		from 
+		(SELECT
+		mr.id, mr.manager_id, mr.role_id,r.role_name
+		FROM sms_manage.ucenter_manager_role AS mr 
+		LEFT JOIN sms_manage.ucenter_role AS r ON mr.role_id = r.id) un
+		LEFT JOIN sms_manage.ucenter_manager um ON un.manager_id = um.id 
+		ORDER BY id desc limit 0,1
+	</select>
+	<!-- 新增角色关系 -->
+	<insert id="addRoleRelation" parameterType="com.jjxt.ssm.entity.Role">
+		insert into
+		sms_manage.ucenter_manager_role(manager_id,role_id)
+		values(#{managerId},#{roleId})
+	</insert>
+	<!-- 更新角色关系 -->
+	<update id="updateRoleRelation" parameterType="com.jjxt.ssm.entity.Role">
+		update sms_manage.ucenter_manager_role
+		<set>
+			<if test="roleId != null">
+				role_id=#{roleId},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!-- 通过id查找角色关系 -->
+	<select id="findRoleRelationById" resultMap="roleReleation"
+		parameterType="int">
+		select
+		un.id as id, un.role_id as role_id,un.role_name as role_name, um.manager_name as manager_name, um.chinese_name as chinese_name
+		from 
+		(SELECT
+		mr.id, mr.manager_id, mr.role_id,r.role_name
+		FROM sms_manage.ucenter_manager_role AS mr 
+		LEFT JOIN sms_manage.ucenter_role AS r ON mr.role_id = r.id) un
+		LEFT JOIN sms_manage.ucenter_manager um ON un.manager_id = um.id
+		 where 1=1 
+		 <!--  
+		<if test="id != null and  id != ''">
+			and un.id=#{id}
+		</if>-->
+		and un.id=#{id}
+	</select>
+	<!-- 通过id删除角色关系 -->
+	<delete id="deleteRoleRelation" parameterType="int">
+		DELETE FROM sms_manage.ucenter_manager_role WHERE
+		id=#{id}
+	</delete>
+
+</mapper>

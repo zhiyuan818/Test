@@ -1,0 +1,1326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ChannelMapper">
+	<resultMap type="com.jjxt.ssm.entity.Channel" id="channel">
+		<id column="id" property="id" />
+		<result column="channel_id" property="channelId" />
+		<result column="name" property="name" />
+		<result column="notice" property="notice" />
+		<result column="source_full_length" property="sourceFullLength" />
+		<result column="source_segment" property="sourceSegment" />
+		<result column="call_out" property="callOut" />
+		<result column="source_type" property="sourceType" />
+		<result column="to_cmcc" property="toCmcc" />
+		<result column="to_unicom" property="toUnicom" />
+		<result column="to_telecom" property="toTelecom" />
+		<result column="to_unknown" property="toUnknown" />
+		<result column="msgid_type" property="msgidType" />
+		<result column="have_report" property="haveReport" />
+		<result column="have_mo" property="haveMo" />
+		<result column="success_rate" property="successRate" />
+		<result column="size_max" property="sizeMax" />
+		<result column="size_first" property="sizeFirst" />
+		<result column="size_charge" property="sizeCharge" />
+		<result column="cover_key" property="coverKey" />
+		<result column="submit_begin" property="submitBegin" />
+		<result column="submit_end" property="submitEnd" />
+		<result column="auto_ext_src" property="autoExtSrc" />
+		<result column="user_ext_src" property="userExtSrc" />
+		<result column="channel_status" property="channelStatus" />
+		<result column="baobei_model" property="baobeiModel" />
+		<result column="filter_global_black" property="filterGlobalBlack" />
+		<result column="baobei_before_pj_ext_src" property="baobeiBeforePjExtSrc" />
+		<result column="to_intl" property="toIntl" />
+		<result column="gw_type" property="gwType" />
+		<result column="svc_addr" property="svcAddr" />
+		<result column="svc_port" property="svcPort" />
+		<result column="account" property="account" />
+		<result column="password" property="password" />
+		<result column="link_max" property="linkMax" />
+		<result column="link_speed" property="linkSpeed" />
+		<result column="first_msg_charge_len" property="firstMsgChargeLen" />
+		<result column="subseq_msg_charge_len" property="subseqMsgChargeLen" />
+		<result column="service_code" property="serviceCode" />
+		<result column="enterprise_code" property="enterpriseCode" />
+		<result column="extras" property="extras" />
+		<result column="short_num" property="shortNum" />
+		<result column="variant" property="variant" />
+		<result column="backup_channel_id" property="backupChannelId" />
+		<result column="auto_extract_signs" property="autoExtractSigns" />
+		<result column="channel_price" property="channelPrice" />
+		<result column="model" property="model" />
+		<result column="alarm_code" property="alarmCode" />
+		<result column="submit_alarm_code" property="submitAlarmCode" />
+		<result column="logic_model" property="logicModel" />
+		<result column="mo_match" property="moMatch" />
+		<result column="is_month_limit" property="isMonthLimit" />
+		<result column="month_limit_count" property="monthLimitCount"/>
+		<result column="type" property="type" />
+		<result column="provider" property="provider" />
+		<result column="consumer_id" property="consumerId" />
+		<result column="consumer_name" property="consumerName" />
+		<result column="consumer_status" property="consumerStatus" />
+		<result column="platform_flag" property="platformFlag" />
+		<result column="all_platform_used" property="allPlatformUsed" />
+		<result column="supplier_id" property="supplierId" />
+		<result column="supplier_key" property="supplierKey" />
+		<result column="head" property="head" />
+		<result column="redis_flag" property="redisFlag" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.Model" id="model">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="type" property="type"/>
+		<result column="value" property="value"/>
+		<result column="is_default" property="isDefault"/>
+	</resultMap>
+	<resultMap type="java.util.Map" id="chaMap">
+		<id column="channel_id" property="id"/>
+		<id column="name" property="name"/>
+	</resultMap>
+	
+	<sql id="channelResult">
+		id,channel_id,name,notice,source_full_length,source_segment,call_out,source_type,to_cmcc,to_unicom,to_telecom,to_unknown,msgid_type,have_report,have_mo,
+		success_rate,size_max,size_first,size_charge,cover_key,submit_begin,submit_end,auto_ext_src,user_ext_src,channel_status,baobei_model,filter_global_black,
+		to_intl,gw_type,svc_addr,svc_port,account,password,link_max,link_speed,first_msg_charge_len,subseq_msg_charge_len,service_code,enterprise_code,extras,short_num,
+		variant,backup_channel_id,auto_extract_signs,channel_price,model,alarm_code,submit_alarm_code,logic_model,mo_match,baobei_before_pj_ext_src,is_month_limit,month_limit_count,
+		platform_flag,all_platform_used,redis_flag
+	</sql>
+	<!-- channelId查询channel对象 -->
+	<select id="findChannelByChannelId" resultMap="channel"
+		parameterType="int">
+		select
+		ch.id,ch.channel_id,ch.name,ch.notice,ch.source_full_length,ch.source_segment,ch.call_out,ch.source_type,ch.to_cmcc,ch.to_unicom,ch.to_telecom,ch.to_unknown,ch.msgid_type,ch.have_report,ch.have_mo,
+		ch.success_rate,ch.size_max,ch.size_first,ch.size_charge,ch.cover_key,ch.submit_begin,ch.submit_end,ch.auto_ext_src,ch.user_ext_src,ch.channel_status,ch.baobei_model,ch.filter_global_black,
+		ch.to_intl,ch.gw_type,ch.svc_addr,ch.svc_port,ch.account,ch.password,ch.link_max,ch.link_speed,ch.first_msg_charge_len,ch.subseq_msg_charge_len,ch.service_code,ch.enterprise_code,ch.extras,ch.short_num,
+		ch.variant,ch.backup_channel_id,ch.auto_extract_signs,ch.channel_price,ch.model,ch.alarm_code,ch.submit_alarm_code,ch.logic_model,ch.mo_match,ch.baobei_before_pj_ext_src,ch.is_month_limit,ch.month_limit_count,
+		ch.platform_flag,ch.all_platform_used,a.supplier_id,s.supplier_name,s.supplier_key,redis_flag
+		from sms_core.args_channel ch
+		LEFT JOIN args_channel_ext a on ch.channel_id = a.channel_id
+		LEFT JOIN base_channel_supplier s on s.id = a.supplier_id
+		where ch.channel_id=#{channelId}
+	</select>
+	<!-- id查询channel对象 -->
+	<select id="findChannelById" resultMap="channel" parameterType="int">
+		select
+		ch.id,ch.channel_id,ch.name,ch.notice,ch.source_full_length,ch.source_segment,ch.call_out,ch.source_type,ch.to_cmcc,ch.to_unicom,ch.to_telecom,ch.to_unknown,ch.msgid_type,ch.have_report,ch.have_mo,
+		ch.success_rate,ch.size_max,ch.size_first,ch.size_charge,ch.cover_key,ch.submit_begin,ch.submit_end,ch.auto_ext_src,ch.user_ext_src,ch.channel_status,ch.baobei_model,ch.filter_global_black,
+		ch.to_intl,ch.gw_type,ch.svc_addr,ch.svc_port,ch.account,ch.password,ch.link_max,ch.link_speed,ch.first_msg_charge_len,ch.subseq_msg_charge_len,ch.service_code,ch.enterprise_code,ch.extras,ch.short_num,
+		ch.variant,ch.backup_channel_id,ch.auto_extract_signs,ch.channel_price,ch.model,ch.alarm_code,ch.submit_alarm_code,ch.logic_model,ch.mo_match,ch.baobei_before_pj_ext_src,ch.is_month_limit,ch.month_limit_count,
+		ch.platform_flag,ch.all_platform_used,a.supplier_id,s.supplier_name,s.supplier_key,redis_flag
+		from sms_core.args_channel ch
+		LEFT JOIN args_channel_ext a on ch.channel_id = a.channel_id
+		LEFT JOIN base_channel_supplier s on s.id = a.supplier_id
+		where ch.id=#{id}
+	</select>
+	<!-- 查询所有通道 -->
+	<select id="findChannelByMap" resultMap="channel" parameterType="map">
+		SELECT
+		<include refid="channelResult" />
+		from sms_core.args_channel where 1=1
+		<if test="toCmcc!=null">
+			and to_cmcc='yes'
+		</if>
+		<if test="toUnicom!=null">
+			and to_unicom='yes'
+		</if>
+		<if test="toTelecom!=null">
+			and to_telecom='yes'
+		</if>
+		<if test="channelStatus!=null">
+			and channel_status != #{channelStatus}
+		</if>
+		ORDER BY channel_id DESC
+	</select>
+	<!-- 查询通道总数 -->
+	<select id="findTotal" resultType="int">
+		select count(1) from
+		sms_core.args_channel ch
+		LEFT JOIN args_channel_ext a on ch.channel_id = a.channel_id
+		LEFT JOIN base_channel_supplier s on s.id = a.supplier_id
+		where 1=1
+		<if test="supplierId != null and  supplierId != ''">
+			and s.id = #{supplierId}
+		</if>
+		<if test="channelId != null and  channelId != ''">
+			and ch.channel_id = #{channelId}
+		</if>
+		<if test="channelStatus != null and channelStatus != ''">
+			and ch.channel_status=#{channelStatus}
+		</if>
+		<if test="validateName != null and validateName != ''">
+			and ch.name=#{validateName}
+		</if>
+		<if test="account != null and account != ''">
+			and ch.account=#{account}
+		</if>
+		<if test="svcAddr != null and svcAddr != ''">
+			and ch.svc_addr=#{svcAddr}
+		</if>
+		<if test="serviceCode != null and serviceCode != ''">
+			and ch.service_code=#{serviceCode}
+		</if>
+		<if test="enterpriseCode != null and enterpriseCode != ''">
+			and ch.enterprise_code=#{enterpriseCode}
+		</if>
+		<if test="variant != null and variant != ''">
+			and ch.variant=#{variant}
+		</if>
+		<if test="platformFlag != null and platformFlag != ''">
+			and ch.platform_flag=#{platformFlag}
+		</if>
+		<if test="allPlatformUsed != null and allPlatformUsed != ''">
+			and ch.all_platform_used=#{allPlatformUsed}
+		</if>
+	</select>
+	<!-- 查询通道列表 -->
+	<select id="findChannelPageList" resultMap="channel"
+		parameterType="map">
+		select
+		ch.id,ch.channel_id,ch.name,ch.notice,ch.source_full_length,ch.source_segment,ch.call_out,ch.source_type,ch.to_cmcc,ch.to_unicom,ch.to_telecom,ch.to_unknown,ch.msgid_type,ch.have_report,ch.have_mo,
+		ch.success_rate,ch.size_max,ch.size_first,ch.size_charge,ch.cover_key,ch.submit_begin,ch.submit_end,ch.auto_ext_src,ch.user_ext_src,ch.channel_status,ch.baobei_model,ch.filter_global_black,
+		ch.to_intl,ch.gw_type,ch.svc_addr,ch.svc_port,ch.account,ch.password,ch.link_max,ch.link_speed,ch.first_msg_charge_len,ch.subseq_msg_charge_len,ch.service_code,ch.enterprise_code,ch.extras,ch.short_num,
+		ch.variant,ch.backup_channel_id,ch.auto_extract_signs,ch.channel_price,ch.model,ch.alarm_code,ch.submit_alarm_code,ch.logic_model,ch.mo_match,ch.baobei_before_pj_ext_src,ch.is_month_limit,
+		ch.month_limit_count,(CASE WHEN co.count is null THEN 0 ELSE co.count end) as productNumber,ch.platform_flag,ch.all_platform_used,b.head,b.supplier_key,ch.redis_flag
+		from sms_core.args_channel ch LEFT JOIN
+		(SELECT
+	    channel_id,COUNT(1) AS count
+		FROM (
+		SELECT
+		cmcc_channel_id AS channel_id,id
+		FROM sms_core.fors_product
+		UNION SELECT
+		unicom_channel_id AS channel_id,id
+		FROM sms_core.fors_product
+		UNION SELECT
+		telecom_channel_id AS channel_id,id
+		FROM sms_core.fors_product) mm
+		GROUP BY channel_id
+		) co 
+		on ch.channel_id = co.channel_id
+		LEFT JOIN args_channel_ext a on ch.channel_id = a.channel_id
+		LEFT JOIN base_channel_supplier b on b.id = a.supplier_id
+		where 1=1 
+		<if test="supplierId != null and  supplierId != ''">
+			and b.id = #{supplierId}
+		</if>
+		<if test="head != null and  head != ''">
+			and b.head = #{head}
+		</if>
+		<if test="channelId != null and  channelId != ''">
+			and ch.channel_id = #{channelId}
+		</if>
+		<if test="channelStatus != null and channelStatus != ''">
+			and ch.channel_status=#{channelStatus}
+		</if>
+		<if test="account != null and account != ''">
+			and ch.account=#{account}
+		</if>
+		<if test="svcAddr != null and svcAddr != ''">
+			and ch.svc_addr=#{svcAddr}
+		</if>
+		<if test="serviceCode != null and serviceCode != ''">
+			and ch.service_code=#{serviceCode}
+		</if>
+		<if test="enterpriseCode != null and enterpriseCode != ''">
+			and ch.enterprise_code=#{enterpriseCode}
+		</if>
+		<if test="variant != null and variant != ''">
+			and ch.variant=#{variant}
+		</if>
+		<if test="platformFlag != null and platformFlag != ''">
+			and ch.platform_flag=#{platformFlag}
+		</if>
+		<if test="allPlatformUsed != null and allPlatformUsed != ''">
+			and ch.all_platform_used=#{allPlatformUsed}
+		</if>
+		 order by ch.channel_id desc limit
+		#{start},#{end}
+	</select>
+	<select id="findEndAddChannel" resultMap="channel">
+		SELECT
+		<include refid="channelResult" />
+		FROM sms_core.args_channel ORDER BY id desc limit 0,1
+	</select>
+	<insert id="addChannel" parameterType="com.jjxt.ssm.entity.Channel">
+		insert into
+		sms_core.args_channel(channel_id,name,notice
+		<if test="channelId!=0">
+			,sp_id
+		</if>
+		<if test="sourceFullLength!=null and sourceFullLength!=''">
+			,source_full_length
+		</if>
+		<if test="sourceSegment!=null">
+			,source_segment
+		</if>
+		<if test="callOut!=null">
+			,call_out
+		</if>
+		<if test="sourceType!=null and sourceType!=''">
+			,source_type
+		</if>
+		<if test="toCmcc!=null and toCmcc!=''">
+			,to_cmcc
+		</if>
+		<if test="toUnicom!=null and toUnicom!=''">
+			,to_unicom
+		</if>
+		<if test="toTelecom!=null and toTelecom!=''">
+			,to_telecom
+		</if>
+		<if test="msgidType!=null and msgidType!=''">
+			,msgid_type
+		</if>
+		<if test="haveReport!=null and haveReport!=''">
+			,have_report
+		</if>
+		<if test="haveMo!=null and haveMo!=''">
+			,have_mo
+		</if>
+		<if test="successRate!=null and successRate!=''">
+			,success_rate
+		</if>
+		<if test="sizeMax!=null and sizeMax!=''">
+			,size_max
+		</if>
+		<if test="sizeFirst!=null and sizeFirst!=''">
+			,size_first
+		</if>
+		<if test="sizeCharge!=null and sizeCharge!=''">
+			,size_charge
+		</if>
+		<if test="coverKey!=null and coverKey!=''">
+			,cover_key
+		</if>
+		<if test="submitBegin!=null and submitBegin!=''">
+			,submit_begin
+		</if>
+		<if test="submitEnd!=null and submitEnd!=''">
+			,submit_end
+		</if>
+		<if test="autoExtSrc!=null and autoExtSrc!=''">
+			,auto_ext_src
+		</if>
+		<if test="userExtSrc!=null and userExtSrc!=''">
+			,user_ext_src
+		</if>
+		<if test="channelStatus!=null and channelStatus!=''">
+			,channel_status
+		</if>
+		<if test="baobeiModel!=null and baobeiModel!=''">
+			,baobei_model
+		</if>
+		<if test="filterGlobalBlack!=null and filterGlobalBlack!=''">
+			,filter_global_black
+		</if>
+		<if test="toIntl!=null and toIntl!=''">
+			,to_intl
+		</if>
+		<if test="gwType!=null and gwType!=''">
+			,gw_type
+		</if>
+		<if test="svcAddr!=null and svcAddr!=''">
+			,svc_addr
+		</if>
+		<if test="svcPort!=null and svcPort!=''">
+			,svc_port
+		</if>
+		<if test="account!=null and account!=''">
+			,account
+		</if>
+		<if test="password!=null and password!=''">
+			,password
+		</if>
+		<if test="linkMax!=null and linkMax!=''">
+			,link_max
+		</if>
+		<if test="linkSpeed!=null and linkSpeed!=''">
+			,link_speed
+		</if>
+		<if test="firstMsgChargeLen!=null and firstMsgChargeLen!=''">
+			,first_msg_charge_len
+		</if>
+		<if test="subseqMsgChargeLen!=null and subseqMsgChargeLen!=''">
+			,subseq_msg_charge_len
+		</if>
+		<if test="serviceCode!=null and serviceCode!=''">
+			,service_code
+		</if>
+		<if test="enterpriseCode!=null and enterpriseCode!=''">
+			,enterprise_code
+		</if>
+		<if test="extras!=null and extras!=''">
+			,extras
+		</if>
+		<if test="shortNum!=null and shortNum!=''">
+			,short_num
+		</if>
+		<if test="variant!=null and variant!=''">
+			,variant
+		</if>
+		<if test="backupChannelId!=null and backupChannelId!=''">
+			,backup_channel_id
+		</if>
+		<if test="autoExtractSigns!=null and autoExtractSigns!=''">
+			,auto_extract_signs
+		</if>
+		<if test="channelPrice!=null and channelPrice!=''">
+			,channel_price
+		</if>
+		<if test="model!=null and model!=''">
+			,model
+		</if>
+		<if test="alarmCode!=null and alarmCode!=''">
+			,alarm_code
+		</if>
+		<if test="submitAlarmCode!=null and submitAlarmCode!=''">
+			,submit_alarm_code
+		</if>
+		<if test="logicModel!=null and logicModel!=''">
+			,logic_model
+		</if>
+		<if test="moMatch!=null and moMatch!=''">
+			,mo_match
+		</if>
+		<if test="platformFlag!=null and platformFlag!=''">
+			,platform_flag
+		</if>
+		<if test="allPlatformUsed!=null and allPlatformUsed!=''">
+			,all_platform_used
+		</if>
+		<if test="redisFlag!=null">
+			,redis_flag
+		</if>
+		)
+		values(#{channelId},#{name},#{notice}
+		<if test="channelId!=0">
+			,1
+		</if>
+		<if test="sourceFullLength!=null and sourceFullLength!=''">
+			,#{sourceFullLength}
+		</if>
+		<if test="sourceSegment!=null">
+			,#{sourceSegment}
+		</if>
+		<if test="callOut!=null">
+			,#{callOut}
+		</if>
+		<if test="sourceType!=null and sourceType!=''">
+			,#{sourceType}
+		</if>
+		<if test="toCmcc!=null and toCmcc!=''">
+			,#{toCmcc}
+		</if>
+		<if test="toUnicom!=null and toUnicom!=''">
+			,#{toUnicom}
+		</if>
+		<if test="toTelecom!=null and toTelecom!=''">
+			,#{toTelecom}
+		</if>
+		<if test="msgidType!=null and msgidType!=''">
+			,#{msgidType}
+		</if>
+		<if test="haveReport!=null and haveReport!=''">
+			,#{haveReport}
+		</if>
+		<if test="haveMo!=null and haveMo!=''">
+			,#{haveMo}
+		</if>
+		<if test="successRate!=null and successRate!=''">
+			,#{successRate}
+		</if>
+		<if test="sizeMax!=null and sizeMax!=''">
+			,#{sizeMax}
+		</if>
+		<if test="sizeFirst!=null and sizeFirst!=''">
+			,#{sizeFirst}
+		</if>
+		<if test="sizeCharge!=null and sizeCharge!=''">
+			,#{sizeCharge}
+		</if>
+		<if test="coverKey!=null and coverKey!=''">
+			,#{coverKey}
+		</if>
+		<if test="submitBegin!=null and submitBegin!=''">
+			,#{submitBegin}
+		</if>
+		<if test="submitEnd!=null and submitEnd!=''">
+			,#{submitEnd}
+		</if>
+		<if test="autoExtSrc!=null and autoExtSrc!=''">
+			,#{autoExtSrc}
+		</if>
+		<if test="userExtSrc!=null and userExtSrc!=''">
+			,#{userExtSrc}
+		</if>
+		<if test="channelStatus!=null and channelStatus!=''">
+			,#{channelStatus}
+		</if>
+		<if test="baobeiModel!=null and baobeiModel!=''">
+			,#{baobeiModel}
+		</if>
+		<if test="filterGlobalBlack!=null and filterGlobalBlack!='' ">
+			,#{filterGlobalBlack}
+		</if>
+		<if test="toIntl!=null and toIntl!=''">
+			,#{toIntl}
+		</if>
+		<if test="gwType!=null and gwType!=''">
+			,#{gwType}
+		</if>
+		<if test="svcAddr!=null and svcAddr!=''">
+			,#{svcAddr}
+		</if>
+		<if test="svcPort!=null and svcPort!=''">
+			,#{svcPort}
+		</if>
+		<if test="account!=null and account!=''">
+			,#{account}
+		</if>
+		<if test="password!=null and password!=''">
+			,#{password}
+		</if>
+		<if test="linkMax!=null and linkMax!=''">
+			,#{linkMax}
+		</if>
+		<if test="linkSpeed!=null and linkSpeed!=''">
+			,#{linkSpeed}
+		</if>
+		<if test="firstMsgChargeLen!=null and firstMsgChargeLen!=''">
+			,#{firstMsgChargeLen}
+		</if>
+		<if test="subseqMsgChargeLen!=null and subseqMsgChargeLen!=''">
+			,#{subseqMsgChargeLen}
+		</if>
+		<if test="serviceCode!=null and serviceCode!=''">
+			,#{serviceCode}
+		</if>
+		<if test="enterpriseCode!=null and enterpriseCode!=''">
+			,#{enterpriseCode}
+		</if>
+		<if test="extras!=null and extras!=''">
+			,#{extras}
+		</if>
+		<if test="shortNum!=null and shortNum!=''">
+			,#{shortNum}
+		</if>
+		<if test="variant!=null and variant!=''">
+			,#{variant}
+		</if>
+		<if test="backupChannelId!=null and backupChannelId!=''">
+			,#{backupChannelId}
+		</if>
+		<if test="autoExtractSigns!=null and autoExtractSigns!=''">
+			,#{autoExtractSigns}
+		</if>
+		<if test="channelPrice!=null and channelPrice!=''">
+			,#{channelPrice}
+		</if>
+		<if test="model!=null and model!=''">
+			,#{model}
+		</if>
+		<if test="alarmCode!=null and alarmCode!=''">
+			,#{alarmCode}
+		</if>
+		<if test="submitAlarmCode!=null and submitAlarmCode!=''">
+			,#{submitAlarmCode}
+		</if>
+		<if test="logicModel!=null and logicModel!=''">
+			,#{logicModel}
+		</if>
+		<if test="moMatch!=null and moMatch!=''">
+			,#{moMatch}
+		</if>
+		<if test="platformFlag!=null and platformFlag!=''">
+			,#{platformFlag}
+		</if>
+		<if test="allPlatformUsed!=null and allPlatformUsed!=''">
+			,#{allPlatformUsed}
+		</if>
+		<if test="redisFlag!=null">
+			,#{redisFlag}
+		</if>
+		)
+	</insert>
+	<select id="findMaxChannelId" resultType="int">
+		select max(channel_id)
+		from sms_core.args_channel
+	</select>
+
+	<update id="updateChannel" parameterType="com.jjxt.ssm.entity.Channel">
+		update sms_core.args_channel
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="notice!=null">
+				notice=#{notice},
+			</if>
+			<if test="sourceSegment!=null">
+				source_segment=#{sourceSegment},
+			</if>
+			<if test="callOut!=null">
+				call_out=#{callOut},
+			</if>
+			<if test="sourceFullLength!=null">
+				source_full_length=#{sourceFullLength},
+			</if>
+			<if test="sourceType!=null">
+				source_type=#{sourceType},
+			</if>
+			<if test="toCmcc!=null">
+				to_cmcc=#{toCmcc},
+			</if>
+			<if test="toUnicom!=null">
+				to_unicom=#{toUnicom},
+			</if>
+			<if test="toTelecom!=null">
+				to_telecom=#{toTelecom},
+			</if>
+			<if test="toUnknown!=null">
+				to_unknown=#{toUnknown},
+			</if>
+			<if test="msgidType!=null">
+				msgid_type=#{msgidType},
+			</if>
+			<if test="haveReport!=null">
+				have_report=#{haveReport},
+			</if>
+			<if test="haveMo!=null">
+				have_mo=#{haveMo},
+			</if>
+			<if test="successRate!=null">
+				success_rate=#{successRate},
+			</if>
+			<if test="sizeMax!=null">
+				size_max=#{sizeMax},
+			</if>
+			<if test="sizeFirst!=null">
+				size_first=#{sizeFirst},
+			</if>
+			<if test="sizeCharge!=null">
+				size_charge=#{sizeCharge},
+			</if>
+			<if test="coverKey!=null">
+				cover_key=#{coverKey},
+			</if>
+			<if test="submitBegin!=null">
+				submit_begin=#{submitBegin},
+			</if>
+			<if test="submitEnd!=null">
+				submit_end=#{submitEnd},
+			</if>
+			<if test="autoExtSrc!=null">
+				auto_ext_src=#{autoExtSrc},
+			</if>
+			<if test="userExtSrc!=null">
+				user_ext_src=#{userExtSrc},
+			</if>
+			<if test="channelStatus!=null">
+				channel_status=#{channelStatus},
+			</if>
+			<if test="baobeiModel!=null">
+				baobei_model=#{baobeiModel},
+			</if>
+			<if test="filterGlobalBlack!=null">
+				filter_global_black=#{filterGlobalBlack},
+			</if>
+			<if test="baobeiBeforePjExtSrc!=null">
+				baobei_before_pj_ext_src=#{baobeiBeforePjExtSrc},
+			</if>
+			<if test="toIntl!=null">
+				to_intl=#{toIntl},
+			</if>
+			<if test="gwType!=null">
+				gw_type=#{gwType},
+			</if>
+			<if test="svcAddr!=null">
+				svc_addr=#{svcAddr},
+			</if>
+			<if test="svcPort!=null">
+				svc_port=#{svcPort},
+			</if>
+			<if test="account!=null">
+				account=#{account},
+			</if>
+			<if test="password!=null">
+				password=#{password},
+			</if>
+			<if test="linkMax!=null">
+				link_max=#{linkMax},
+			</if>
+			<if test="linkSpeed!=null">
+				link_speed=#{linkSpeed},
+			</if>
+			<if test="firstMsgChargeLen!=null">
+				first_msg_charge_len=#{firstMsgChargeLen},
+			</if>
+			<if test="subseqMsgChargeLen!=null">
+				subseq_msg_charge_len=#{subseqMsgChargeLen},
+			</if>
+			<if test="serviceCode!=null">
+				service_code=#{serviceCode},
+			</if>
+			<if test="enterpriseCode!=null">
+				enterprise_code=#{enterpriseCode},
+			</if>
+			<if test="extras!=null">
+				extras=#{extras},
+			</if>
+			<if test="shortNum!=null">
+				short_num=#{shortNum},
+			</if>
+			<if test="variant!=null">
+				variant=#{variant},
+			</if>
+			<if test="backupChannelId!=null">
+				backup_channel_id=#{backupChannelId},
+			</if>
+			<if test="autoExtractSigns!=null">
+				auto_extract_signs=#{autoExtractSigns},
+			</if>
+			<if test="channelPrice!=null">
+				channel_price=#{channelPrice},
+			</if>
+			<if test="model!=null">
+				model=#{model},
+			</if>
+			<if test="alarmCode!=null">
+				alarm_code=#{alarmCode},
+			</if>
+			<if test="submitAlarmCode!=null">
+				submit_alarm_code=#{submitAlarmCode},
+			</if>
+			<if test="logicModel!=null">
+				logic_model=#{logicModel},
+			</if>
+			<if test="moMatch!=null">
+				mo_match=#{moMatch},
+			</if>
+			<if test="channelPrice!=null">
+				channel_price=#{channelPrice},
+			</if>
+			<if test="isMonthLimit != null and isMonthLimit != ''">
+				is_month_limit = #{isMonthLimit},
+			</if>
+			<if test="monthLimitCount != null and monthLimitCount != ''">
+				month_limit_count = #{monthLimitCount},
+			</if>
+			<if test="platformFlag!=null and platformFlag!=''">
+				platform_flag = #{platformFlag},
+			</if>
+			<if test="allPlatformUsed !=null">
+				all_platform_used = #{allPlatformUsed},
+			</if>
+			<if test="redisFlag !=null">
+				redis_flag = #{redisFlag}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="findVariant" resultType="com.jjxt.ssm.entity.Variant">
+		select id,name from sms_core.args_variant
+	</select>
+	<select id="findModel" resultMap="model" parameterType="map">
+		select id,name,type,value,is_default from sms_core.args_model where 1=1 
+		<if test="type!=null">
+			and type=#{type}
+		</if>
+	</select>
+	
+	<select id="findChannelSet" parameterType="java.util.Set" resultMap="channel">
+		select
+		<include refid="channelResult" />
+		from sms_core.args_channel where channel_id in 
+		<foreach collection="set" item="item" index="index" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="findChannel" resultMap="chaMap">
+		select channel_id,name from sms_core.args_channel
+		<where>
+			<if test="channelStatus!=null and channelStatus!=''">
+				channel_status = #{channelStatus}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findNormalChannel" resultMap="chaMap">
+		select channel_id,name from sms_core.args_channel where channel_status = 'normal' order by channel_id desc
+	</select>
+	
+	<select id="findConfirmProvider" resultType="int" parameterType="map">
+		select count(1) from sms_core.args_channel where channel_id = #{newChannelId}  and
+		<choose>
+				<when test="provider == 'cmcc'">
+					`to_cmcc`='yes'
+				</when>
+				<when test="provider == 'unicom'">
+					`to_unicom`='yes'
+				</when>
+				<when test="provider == 'telecom'">
+					`to_telecom`='yes'
+				</when>
+				<otherwise>
+					channel_id = -1
+				</otherwise>
+		</choose>
+	</select>
+
+	<select id="findChannelAllConfigByChannelId" parameterType="int"
+		resultMap="channel">
+		SELECT
+		'主用' AS type,
+		'cmcc' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.cmcc_channel_id = ar.channel_id
+		WHERE ar.to_cmcc = 'yes' AND ar.channel_id=#{channelId}
+		UNION
+		SELECT
+		'主用' AS type,
+		'unicom' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.unicom_channel_id = ar.channel_id
+		WHERE ar.to_unicom = 'yes' AND ar.channel_id=#{channelId}
+		UNION
+		SELECT
+		'主用' AS type,
+		'telecom' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.telecom_channel_id = ar.channel_id
+		WHERE ar.to_telecom = 'yes' AND ar.channel_id=#{channelId}
+		UNION
+		SELECT
+		CONCAT('分省-', lg.province) AS type,
+		lg.carriers AS provider,
+		lg.product_id AS consumer_id,
+		fo.product_name AS consumer_name,
+		(CASE WHEN lg.`status` = 'normal' AND fo.product_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		lg.channel_id,
+		ar.`name`
+		FROM sms_core.lg_provinces_send lg
+		INNER JOIN sms_core.args_channel ar ON lg.channel_id = ar.channel_id
+		INNER JOIN sms_core.fors_product fo ON lg.product_id = fo.id 
+		WHERE lg.channel_id=#{channelId}
+		UNION
+		SELECT
+		'按账户重发' AS type,
+		'cmcc' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.id_type = 'account' AND ar.to_cmcc = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'按账户重发' AS type,
+		'unicom' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.id_type = 'account' AND ar.to_unicom = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'按账户重发' AS type,
+		'telecom' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.id_type = 'account' AND ar.to_telecom = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'按通道重发' AS type,
+		'cmcc' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.id_type = 'channel' AND ar1.to_cmcc = 'yes' AND ar2.to_cmcc = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'按通道重发' AS type,
+		'unicom' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.id_type = 'channel' AND ar1.to_unicom = 'yes' AND ar2.to_unicom = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'按通道重发' AS type,
+		'telecom' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.id_type = 'channel' AND ar1.to_telecom = 'yes' AND ar2.to_telecom = 'yes' AND re.to_channel=#{channelId}
+		UNION
+		SELECT
+		'定向模板' AS type,
+		'cmcc' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.cmcc_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.cmcc_channel_id = ar.channel_id
+		where ar.to_cmcc = 'yes' AND lmd.cmcc_channel_id=#{channelId}
+		UNION
+		SELECT
+		'定向模板' AS type,
+		'unicom' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.unicom_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.unicom_channel_id = ar.channel_id
+		where ar.to_unicom = 'yes' AND lmd.unicom_channel_id=#{channelId}
+		UNION
+		SELECT
+		'定向模板' AS type,
+		'telecom' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.telecom_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.telecom_channel_id = ar.channel_id
+		where ar.to_telecom = 'yes' AND lmd.telecom_channel_id=#{channelId}
+		UNION
+		SELECT 
+		'策略模板' AS type,
+		'cmcc' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'cmcc:',-1),';',1)=c.channel_id
+		WHERE c.to_cmcc='yes' AND temp.strategy='redirect' AND c.channel_id=#{channelId}
+		UNION
+		SELECT 
+		'策略模板' AS type,
+		'unicom' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'unicom:',-1),';',1)=c.channel_id
+		WHERE c.to_cmcc='yes' AND temp.strategy='redirect' AND c.channel_id=#{channelId}
+		UNION
+		SELECT 
+		'策略模板' AS type,
+		'telecom' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'telecom:',-1),';',1)=c.channel_id
+		WHERE c.to_cmcc='yes' AND temp.strategy='redirect' AND c.channel_id=#{channelId}
+		order by type,consumer_id,provider
+	</select>
+	
+	<select id="findMainData" resultMap="channel" parameterType="map">
+		SELECT
+		'主用' AS type,
+		'cmcc' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.cmcc_channel_id = ar.channel_id
+		WHERE fo.id=#{consumerId} and ar.channel_id=#{channelId} and ar.to_cmcc='yes'
+		union
+		SELECT
+		'主用' AS type,
+		'unicom' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.unicom_channel_id = ar.channel_id
+		WHERE fo.id=#{consumerId} and ar.channel_id=#{channelId} and ar.to_unicom='yes'
+		union
+		SELECT
+		'主用' AS type,
+		'telecom' AS provider,
+		fo.id AS consumer_id,
+		fo.product_name AS consumer_name,
+		fo.product_status AS consumer_status,
+		ar.channel_id,
+		ar.`name`
+		FROM sms_core.args_channel ar
+		INNER JOIN sms_core.fors_product fo ON fo.telecom_channel_id = ar.channel_id
+		WHERE fo.id=#{consumerId} and ar.channel_id=#{channelId} and ar.to_telecom='yes'
+	</select>
+	
+	<select id="findAccResendData" parameterType="map" resultMap="channel">
+		SELECT
+		'按账户重发' AS type,
+		'cmcc' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='account' and re.to_channel=#{channelId} AND ar.to_cmcc='yes'
+		UNION
+		SELECT
+		'按账户重发' AS type,
+		'unicom' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='account' and re.to_channel=#{channelId} AND ar.to_unicom='yes'
+		UNION
+		SELECT
+		'按账户重发' AS type,
+		'telecom' AS provider,
+		uc.id AS consumer_id,
+		uc.app_name AS consumer_name,
+		uc.app_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.ucenter_application uc ON uc.id = re.app_chan_id
+		INNER JOIN sms_core.args_channel ar ON re.to_channel = ar.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='account' and re.to_channel=#{channelId} AND ar.to_telecom='yes'
+	</select>
+	
+	<select id="findChanResendData" parameterType="map" resultMap="channel">
+		SELECT
+		'按通道重发' AS type,
+		'cmcc' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='channel'  and re.to_channel=#{channelId} AND ar1.to_cmcc = 'yes' AND ar2.to_cmcc = 'yes'
+		UNION
+		SELECT
+		'按通道重发' AS type,
+		'unicom' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='channel'  and re.to_channel=#{channelId} AND ar1.to_unicom = 'yes' AND ar2.to_unicom = 'yes'
+		UNION
+		SELECT
+		'按通道重发' AS type,
+		'telecom' AS provider,
+		ar1.channel_id AS consumer_id,
+		ar1.`name` AS consumer_name,
+		ar1.channel_status AS consumer_status,
+		re.to_channel AS channel_id,
+		ar2.`name`
+		FROM sms_core.lg_resend_config re
+		INNER JOIN sms_core.args_channel ar1 ON re.app_chan_id = ar1.channel_id
+		INNER JOIN sms_core.args_channel ar2 ON re.to_channel = ar2.channel_id
+		WHERE re.app_chan_id=#{consumerId} and re.id_type='channel'  and re.to_channel=#{channelId} AND ar1.to_telecom = 'yes' AND ar2.to_telecom = 'yes'
+	</select>
+	
+	<select id="findProvincesSendData" parameterType="map" resultMap="channel">
+		SELECT
+		CONCAT('分省-', lg.province) AS type,
+		lg.carriers AS provider,
+		lg.product_id AS consumer_id,
+		fo.product_name AS consumer_name,
+		(CASE WHEN lg.`status` = 'normal' AND fo.product_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		lg.channel_id,
+		ar.`name`
+		FROM
+		sms_core.lg_provinces_send lg
+		INNER JOIN sms_core.args_channel ar ON lg.channel_id = ar.channel_id
+		INNER JOIN sms_core.fors_product fo ON lg.product_id = fo.id
+		where lg.product_id=#{consumerId} and lg.carriers=#{provider} and lg.province=#{province} and lg.channel_id=#{channelId}
+	</select>
+	
+	<select id="findModelSendData" parameterType="map" resultMap="channel">
+		SELECT
+		'定向模板' AS type,
+		'cmcc' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.cmcc_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.cmcc_channel_id = ar.channel_id
+		where lmd.id=#{consumerId} and lmd.cmcc_channel_id=#{channelId} and ar.to_cmcc='yes'
+		UNION
+		SELECT
+		'定向模板' AS type,
+		'unicom' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.unicom_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.unicom_channel_id = ar.channel_id
+		where lmd.id=#{consumerId} and lmd.unicom_channel_id=#{channelId} and ar.to_unicom='yes'
+		UNION
+		SELECT
+		'定向模板' AS type,
+		'telecom' AS provider,
+		lmd.id AS consumer_id,
+		lmd.content AS consumer_name,
+		ar.channel_status AS consumer_status,
+		lmd.telecom_channel_id AS channel_id,
+		ar.`name`
+		FROM sms_core.lg_model_send lmd
+		INNER JOIN sms_core.args_channel ar ON lmd.telecom_channel_id = ar.channel_id
+		where lmd.id=#{consumerId} and lmd.telecom_channel_id=#{channelId} and ar.to_telecom='yes'
+	</select>
+	
+	<select id="findTemplateData" parameterType="map" resultMap="channel">
+		SELECT 
+		'策略模板' AS type,
+		'cmcc' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'cmcc:',-1),';',1)=c.channel_id
+		WHERE temp.id=#{consumerId} and temp.strategy='redirect' and c.channel_id=#{channelId} and c.to_cmcc='yes'
+		UNION
+		SELECT 
+		'策略模板' AS type,
+		'unicom' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'unicom:',-1),';',1)=c.channel_id
+		WHERE temp.id=#{consumerId} and temp.strategy='redirect' and c.channel_id=#{channelId} and c.to_unicom='yes'
+		UNION
+		SELECT 
+		'策略模板' AS type,
+		'telecom' AS provider,
+		temp.id AS consumer_id,
+		temp.rule AS consumer_name,
+		(CASE WHEN temp.`status` = 'normal' AND c.channel_status = 'normal' THEN 'normal' ELSE 'pause' END ) AS consumer_status,
+		c.channel_id AS channel_id,
+		c.`name`
+		FROM sms_core.args_msg_template temp
+		INNER JOIN sms_core.args_channel c ON SUBSTRING_INDEX(SUBSTRING_INDEX(temp.result,'telecom:',-1),';',1)=c.channel_id
+		WHERE temp.id=#{consumerId} and temp.strategy='redirect' and c.channel_id=#{channelId} and c.to_telecom='yes'
+	</select>
+	
+	<update id="updateProductCongifgByChannelId" parameterType="map">
+		UPDATE
+		sms_core.fors_product SET 
+		<choose>
+				<when test="provider == 'cmcc'">
+					`cmcc_channel_id`=#{newChannelId}
+				</when>
+				<when test="provider == 'unicom'">
+					`unicom_channel_id`=#{newChannelId}
+				</when>
+				<when test="provider == 'telecom'">
+					`telecom_channel_id`=#{newChannelId}
+				</when>
+		</choose>
+		 WHERE id = #{consumerId}
+		 <choose>
+				<when test="provider == 'cmcc'">
+					and `cmcc_channel_id`=#{channelId}
+				</when>
+				<when test="provider == 'unicom'">
+					and `unicom_channel_id`=#{channelId}
+				</when>
+				<when test="provider == 'telecom'">
+					and `telecom_channel_id`=#{channelId}
+				</when>
+		</choose>
+	</update>
+	
+	<update id="updateAppResendCongifgByChannelId" parameterType="map">
+		UPDATE
+		sms_core.lg_resend_config SET 
+		`to_channel`=#{newChannelId}
+		 WHERE app_chan_id = #{consumerId}
+		 and to_channel = #{channelId}
+		 and id_type = 'account'
+	</update>
+	
+	<update id="updateChannelResendCongifgByChannelId" parameterType="map">
+		UPDATE
+		sms_core.lg_resend_config SET 
+		`to_channel`=#{newChannelId}
+		 WHERE app_chan_id = #{consumerId}
+		 and to_channel = #{channelId}
+		 and id_type = 'channel'
+	</update>
+	
+	<update id="updateProvincesSendByChannelId" parameterType="map">
+		UPDATE
+		sms_core.lg_provinces_send SET 
+		`channel_id`=#{newChannelId}
+		 WHERE product_id = #{consumerId} and province = #{province,jdbcType=VARCHAR}
+		 and channel_id=#{channelId}
+	</update>
+	
+	<update id="updateModelSendByChannelId" parameterType="map">
+		UPDATE
+		sms_core.lg_model_send SET 
+		<choose>
+				<when test="provider == 'cmcc'">
+					`cmcc_channel_id`=#{newChannelId}
+				</when>
+				<when test="provider == 'unicom'">
+					`unicom_channel_id`=#{newChannelId}
+				</when>
+				<when test="provider == 'telecom'">
+					`telecom_channel_id`=#{newChannelId}
+				</when>
+		</choose>
+		 WHERE id = #{consumerId}
+		 <choose>
+				<when test="provider == 'cmcc'">
+					and `cmcc_channel_id`=#{channelId}
+				</when>
+				<when test="provider == 'unicom'">
+					and `unicom_channel_id`=#{channelId}
+				</when>
+				<when test="provider == 'telecom'">
+					and `telecom_channel_id`=#{channelId}
+				</when>
+		</choose>
+	</update>
+	
+	<select id="findStrategyFromTemplate" parameterType="map" resultType="string">
+		SELECT result FROM sms_core.args_msg_template WHERE strategy='redirect' AND id=#{consumerId}
+	</select>
+	
+	<update id="updateMsgTemplateByChannelId" parameterType="map">
+		UPDATE sms_core.args_msg_template SET result=#{result} WHERE id=#{consumerId} AND strategy='redirect'
+	</update>
+	
+	<insert id="addChannelExt" parameterType="com.jjxt.ssm.entity.Channel">
+		insert into
+		args_channel_ext(channel_id,supplier_id)
+		values(#{channelId},#{supplierId})
+	</insert>
+	
+	<update id="updateChannelExt" parameterType="com.jjxt.ssm.entity.Channel">
+		INSERT INTO args_channel_ext (channel_id,supplier_id) VALUES (#{channelId},#{supplierId})  
+		ON DUPLICATE KEY UPDATE supplier_id=#{supplierId};        
+    </update>
+    
+    <!-- 查询不同商务查询不同通道  -->
+	<select id="findChannelNameBySort" resultMap="channel" parameterType="map">
+		SELECT
+			c.id,c.channel_id,name,notice,source_full_length,source_segment,call_out,source_type,to_cmcc,to_unicom,to_telecom,to_unknown,msgid_type,have_report,have_mo,
+			success_rate,size_max,size_first,size_charge,cover_key,submit_begin,submit_end,auto_ext_src,user_ext_src,channel_status,baobei_model,filter_global_black,
+			to_intl,gw_type,svc_addr,svc_port,account,password,link_max,link_speed,first_msg_charge_len,subseq_msg_charge_len,service_code,enterprise_code,extras,short_num,
+			variant,backup_channel_id,auto_extract_signs,channel_price,model,alarm_code,submit_alarm_code,logic_model,mo_match,baobei_before_pj_ext_src,is_month_limit,month_limit_count,
+			platform_flag,all_platform_used,redis_flag
+		from sms_core.args_channel c 
+		LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+		LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+		WHERE
+		CASE
+			WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+				b.head = '${chineseName}'
+			WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+				'' 
+			ELSE
+				1 = 1 
+		END
+		<if test="toCmcc!=null">
+			and to_cmcc='yes'
+		</if>
+		<if test="toUnicom!=null">
+			and to_unicom='yes'
+		</if>
+		<if test="toTelecom!=null">
+			and to_telecom='yes'
+		</if>
+		<if test="channelStatus!=null">
+			and channel_status != #{channelStatus}
+		</if>
+		ORDER BY c.channel_id DESC
+	</select>
+	
+</mapper>

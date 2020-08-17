@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjxt.ssm.mapper.DataFinanceMapper">
+	<resultMap type="com.jjxt.ssm.entity.DataFinance" id="finance">
+		<id column="id" property="id"/>
+		<result column="app_name" property="appName"></result>
+		<result column="sales" property="sales"></result>
+		<result column="add_time" property="addTime"></result>
+		<result column="change_type" property="changeType"></result>
+		<result column="change_num" property="changeNum"></result>
+		<result column="price" property="price"></result>
+		<result column="due_from" property="dueFrom"></result>
+		<result column="is_bill" property="isBill"></result>
+		<result column="bank_name" property="bankName"></result>
+		<result column="notice" property="notice"></result>
+	</resultMap>
+	
+	<insert id="addDataFinance" parameterType="com.jjxt.ssm.entity.DataFinance">
+		insert into data_finance (company_id,app_id,change_type,change_num,price,notice,init_time,add_time,
+				add_name,due_from) 
+			values (#{companyId},#{appId},#{changeType},#{changeNum},#{price},#{notice},#{initTime},#{addTime},
+					#{addName},#{dueFrom})
+	</insert>
+	
+	<!-- 根据条件查询总数  -->
+	<select id="findTotalByCondition" resultType="int" parameterType="map">
+		select count(1) from data_finance d 
+			inner join sms_core.ucenter_application u on d.app_id=u.id where 1=1
+		<if test="appName!=null and appName!=''">
+			AND u.app_name=#{appName}
+		</if>
+		<if test="addName!=null and addName!=''">
+			AND d.add_name=#{addName}
+		</if>
+		<if test="changeType!=null and changeType!=''">
+			AND d.change_type=#{changeType}
+		</if>
+		<if test="isBill!=null and isBill!=''">
+			AND d.is_bill=#{isBill}
+		</if>
+		<if test="startTime != ''">
+			AND d.init_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != ''">
+			AND d.init_time &lt;= #{endTime}
+		</if>
+	</select>
+	
+	<select id="findFinancePageList" resultMap="finance" parameterType="map">
+		select d.id,u.app_name,d.sales,d.add_time,d.change_type,d.change_num,d.price,d.is_bill,
+		    d.due_from,d.bank_name,d.notice from sms_manage.data_finance d 
+			inner join sms_core.ucenter_application u on d.app_id=u.id where 1=1
+		<if test="appName!=null and appName != ''">
+			and u.app_name=#{appName}
+		</if>
+		<if test="addName!=null and addName!=''">
+			AND d.add_name=#{addName}
+		</if>
+		<if test="changeType!=null and changeType!=''">
+			AND d.change_type=#{changeType}
+		</if>
+		<if test="isBill!=null and isBill!=''">
+			AND d.is_bill=#{isBill}
+		</if>
+		<if test="startTime != ''">
+			AND d.init_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != ''">
+			AND d.init_time &lt;= #{endTime}
+		</if>
+		order by d.add_time desc limit #{start},#{end}
+	</select>
+	
+	<select id="findDataFinanceById" resultMap="finance" parameterType="int">
+		select * from data_finance  where id=#{id}
+	</select>
+	
+	<update id="updateDataFinance" parameterType="com.jjxt.ssm.entity.DataFinance">
+		update data_finance 
+		<set>
+			is_bill = #{isBill},
+			bill_name = #{billName},
+			bill_time = #{billTime}
+		</set>
+		where id=#{id}
+	</update>
+</mapper>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ChanChangeNumMapper">
+	<resultMap type="com.jjxt.ssm.entity.ChanChangeNum" id="chanChangeNum">
+		<id column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="channel_id" property="channelId" />
+		<result column="channel_name" property="channelName" />
+		<result column="content_type" property="contentType" />
+		<result column="province" property="province" />
+		<result column="number" property="number" />
+		<result column="percent" property="percent" />
+	</resultMap>
+	
+	<select id="findTotal" resultType="int" parameterType="map">
+		select
+		count(1) from sms_core.t_channel_change_number 
+		where app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		AND channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="id !=null and id!=''">
+			and id = #{id}
+		</if>
+		<if test="appId!=null and appId!=''">
+			and app_id = #{appId}
+		</if>
+		<if test="channelId!=null and channelId !=''">
+			and channel_id = #{channelId}
+		</if>
+	</select>
+	
+	<select id="findchanChangeNumPageList" parameterType="map" resultMap="chanChangeNum">
+		SELECT
+		t.id,t.app_id,f.app_name,t.channel_id,c.name as channel_name,t.content_type,t.province,t.number,t.percent
+		FROM sms_core.t_channel_change_number t LEFT JOIN sms_core.args_channel c ON
+		t.channel_id=c.channel_id LEFT JOIN sms_core.ucenter_application f ON
+		t.app_id=f.id WHERE 
+		t.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		AND t.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="id !=null and id!=''">
+			and t.id = #{id}
+		</if>
+		<if test="appId!=null and appId!=''">
+			and t.app_id = #{appId}
+		</if>
+		<if test="channelId!=null and channelId !=''">
+			and t.channel_id = #{channelId}
+		</if>
+		ORDER BY t.id limit #{start},#{end}
+	</select>
+	
+	<insert id="addChanChangeNum" parameterType="com.jjxt.ssm.entity.ChanChangeNum">
+		insert into
+		sms_core.t_channel_change_number(channel_id,app_id,content_type,province,number,percent)
+		values(#{channelId},#{appId},#{contentType},#{province},#{number},#{percent})
+	</insert>
+
+	<select id="findAddEnd" resultMap="chanChangeNum">
+		select
+		id,channel_id,app_id,content_type,province,number,percent
+		from sms_core.t_channel_change_number order by id desc limit 0,1
+	</select>
+	
+	<select id="findChanChangeNumById" resultMap="chanChangeNum"
+		parameterType="int">
+		select
+		id,channel_id,app_id,content_type,province,number,percent
+		from sms_core.t_channel_change_number where id=#{id}
+	</select>
+	
+	<update id="updateChanChangeNum" parameterType="com.jjxt.ssm.entity.ChanChangeNum">
+		UPDATE sms_core.t_channel_change_number
+		<set>
+			<if test="channelId != null ">
+				channel_id = #{channelId},
+			</if>
+			<if test="appId != null">
+				app_id = #{appId},
+			</if>
+			<if test="contentType != null">
+				content_type = #{contentType},
+			</if>
+			<if test="province != null">
+				province = #{province},
+			</if>
+			<if test="number != null">
+				number = #{number},
+			</if>
+			<if test="percent != null">
+				percent = #{percent}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteChanChangeNum" parameterType="int">
+		delete from
+		sms_core.t_channel_change_number where id=#{id}
+	</delete>
+	
+	<select id="findChanChangeNumByIds" resultMap="chanChangeNum" parameterType="int">
+		select id,channel_id,app_id,content_type,province,number,percent
+		from sms_core.t_channel_change_number where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="deleteChanChangeNumBatch">
+		DELETE FROM sms_core.t_channel_change_number WHERE id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+</mapper>

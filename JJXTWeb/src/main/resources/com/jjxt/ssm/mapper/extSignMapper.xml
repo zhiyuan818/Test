@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ExtSignMapper">
+	<resultMap type="com.jjxt.ssm.entity.ExtSign" id="extSign">
+		<result column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="sign" property="sign" />
+		<result column="ext_src" property="extSrc" />
+		<result column="active_time" property="activeTime" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.SignExtTemplate" id="template">
+		<id column="id" property="id"/>
+		<result column="sign" property="sign"/>
+		<result column="ext" property="ext"/>
+		<result column="create_time" property="createTime"/>
+		<result column="cmcc_channel_id" property="cmccChannelId"/>
+		<result column="unicom_channel_id" property="unicomChannelId"/>
+		<result column="telecom_channel_id" property="telecomChannelId"/>
+		<result column="cmcc_channel_name" property="cmccChannelName"/>
+		<result column="unicom_channel_name" property="unicomChannelName"/>
+		<result column="telecom_channel_name" property="telecomChannelName"/>
+	</resultMap>
+
+	<select id="findAllList" resultMap="extSign" parameterType="map">
+		SELECT e.id, e.app_id, f.app_name, e.ext_src, e.sign, e.active_time FROM
+		sms_core.pre_ext_sign e LEFT JOIN sms_core.ucenter_application f ON
+		e.app_id=f.id WHERE 1=1
+		<if test="appId !=null and appId !=''">
+			AND e.app_id = #{appId}
+		</if>
+		<if test="sign !=null and sign !=''">
+			AND e.sign like "%"#{sign}"%"
+		</if>
+		ORDER BY active_time DESC limit #{start},#{end}
+	</select>
+
+	<select id="findTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM
+		sms_core.pre_ext_sign e WHERE 1=1
+		<if test="appId !=null and appId !=''">
+			AND e.app_id = #{appId}
+		</if>
+		<if test="sign !=null and sign !=''">
+			AND e.sign like "%"#{sign}"%"
+		</if>
+	</select>
+
+	<insert id="addToExtSign" parameterType="map">
+		INSERT INTO
+		sms_core.pre_ext_sign (`app_id`, `sign`, `ext_src`, `add_flag`, `active_time`) 
+		VALUES (#{appId}, #{sign}, #{extSrc}, 'auto', NOW());
+	</insert>
+
+	<select id="findAppId" resultType="int" parameterType="string">
+		SELECT id
+		FROM sms_core.ucenter_application WHERE app_name=#{appName}
+	</select>
+
+	<select id="findExtSignById" resultMap="extSign" parameterType="int">
+		SELECT s.id, s.app_id, u.app_name, s.sign, s.ext_src, s.active_time FROM
+		sms_core.pre_ext_sign s LEFT JOIN sms_core.ucenter_application u ON
+		s.app_id=u.id WHERE s.id=#{id}
+	</select>
+
+	<delete id="delExtSign" parameterType="map">
+		DELETE FROM
+		sms_core.pre_ext_sign WHERE 1=1 
+		<if test="id != null and id !=''">
+			 and id=#{id}
+		</if>
+	</delete>
+
+	<update id="updateExtSign" parameterType="map">
+		UPDATE
+		sms_core.pre_ext_sign SET app_id=#{appId}, sign=#{sign},
+		ext_src=#{extSrc} WHERE id=#{id}
+	</update>
+
+	<select id="existData" resultType="int" parameterType="map">
+		SELECT
+		COUNT(1) FROM sms_core.pre_ext_sign WHERE app_id=#{appId} AND
+		sign=#{sign} AND ext_src=#{extSrc}
+	</select>
+	
+	<select id="findExistList" resultMap="extSign">
+		select id,sign,ext_src,app_id from
+		sms_core.pre_ext_sign where 1=1
+		<if test="sign !=null and sign!=''">
+			and FIND_IN_SET(sign,#{sign})>0
+		</if>
+		<if test="extSrc !=null and extSrc!=''">
+			and FIND_IN_SET(ext_src,#{extSrc})>0
+		</if>
+		<if test="appId !=null and appId != ''">
+			and FIND_IN_SET(app_id,#{appId})>0
+		</if>
+	</select>
+	
+	<delete id="deleteBatchExtSign" parameterType="string">
+		delete from
+		sms_core.pre_ext_sign where FIND_IN_SET(id,#{ids})>0
+	</delete>
+
+	<insert id="addBatchExtSign" parameterType="java.util.List">
+		insert into
+		sms_core.pre_ext_sign(app_id,sign,ext_src,active_time)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.appId},#{item.sign},#{item.extSrc},now())
+		</foreach>
+	</insert>
+	<delete id="deleteAll">
+		delete from  sms_core.pre_ext_sign
+	</delete>
+	
+	<!-- 签名扩展跳转sql -->
+	
+	<select id="findSignExtBySigns" parameterType="list" resultMap="template">
+		SELECT t.id,t.sign,t.ext,t.cmcc_channel_id,t.unicom_channel_id,t.telecom_channel_id,
+		(select name from sms_core.args_channel where channel_id=t.cmcc_channel_id) as cmcc_channel_name,
+		(select name from sms_core.args_channel where channel_id=t.unicom_channel_id) as unicom_channel_name,
+		(select name from sms_core.args_channel where channel_id=t.telecom_channel_id) as telecom_channel_name
+		FROM sms_core.args_sign_ext_template t WHERE t.sign in 
+		<foreach collection="list" index="index" item="sign" separator="," open="(" close=")">
+			#{sign}
+		</foreach>
+	</select>
+	
+	<select id="findTemplateTotal" parameterType="map" resultType="int">
+		SELECT COUNT(1) FROM sms_core.args_sign_ext_template WHERE 1=1
+		<if test="sign != null and sign != ''">
+			and sign like "%"#{sign}"%"
+		</if>
+		<if test="ext != null and ext != ''">
+			and ext= like "%"#{ext}"%"
+		</if>
+		<if test="channelId != null and channelId != ''">
+			and (cmcc_channel_id=#{channelId} or unicom_channel_id=#{channelId} or telecom_channel_id=#{channelId})
+		</if>
+	</select>
+	
+	<select id="findTemplateList" parameterType="map" resultMap="template">
+		SELECT t.id,t.sign,t.ext,t.cmcc_channel_id,t.unicom_channel_id,t.telecom_channel_id,t.create_time,
+		(select name from sms_core.args_channel where channel_id=t.cmcc_channel_id) as cmcc_channel_name,
+		(select name from sms_core.args_channel where channel_id=t.unicom_channel_id) as unicom_channel_name,
+		(select name from sms_core.args_channel where channel_id=t.telecom_channel_id) as telecom_channel_name 
+		FROM sms_core.args_sign_ext_template t WHERE 1=1
+		<if test="sign != null and sign != ''">
+			and t.sign like "%"#{sign}"%"
+		</if>
+		<if test="ext != null and ext != ''">
+			and t.ext like "%"#{ext}"%"
+		</if>
+		<if test="channelId != null and channelId != ''">
+			and (t.cmcc_channel_id=#{channelId} or t.unicom_channel_id=#{channelId} or t.telecom_channel_id=#{channelId})
+		</if>
+		ORDER BY t.id limit #{start},#{end}
+	</select>
+	
+	<select id="findTemplateById" parameterType="int" resultMap="template">
+		SELECT t.id,t.sign,t.ext,t.cmcc_channel_id,t.unicom_channel_id,t.telecom_channel_id 
+		FROM sms_core.args_sign_ext_template t WHERE t.id=#{id}
+	</select>
+	
+	<insert id="addToSignExtTemplate" parameterType="map">
+		INSERT INTO `sms_core`.`args_sign_ext_template` 
+		(`sign`, `ext`, `cmcc_channel_id`, `unicom_channel_id`, `telecom_channel_id`, `create_time`)
+		VALUES (#{sign}, #{ext}, 
+		<choose>
+			<when test="cmccChannelId != null and cmccChannelId != ''">
+				#{cmccChannelId},
+			</when>
+			<otherwise>
+				'0',
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="unicomChannelId != null and unicomChannelId != ''">
+				#{unicomChannelId},
+			</when>
+			<otherwise>
+				'0',
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="telecomChannelId != null and telecomChannelId != ''">
+				#{telecomChannelId},
+			</when>
+			<otherwise>
+				'0',
+			</otherwise>
+		</choose>
+		now())
+	</insert>
+	
+	<select id="isExistTemplate" parameterType="map" resultType="int">
+		SELECT COUNT(1) FROM sms_core.args_sign_ext_template WHERE 1=1
+		<if test="sign != null and sign != ''">
+			and sign=#{sign}
+		</if>
+		<if test="ext != null and ext != ''">
+			and ext=#{ext}
+		</if>
+		<choose>
+			<when test="cmccChannelId != null and cmccChannelId != ''">
+				and cmcc_channel_id=#{cmccChannelId}
+			</when>
+			<otherwise>
+				and cmcc_channel_id='0'
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="unicomChannelId != null and unicomChannelId != ''">
+				and unicom_channel_id=#{unicomChannelId}
+			</when>
+			<otherwise>
+				and unicom_channel_id='0'
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="telecomChannelId != null and telecomChannelId != ''">
+				and telecom_channel_id=#{telecomChannelId}
+			</when>
+			<otherwise>
+				and telecom_channel_id='0'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="updateSignExtTemplate" parameterType="map">
+		UPDATE `sms_core`.`args_sign_ext_template` SET `sign`=#{sign}, `ext`=#{ext}, 
+		<choose>
+			<when test="cmccChannelId != null and cmccChannelId != ''">
+				`cmcc_channel_id`=#{cmccChannelId},
+			</when>
+			<otherwise>
+				`cmcc_channel_id`='0',
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="unicomChannelId != null and unicomChannelId != ''">
+				`unicom_channel_id`=#{unicomChannelId},
+			</when>
+			<otherwise>
+				`unicom_channel_id`='0',
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="telecomChannelId != null and telecomChannelId != ''">
+				`telecom_channel_id`=#{telecomChannelId}
+			</when>
+			<otherwise>
+				`telecom_channel_id`='0',
+			</otherwise>
+		</choose>	
+		WHERE `id`=#{id}	
+	</update>
+	
+	<delete id="delSignExtTemplate" parameterType="int">
+		DELETE FROM sms_core.args_sign_ext_template WHERE id=#{id}
+	</delete>
+	
+	<delete id="delTemplateBatch" parameterType="int">
+		DELETE FROM sms_core.args_sign_ext_template WHERE id in 
+		<foreach collection="array" index="index" item="id" separator="," open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+</mapper>

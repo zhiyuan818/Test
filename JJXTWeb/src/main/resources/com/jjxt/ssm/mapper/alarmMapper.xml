@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.AlarmMapper">
+	<resultMap type="com.jjxt.ssm.entity.Alarm" id="alarm">
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="describe" property="describe" />
+		<result column="email" property="email" />
+		<result column="wechat" property="wechat" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="model_id" property="modelId" />
+		<result column="model_name" property="modelName" />
+		<result column="model_pwd" property="modelPwd" />
+		<result column="sign" property="sign" />
+		<result column="auth_ip" property="authIp" />
+		<result column="type_id" property="typeId" />
+		<result column="type" property="type" />
+		<result column="type_model" property="typeModel" />
+		<result column="is_model" property="isModel" />
+		<result column="json_params" property="jsonParams" />
+		<result column="toparty" property="toparty" />
+		<result column="description" property="description" />
+		<result column="is_phone" property="isPhone" />
+		<result column="is_email" property="isEmail" />
+		<result column="is_wechat" property="isWechat" />
+		<result column="level" property="level" />
+		<result column="cycle" property="cycle" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="ignore" property="ignore" />
+		<result column="strategy" property="strategy" />
+		<result column="send_id" property="sendId" />
+		<result column="config_id" property="configId" />
+		<result column="status" property="status" />
+	</resultMap>
+
+	<!-- alarm_user -->
+	<select id="findAllAlarmUser" resultMap="alarm">
+		SELECT id AS
+		user_id,user_name,`describe`,phone_number,email,wechat FROM
+		eums_sms_alarm.new_alarm_user
+	</select>
+
+	<insert id="addToAlarmUser" parameterType="map">
+		INSERT INTO
+		eums_sms_alarm.new_alarm_user
+		(user_name,`describe`,phone_number,email,wechat) VALUES
+		(#{userName},#{describe},#{phoneNumber},#{email},#{wechat});
+	</insert>
+
+	<select id="findAlarmUserById" resultMap="alarm" parameterType="int">
+		SELECT id AS user_id,user_name,`describe`,phone_number,email,wechat
+		FROM
+		eums_sms_alarm.new_alarm_user WHERE id=#{id}
+	</select>
+
+	<delete id="deleteAlarmUserById" parameterType="int">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_user WHERE id=#{id}
+	</delete>
+
+	<update id="updateAlarmUser" parameterType="map">
+		UPDATE
+		eums_sms_alarm.new_alarm_user SET `user_name`=#{userName},
+		`describe`=#{describe}, `phone_number`=#{phoneNumber},
+		`email`=#{email},`wechat`=#{wechat} WHERE id=#{userId};
+	</update>
+
+
+	<update id="updateStrategySend" parameterType="list">
+		UPDATE eums_sms_alarm.new_alarm_strategy_send
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="is_phone =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					when
+					id=#{item.sendId} then #{item.isPhone}
+				</foreach>
+			</trim>
+			<trim prefix="is_email =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					when
+					id=#{item.sendId} then #{item.isEmail}
+				</foreach>
+			</trim>
+			<trim prefix="is_wechat =case" suffix="end,">
+				<foreach collection="list" item="item" index="index">
+					when
+					id=#{item.sendId} then #{item.isWechat}
+				</foreach>
+			</trim>
+		</trim>
+		where id in
+		<foreach collection="list" index="index" item="item"
+			separator="," open="(" close=")">
+			#{item.sendId}
+		</foreach>
+	</update>
+
+	<insert id="addStrategySend" parameterType="map">
+		INSERT INTO
+		eums_sms_alarm.new_alarm_strategy_send (`user_id`, `type_id`,
+		`is_phone`, `is_email`, `is_QQ`, `is_wechat`) VALUES (#{userId},
+		#{typeId}, #{isPhone},
+		#{isEmail}, 'no', #{isWechat});
+	</insert>
+
+	<select id="findAllTypes" resultMap="alarm">
+		SELECT id AS type_id,type
+		FROM eums_sms_alarm.new_alarm_type
+	</select>
+
+	<select id="findAllUsers" resultMap="alarm">
+		SELECT id AS
+		user_id,`describe` FROM eums_sms_alarm.new_alarm_user
+	</select>
+
+	<select id="findAllModels" resultMap="alarm">
+		SELECT id AS
+		model_id,model_name FROM eums_sms_alarm.new_alarm_model
+	</select>
+	<delete id="delSendById" parameterType="int">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_strategy_send WHERE id=#{sendId}
+	</delete>
+
+	<select id="validatorUserName" parameterType="string"
+		resultType="int">
+		SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_user WHERE
+		user_name=#{userName}
+	</select>
+
+	<select id="validatorModelName" parameterType="string"
+		resultType="int">
+		SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_model WHERE
+		model_name=#{modelName}
+	</select>
+
+	<select id="findUserIdByName" parameterType="string" resultType="int">
+		SELECT id AS user_id FROM eums_sms_alarm.new_alarm_user WHERE
+		user_name=#{userName} 
+		order by id desc limit 1
+	</select>
+
+	<select id="findTypeIdByName" parameterType="string" resultType="int">
+		SELECT id AS type_id FROM eums_sms_alarm.new_alarm_type WHERE
+		type=#{type}
+	</select>
+
+	<select id="findStrategyConfigIdList" resultMap="alarm">
+		SELECT type_id,`level` 
+		FROM eums_sms_alarm.new_alarm_strategy_config
+		group by type_id,`level`
+	</select>
+
+	<select id="findUserIdList" resultType="int">
+		SELECT id AS user_id FROM
+		eums_sms_alarm.new_alarm_user
+	</select>
+
+	<insert id="insertStrategySend" parameterType="list">
+		INSERT INTO `eums_sms_alarm`.`new_alarm_strategy_send` (`user_id`,
+		`type_id`,`level`, `is_phone`, `is_email`, `is_QQ`, `is_wechat`)
+		<trim prefix="values ">
+			<foreach collection="list" index="index" item="item"
+				separator="," close=";">
+				(#{item.userId},#{item.typeId},#{item.level}, 'no', 'no', 'no', 'no')
+			</foreach>
+		</trim>
+	</insert>
+
+	<delete id="delRelationByuserId" parameterType="int">
+		DELETE FROM eums_sms_alarm.new_alarm_strategy_send WHERE user_id=#{id}
+	</delete>
+
+	<delete id="delRelationBytypeId" parameterType="int">
+		DELETE FROM eums_sms_alarm.new_alarm_strategy_send 
+		WHERE type_id=(SELECT type_id FROM eums_sms_alarm.new_alarm_strategy_config WHERE id = #{configId})
+		and level=(SELECT level FROM eums_sms_alarm.new_alarm_strategy_config WHERE id = #{configId})
+	</delete>
+	
+	<select id="findConfigByTypeLevel" parameterType="map" resultType="int">
+		SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_strategy_config 
+		WHERE type_id = #{typeId} AND `level` = #{level}
+	</select>
+
+	<!-- alarm_model -->
+	<select id="findAllAlarmModel" resultMap="alarm">
+		SELECT id AS
+		model_id,model_name,model_pwd,auth_ip,sign FROM
+		eums_sms_alarm.new_alarm_model
+	</select>
+
+	<insert id="addToAlarmModel" parameterType="map">
+		INSERT INTO
+		eums_sms_alarm.new_alarm_model (`model_name`, `model_pwd`, `auth_ip`,
+		`sign`) VALUES (#{modelName}, #{modelPwd}, #{authIp}, #{sign});
+	</insert>
+
+	<select id="findAlarmModelById" resultMap="alarm" parameterType="int">
+		SELECT id AS model_id,model_name,model_pwd,auth_ip,sign FROM
+		eums_sms_alarm.new_alarm_model WHERE id=#{modelId}
+	</select>
+	
+	<select id="findAlarmConfigIsExistModel" resultType="int" parameterType="int">
+		SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_strategy_config
+		WHERE model_id = #{modelId}
+	</select>
+	
+	<select id="findAlarmConfigByModelId" resultMap="alarm" parameterType="int">
+		SELECT type_id,`level` FROM eums_sms_alarm.new_alarm_strategy_config
+		WHERE id=#{modelId}
+	</select>
+
+	<delete id="deleteAlarmModelById" parameterType="int">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_model WHERE id=#{modelId}
+	</delete>
+	
+	<delete id="delRelationByModel" parameterType="map">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_strategy_send 
+		WHERE type_id=#{typeId} and level = #{level}
+	</delete>
+	
+	<delete id="delConfigByModelId" parameterType="int">
+		DELETE 
+		FROM eums_sms_alarm.new_alarm_strategy_config WHERE model_id = #{modelId}
+	</delete>
+
+	<update id="updateAlarmModel" parameterType="map">
+		UPDATE
+		eums_sms_alarm.new_alarm_model SET `model_name`=#{modelName},
+		`model_pwd`=#{modelPwd}, `sign`=#{sign}, `auth_ip`=#{authIp} WHERE
+		id=#{modelId}
+	</update>
+
+
+	<!-- alarm_type -->
+	<select id="findAllAlarmType" resultMap="alarm">
+		SELECT id AS
+		type_id,type,type_model,is_model,json_params,description FROM
+		eums_sms_alarm.new_alarm_type
+		ORDER BY type_id
+	</select>
+
+	<insert id="addToAlarmType" parameterType="map">
+		INSERT INTO
+		eums_sms_alarm.new_alarm_type (`type`, `type_model`, `is_model`,`json_params`,
+		`toparty`, `description`) VALUES (#{type}, #{typeModel}, #{isModel},#{jsonParams},
+		0, #{description})
+	</insert>
+
+	<select id="findAlarmTypeById" resultMap="alarm" parameterType="int">
+		SELECT id AS type_id,type,type_model,is_model,json_params,description FROM
+		eums_sms_alarm.new_alarm_type WHERE id=#{typeId}
+	</select>
+	
+	<select id="findAlarmConfigIsExistType" resultType="int" parameterType="int">
+		SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_strategy_config 
+		WHERE type_id=#{typeId}
+	</select>
+	
+	<delete id="deleteAlarmTypeById" parameterType="int">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_type WHERE id=#{typeId}
+	</delete>
+
+	<update id="updateAlarmType" parameterType="map">
+		UPDATE
+		eums_sms_alarm.new_alarm_type SET `type`=#{type},
+		`type_model`=#{typeModel}, `is_model`=#{isModel},`json_params`=#{jsonParams},
+		 `description`=#{description} WHERE id=#{typeId}
+	</update>
+
+
+	<!-- alarm_strategy_config -->
+	<select id="findAllStrategyConfig" parameterType="map" resultMap="alarm">
+		SELECT c.id AS
+		config_id,m.id AS model_id,m.model_name,t.id AS
+		type_id,t.type,c.`level`,c.start_time,c.end_time,c.cycle,c.`ignore`,c.strategy,c.status,c.description
+		FROM eums_sms_alarm.new_alarm_strategy_config c LEFT JOIN
+		eums_sms_alarm.new_alarm_model m ON c.model_id=m.id LEFT JOIN
+		eums_sms_alarm.new_alarm_type t ON c.type_id=t.id
+		where 1=1
+		<if test="typeId !=null and typeId !=''">
+			AND t.id = #{typeId}
+		</if>
+		
+		<if test="modelId !=null and modelId !=''">
+			AND m.id = #{modelId}
+		</if>
+		
+	</select>
+
+	<insert id="addStrategyConfig" parameterType="map">
+		INSERT INTO
+		eums_sms_alarm.new_alarm_strategy_config (`model_id`, `type_id`,
+		`level`, `start_time`, `end_time`, `cycle`, `ignore`, `strategy`,`status`,`description`)
+		VALUES (#{modelId}, #{typeId}, #{level}, #{startTime}, #{endTime},
+		#{cycle}, #{ignore}, #{strategy}, #{status}, #{description});
+
+	</insert>
+	
+	<select id="findIsExistStrategyConfig" parameterType="map" resultType="int">
+		SELECT count(1) 
+		FROM eums_sms_alarm.new_alarm_strategy_config 
+		WHERE model_id=#{modelId} and type_id = #{typeId} and level = #{level}
+	</select>
+	
+	<select id="findIsExistStrategySend" parameterType="map" resultType="int">
+		SELECT count(1) 
+		FROM eums_sms_alarm.new_alarm_strategy_send 
+		WHERE  type_id = #{typeId} and level = #{level}
+	</select>
+
+	<select id="findConfigById" resultMap="alarm" parameterType="int">
+		SELECT con.id AS
+		config_id,con.model_id,mo.model_name,con.type_id,ty.type,con.`level`,con.start_time,con.end_time,con.cycle,con.`ignore`,con.strategy,con.`status`,con.description
+		FROM eums_sms_alarm.new_alarm_strategy_config con 
+		LEFT JOIN eums_sms_alarm.new_alarm_model mo ON con.model_id = mo.id 
+		LEFT JOIN eums_sms_alarm.new_alarm_type ty ON con.type_id = ty.id WHERE con.id=#{configId}
+	</select>
+
+	<delete id="delConfigById" parameterType="int">
+		DELETE FROM
+		eums_sms_alarm.new_alarm_strategy_config WHERE id=#{configId}
+	</delete>
+
+	<update id="updateConfigById" parameterType="map">
+		UPDATE
+		eums_sms_alarm.new_alarm_strategy_config SET `start_time`=#{startTime},
+		`end_time`=#{endTime},`cycle`=#{cycle}, `ignore`=#{ignore},
+		`strategy`=#{strategy},`status`=#{status},`description`=#{description} WHERE id=#{configId}
+	</update>
+	<select id="findTypeDetail" parameterType="int" resultMap="alarm">
+		SELECT CONCAT(id,'：',type) AS type,type_model,is_model,description
+		FROM eums_sms_alarm.new_alarm_type WHERE id=#{typeId}
+	</select>
+
+	<!-- alarm_relation -->
+	<select id="findUserRelation" parameterType="map" resultMap="alarm">
+		SELECT s.id AS send_id,CONCAT(u.id,': ',u.user_name) AS
+		user_name,s.level,u.`describe`,s.type_id,s.is_phone,s.is_email,s.is_wechat
+		FROM eums_sms_alarm.new_alarm_strategy_send s INNER JOIN
+		eums_sms_alarm.new_alarm_user u ON s.user_id=u.id WHERE
+		s.type_id=#{typeId}
+		<if test=" level != null and level !=''">
+			and level = #{level}
+		</if>
+		<if test="selectType == 2">
+			AND (s.is_phone &lt;&gt; 'no' OR s.is_email &lt;&gt; 'no'
+			OR s.is_wechat
+			&lt;&gt; 'no')
+		</if>
+		LIMIT #{start},#{end}
+	</select>
+
+	<select id="findUserRelationTotal" parameterType="map"
+		resultType="int">
+		SELECT COUNT(1)
+		FROM eums_sms_alarm.new_alarm_strategy_send WHERE
+		type_id=#{typeId}
+		<if test=" level != null and level !=''">
+			and level = #{level}
+		</if>
+		<if test="selectType == 2">
+			AND (is_phone &lt;&gt; 'no' OR is_email &lt;&gt; 'no' OR
+			is_wechat
+			&lt;&gt; 'no')
+		</if>
+	</select>
+
+	<select id="findTypeRelation" parameterType="map" resultMap="alarm">
+		SELECT s.id AS send_id,CONCAT(t.id,': ',t.type) AS
+		type,s.level,s.is_phone,s.is_email,s.is_wechat
+		FROM
+		eums_sms_alarm.new_alarm_strategy_send s INNER JOIN
+		eums_sms_alarm.new_alarm_type t ON s.type_id=t.id WHERE
+		s.user_id=#{userId}
+		<if test=" level != null and level !=''">
+			and level = #{level}
+		</if>
+		<if test="selectType == 2">
+			AND (s.is_phone &lt;&gt; 'no' OR s.is_email &lt;&gt; 'no'
+			OR s.is_wechat
+			&lt;&gt; 'no')
+		</if>
+		LIMIT #{start},#{end}
+	</select>
+
+	<select id="findTypeRelationTotal" parameterType="map"
+		resultType="int">
+		SELECT COUNT(1)
+		FROM eums_sms_alarm.new_alarm_strategy_send WHERE
+		user_id=#{userId}
+		<if test=" level != null and level !=''">
+			and level = #{level}
+		</if>
+		<if test="selectType == 2">
+			AND (is_phone &lt;&gt; 'no' OR is_email &lt;&gt; 'no' OR
+			is_wechat
+			&lt;&gt; 'no')
+		</if>
+	</select>
+
+	<select id="validatorRelation" parameterType="list" resultType="int">
+		<foreach collection="list" index="index" item="item"
+			separator=" union ">
+			SELECT COUNT(1) FROM eums_sms_alarm.new_alarm_strategy_send WHERE
+			id=#{item.sendId} AND is_phone=#{item.isPhone} AND
+			is_email=#{item.isEmail} AND is_wechat=#{item.isWechat} 
+		</foreach>
+	</select>
+
+
+</mapper>

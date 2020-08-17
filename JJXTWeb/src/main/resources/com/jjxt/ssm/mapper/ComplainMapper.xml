@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjxt.ssm.mapper.ComplainMapper">
+	<resultMap type="com.jjxt.ssm.entity.Complain" id="Complain">
+		<id column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="channel_id" property="channelId" />
+		<result column="app_name" property="appName" />
+		<result column="dest_number" property="destNumber" />
+		<result column="src_number" property="srcNumber" />
+		<result column="submit_time" property="submitTime" />
+		<result column="content" property="content" />
+		<result column="send_flag" property="sendFlag" />
+		<result column="report_status" property="reportStatus" />
+		<result column="add_time" property="addTime" />
+		<result column="channel_name" property="channelName" />
+	</resultMap>
+
+	<select id="findMtList" resultMap="Complain" parameterType="map">
+		SELECT
+		mt.app_id,f.app_name,mt.channel_id,mt.dest_number,mt.src_number,mt.content,mt.submit_time,mt.send_flag,mt.report_status
+		FROM sms_log.mt_${mtName} mt 
+		LEFT JOIN sms_core.ucenter_application f ON
+		mt.app_id=f.id WHERE 1=1
+		<if test="destNumber != '' and destNumber != null">
+			AND mt.dest_number = #{destNumber}
+		</if>
+		<if test="srcNumber != '' and srcNumber != null">
+			AND mt.src_number = #{srcNumber}
+		</if>
+		 ORDER BY mt.submit_time DESC
+	</select>
+	
+	<select id="findNewMtList"  resultMap="Complain" parameterType="map">
+		SELECT
+		mt.app_id,f.app_name,mt.channel_id,mt.dest_number,mt.src_number,mct.content,mt.submit_time,mt.send_flag,mt.report_status
+		FROM sms_log.mt_${mtName} mt 
+		LEFT JOIN sms_log.mt_content_${mtName} mct ON 
+		mt.unique_id=mct.id
+		LEFT JOIN sms_core.ucenter_application f ON
+		mt.app_id=f.id WHERE 1=1
+		<if test="destNumber != '' and destNumber != null">
+			AND mt.dest_number = #{destNumber}
+		</if>
+		<if test="srcNumber != '' and srcNumber != null">
+			AND mt.src_number = #{srcNumber}
+		</if>
+		ORDER BY mt.submit_time DESC
+	</select>
+	
+	<!-- <select id="findNewMtList"  resultMap="Complain" parameterType="map">
+		<choose>
+			<when test="content != null and content != ''">
+				SELECT
+				mt.app_id,f.app_name,mt.channel_id,mt.dest_number,mt.src_number,content,mt.submit_time,mt.send_flag,mt.report_status
+				FROM sms_log.mt_${mtName} mt 
+				inner JOIN (select id,content from sms_log.mt_content_${mtName} where 1=1 and content = #{content} ) mct on mt.unique_id=mct.id
+				LEFT JOIN sms_core.ucenter_application f ON
+				mt.app_id=f.id where 1=1
+				<if test="destNumber != '' and destNumber != null">
+					AND mt.dest_number = #{destNumber}
+				</if>
+				<if test="srcNumber != '' and srcNumber != null">
+					AND mt.src_number = #{srcNumber}
+				</if>
+				ORDER BY mt.submit_time DESC
+			</when>
+			<otherwise>
+				SELECT
+				mt.app_id,f.app_name,mt.channel_id,mt.dest_number,mt.src_number,content,mt.submit_time,mt.send_flag,mt.report_status
+				FROM sms_log.mt_${mtName} mt 
+				LEFT JOIN sms_log.mt_content_${mtName} mct on mt.unique_id=mct.id
+				LEFT JOIN sms_core.ucenter_application f ON
+				mt.app_id=f.id WHERE 1=1
+				<if test="destNumber != '' and destNumber != null">
+					AND mt.dest_number = #{destNumber}
+				</if>
+				<if test="srcNumber != '' and srcNumber != null">
+					AND mt.src_number = #{srcNumber}
+				</if>
+				ORDER BY mt.submit_time DESC
+			</otherwise>
+		</choose>
+	</select> -->
+	<insert id="addToPreComplain" parameterType="map">
+		INSERT INTO sms_core.pre_complain (`id`, `app_id`, `channel_id`,
+		`dest_number`, `src_number`, `content`, `submit_time`, `add_time`)
+		VALUES (NULL, #{appId}, #{channelId}, #{destNumber}, #{srcNumber},
+		#{content}, #{submitTime}, NOW())
+	</insert>
+
+	<insert id="addToBlackLevel1" parameterType="string">
+		INSERT INTO sms_core.pre_black_level_1 (`id`, `phone_number`, `add_time`)
+		VALUES (NULL, #{destNumber}, NOW())
+	</insert>
+
+	<select id="findBlackLevel1" resultType="int" parameterType="string">
+		SELECT COUNT(1) FROM sms_core.pre_black_level_1 WHERE
+		phone_number=#{destNumber}
+
+	</select>
+	
+	<delete id="deleteComplain" parameterType="map">
+		delete from sms_core.pre_complain where 1=1 
+		<if test="appId != null">
+			and app_id =#{appId}
+		</if>
+	</delete>
+	
+	<select id="findComplainTotal" resultType="int" parameterType="map">
+		select count(1) from sms_core.pre_complain where 1=1
+		<if test="appId != '' and appId != null">
+			AND app_id = #{appId}
+		</if>
+		<if test="channelId != '' and channelId != null">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="destNumber != '' and destNumber != null">
+			AND dest_number = #{destNumber}
+		</if>
+		<if test="srcNumber != '' and srcNumber != null">
+			AND src_number = #{srcNumber}
+		</if>
+		<if test="content != '' and content != null">
+			AND content = #{content}
+		</if>
+	</select>
+	
+	<select id="findComplainPageList"  resultMap="Complain" parameterType="map">
+		SELECT
+		c.id,c.app_id,a.app_name,c.channel_id,chan.`name` channel_name,c.dest_number,c.src_number,c.content,c.submit_time,c.add_time
+		FROM sms_core.pre_complain c 
+		LEFT JOIN sms_core.ucenter_application a ON c.app_id=a.id
+		LEFT JOIN sms_core.args_channel chan ON c.channel_id=chan.channel_id
+		 WHERE 1=1
+		<if test="appId != '' and appId != null">
+			AND c.app_id = #{appId}
+		</if>
+		<if test="channelId != '' and channelId != null">
+			AND c.channel_id = #{channelId}
+		</if>
+		<if test="destNumber != '' and destNumber != null">
+			AND c.dest_number = #{destNumber}
+		</if>
+		<if test="srcNumber != '' and srcNumber != null">
+			AND c.src_number = #{srcNumber}
+		</if>
+		<if test="content != '' and content != null">
+			AND c.content like "%"#{content}"%"
+		</if>
+		ORDER BY c.id DESC
+		limit #{start},#{end}
+	</select>
+
+</mapper>

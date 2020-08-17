@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BlackKeywordMapper">
+	<resultMap type="com.jjxt.ssm.entity.BlackKeyword" id="BlackKeywordMapper">
+		<id column="id" property="id" />
+		<result column="keyword" property="keyWord" />
+		<result column="date_added" property="createTime" />
+	</resultMap>
+	<select id="findAllList" resultMap="BlackKeywordMapper">
+		SELECT id,keyword,date_added
+		FROM sms_core.pre_black_keyword
+	</select>
+
+	<insert id="addToBlackKeyword" parameterType="string">
+		INSERT INTO
+		sms_core.pre_black_keyword(`id`,`level`,`keyword`,`date_added`)
+		VALUES
+		(NULL,3,#{keyWord},NOW())
+	</insert>
+
+	<select id="findPageList" resultMap="BlackKeywordMapper"
+		parameterType="map">
+		SELECT id,keyword,date_added FROM sms_core.pre_black_keyword WHERE 1=1
+		<if test="keyWord !=''">
+			AND keyword like "%"#{keyWord}"%"
+		</if>
+		<if test="startTime !=''">
+			AND date_added &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND date_added &lt;= #{endTime}
+		</if>
+		ORDER BY date_added DESC limit #{start},#{end}
+	</select>
+
+	<select id="findTotal" resultType="int" parameterType="map">
+		SELECT count(1) FROM sms_core.pre_black_keyword WHERE 1=1
+		<if test="keyWord !=''">
+			AND keyword like "%"#{keyWord}"%"
+		</if>
+		<if test="startTime !=''">
+			AND date_added &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND date_added &lt;= #{endTime}
+		</if>
+	</select>
+
+	<delete id="delBlackKeyword" parameterType="int">
+		DELETE FROM
+		sms_core.pre_black_keyword WHERE id=#{id}
+	</delete>
+
+	<select id="findBlackKeywordById" resultMap="BlackKeywordMapper"
+		parameterType="int">
+		SELECT id,keyword,date_added FROM
+		sms_core.pre_black_keyword WHERE id=#{id}
+	</select>
+
+	<update id="updateBlackKeyword" parameterType="com.jjxt.ssm.entity.BlackKeyword">
+		UPDATE
+		sms_core.pre_black_keyword SET keyword=#{keyWord},date_added=NOW()
+		WHERE id=#{id}
+	</update>
+	
+	<select id="findByKeyWord" resultType="int" parameterType="string">
+	SELECT COUNT(1) FROM sms_core.pre_black_keyword WHERE keyword=#{keyWord}
+	</select>
+
+</mapper>
+

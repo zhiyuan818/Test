@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.MsinStrategyMapper">
+	<resultMap type="com.jjxt.ssm.entity.MsinStrategy" id="msin">
+		<result column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="level" property="level" />
+		<result column="phone_number" property="phoneNumber" />
+	</resultMap>
+
+	<select id="findAllapp" resultMap="msin">
+		SELECT DISTINCT c.app_id,app.app_name FROM sms_core.pre_summary_config c
+		INNER JOIN sms_core.ucenter_application app ON c.app_id=app.id;
+	</select>
+
+	<select id="findAlllevel" resultMap="msin">
+		SELECT DISTINCT `level` FROM sms_core.pre_summary_config;
+	</select>
+
+	<select id="findAllData" resultMap="msin">
+	SELECT ms.id,CONCAT(ms.app_id,': ',app.app_name) app_id,ms.`level`,ms.phone_number FROM sms_core.pre_msin_strategy ms INNER JOIN sms_core.ucenter_application app ON ms.app_id=app.id
+	</select>
+
+	<select id="findTotal" parameterType="map" resultType="int">
+	SELECT COUNT(1) FROM sms_core.pre_msin_strategy WHERE 1=1 
+	<if test="appId != null and appId != ''">
+	and app_id = #{appId}
+	</if>
+	<if test="level != null and level != ''">
+	and `level` = #{level}
+	</if>
+	<if test="phoneNumber != null and phoneNumber != ''">
+	and phone_number = #{phoneNumber}
+	</if>
+	</select>
+	
+	<select id="findMsinList" parameterType="map" resultMap="msin">
+	SELECT * FROM sms_core.pre_msin_strategy WHERE 1=1 
+	<if test="appId != null and appId != ''">
+	and app_id = #{appId}
+	</if>
+	<if test="level != null and level != ''">
+	and `level` = #{level}
+	</if>
+	<if test="phoneNumber != null and phoneNumber != ''">
+	and phone_number = #{phoneNumber}
+	</if>
+	</select>
+	
+	<delete id="delMsinStrategyById" parameterType="int">
+	DELETE FROM sms_core.pre_msin_strategy WHERE id=#{id}
+	</delete>
+	
+	<insert id="addMsinStrategy" parameterType="map">
+	INSERT IGNORE INTO `sms_core`.`pre_msin_strategy` (`app_id`, `level`, `phone_number`) VALUES (#{appId}, #{level}, #{phoneNumber});
+	</insert>
+	
+	<select id="isExistConfig" parameterType="com.jjxt.ssm.entity.MsinStrategy" resultType="int">
+	SELECT COUNT(1) FROM sms_core.pre_summary_config WHERE 1=1
+	<if test="appId != null and appId != ''">
+	and app_id=#{appId}
+	</if>
+	<if test="level != null and level != ''">
+	and `level` = #{level}
+	</if>
+	</select>
+	
+	<select id="findMsinByIds" resultMap="msin" parameterType="int">
+	SELECT app_id,`level`,phone_number FROM sms_core.pre_msin_strategy WHERE id in 
+	<foreach collection="array" index="index" item="id" open="(" separator="," close=")">
+	#{id}
+	</foreach>
+	</select>
+	
+	<delete id="delMsinBatch">
+	DELETE FROM sms_core.pre_msin_strategy WHERE id in 
+	<foreach collection="array" index="index" item="id" open="(" separator="," close=")">
+	#{id}
+	</foreach>
+	</delete>
+	
+	<insert id="addMsinBatch" parameterType="list">
+	INSERT IGNORE INTO `sms_core`.`pre_msin_strategy` (`app_id`, `level`, `phone_number`) 
+	<trim prefix="values ">
+	<foreach collection="list" item="item" index="index" separator="," close=";">
+	(#{item.appId},#{item.level},#{item.phoneNumber})
+	</foreach>
+	</trim>
+	</insert>
+	
+
+</mapper>

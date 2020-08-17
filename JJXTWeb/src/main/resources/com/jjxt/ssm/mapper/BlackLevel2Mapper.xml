@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BlackLevel2Mapper">
+	<resultMap type="com.jjxt.ssm.entity.BlackLevel2" id="BlackLevel2">
+		<id column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="channel_id" property="channelId" />
+		<result column="channel_id" property="channelId" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+	<select id="findByPhoneNumber" resultMap="BlackLevel2"
+		parameterType="string">
+		SELECT id,app_id,phone_number FROM
+		sms_core.pre_black_level_2 WHERE phone_number = #{phone}
+	</select>
+</mapper>
+

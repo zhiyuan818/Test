@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.UcenterMenuMapper">
+	<resultMap type="com.jjxt.ssm.entity.UcenterMenu" id="ucenterMenuResultMap">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="parent_id" property="parentId" />
+		<result column="menu_link" property="menuLink" />
+		<result column="icon_class" property="iconClass" />
+		<result column="parent_name" property="parentName" />
+		<result column="sp_id" property="spId" />
+		<result column="buttons" property="buttons" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.ManagerMenu" id="managerMenu">
+		<id column="id" property="id" />
+		<result column="ucenter_manager_id" property="ucenterManagerId" />
+		<result column="ucenter_menu_id" property="ucenterMenuId" />
+		<result column="menu_buttons" property="menuButtons" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,title,parent_id,menu_link,icon_class,sp_id,buttons
+	</sql>
+
+	<!-- 根据用户id获取子菜单 menu_id的list -->
+	<select id="findUcenterMenuListByUcenterManagerId" resultMap="ucenterMenuResultMap"
+		parameterType="int">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_menu where
+		EXISTS(
+		SELECT * FROM ucenter_manager_menu WHERE
+		ucenter_menu.id=ucenter_manager_menu.ucenter_menu_id
+		and ucenter_manager_menu.ucenter_manager_id=#{_parameter}
+		and sp_id=1
+		) order by menu_order desc;
+	</select>
+	<!-- 查询所有菜单列表 -->
+	<select id="findUcenterMenuList" resultMap="ucenterMenuResultMap"
+		parameterType="map">
+		SELECT
+		um.id,um.title,um.menu_link,um.icon_class,um.parent_id,um.buttons,um.sp_id,if(um.parent_id=0,'-',(SELECT
+		u.title from ucenter_menu u WHERE um.parent_id=u.id)) AS parent_name
+		FROM ucenter_menu um WHERE um.sp_id=1
+		<if test="searchTitle != null">
+			AND um.title like "%"#{searchTitle}"%"
+		</if>
+		ORDER BY um.menu_order
+		<if test="sort != null">
+			,${sort} ${sortOrder}
+		</if>
+		limit #{start},#{end};
+	</select>
+	<!-- 添加菜单 -->
+	<insert id="addUcenterMenu" parameterType="com.jjxt.ssm.entity.UcenterMenu">
+		INSERT into
+		ucenter_menu
+		(title,parent_id,icon_class,menu_link,sp_id,buttons)
+		VALUES (#{title,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER},
+		#{iconClass,jdbcType=VARCHAR},#{menuLink,jdbcType=VARCHAR},1,#{buttons,jdbcType=VARCHAR})
+	</insert>
+	<!-- 删除菜单 -->
+	<delete id="deleteUcenterMenu" parameterType="int">
+		DELETE FROM
+		ucenter_menu WHERE id=#{_parameter}
+	</delete>
+	<!-- 更新菜单 -->
+	<update id="updateUcenterMenu" parameterType="com.jjxt.ssm.entity.UcenterMenu">
+		UPDATE ucenter_menu
+		<set>
+			<if test="title != null">
+				title = #{title},
+			</if>
+			<if test="menuLink != null">
+				menu_link = #{menuLink},
+			</if>
+			<if test="parentId != null">
+				parent_id = #{parentId},
+			</if>
+			<if test="iconClass != null">
+				icon_class = #{iconClass},
+			</if>
+			<if test="spId != null">
+				sp_id = #{spId},
+			</if>
+			<if test="buttons != ''">
+				buttons = #{buttons},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	<!-- 查询菜单的总数 -->
+	<select id="findMenuTotal" resultType="int" parameterType="string">
+		SELECT count(1) FROM ucenter_menu WHERE sp_id=1
+		<if test="searchTitle != null">
+			AND title like "%"#{searchTitle}"%"
+		</if>
+	</select>
+	<!-- 查询所有根菜单 -->
+	<select id="findParentMenu" resultMap="ucenterMenuResultMap">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_menu WHERE parent_id=0 and sp_id=1
+	</select>
+	<!-- 批量删除菜单 -->
+	<delete id="deleteUcenterMenuBatch">
+		DELETE FROM ucenter_menu WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 查询最后添加菜单 -->
+	<select id="findEndAddMenu" resultMap="ucenterMenuResultMap">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_menu ORDER BY id DESC LIMIT 1;
+	</select>
+	<!-- 根据菜单id进行查询 -->
+	<select id="findUcenterMenuById" resultMap="ucenterMenuResultMap"
+		parameterType="int">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_menu WHERE id=#{id} and sp_id=1;
+	</select>
+	<!-- 根据菜单ids进行查询 -->
+	<select id="findUcenterMenuByIds" resultMap="ucenterMenuResultMap"
+		parameterType="int">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_menu WHERE id IN
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	<!-- 查询当前用户的菜单路径 -->
+	<select id="findMenuLinkByUcenterManagerId" resultMap="managerMenu"
+		parameterType="int">
+		SELECT ucenter_menu_id,menu_buttons FROM
+		ucenter_manager_menu WHERE ucenter_manager_id = #{id}
+	</select>
+	<!-- 查询所有菜单 -->
+	<select id="findAllMenu" resultMap="ucenterMenuResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ucenter_menu WHERE sp_id=1;
+	</select>
+	<!-- 查询用户菜单按钮 -->
+	<select id="findManagerMenuButtons" resultType="string"
+		parameterType="map">
+		SELECT MENU_BUTTONS FROM ucenter_manager_menu WHERE
+		ucenter_manager_id=#{managerId} AND ucenter_menu_id=#{menuId};
+	</select>
+</mapper>

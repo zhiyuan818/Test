@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.LoadConfigMapper">
+	<resultMap type="com.jjxt.ssm.entity.LoadConfig" id="loadconfig">
+		<id column="id" property="id" />
+		<result column="redis_key" property="redisKey" />
+		<result column="redis_type" property="redisType" />
+		<result column="minimum" property="minimum" />
+		<result column="maximum" property="maximum" />
+		<result column="time_limit" property="timeLimit" />
+		<result column="print_log" property="printLog" />
+		<result column="variant" property="variant" />
+		<result column="redis_name" property="redisName" />
+		<result column="model_name" property="modelName" />
+		<result column="map_key" property="mapKey" />
+	</resultMap>
+	
+	<insert id="addToLoadConfig" parameterType="com.jjxt.ssm.entity.LoadConfig">
+	INSERT INTO `sms_core`.`load_router_config` (`redis_key`, `redis_type`, 
+	<if test="minimum !=null and minimum !=''">
+	minimum,
+	</if>
+	<if test="maximum !=null and maximum !=''">
+	maximum,
+	</if>
+	<if test="printLog !=null and printLog !=''">
+	print_log,
+	</if>
+	`time_limit`, `variant`, `redis_name`, `model_name`, `map_key`) 
+	VALUES (#{redisKey}, #{redisType},
+	<if test="minimum !=null and minimum !=''">
+	#{minimum},
+	</if>
+	<if test="maximum !=null and maximum !=''">
+	#{maximum},
+	</if>
+	<if test="printLog !=null and printLog !=''">
+	#{printLog},
+	</if>
+	 #{timeLimit}, #{variant}, #{redisName}, #{modelName}, #{mapKey});
+	</insert>
+	
+	<select id="findPageList" resultMap="loadconfig" parameterType="map">
+	SELECT * FROM sms_core.load_router_config WHERE 1=1 
+	<if test="redisKey !=null and redisKey !='' ">
+	and redis_key like "%"#{redisKey}"%"
+	</if>
+	<if test="modelName !=null and modelName !='' ">
+	and model_name like "%"#{modelName}"%"
+	</if>
+	</select>
+	
+	<select id="findTotal" parameterType="map" resultType="int">
+	SELECT COUNT(1) FROM sms_core.load_router_config WHERE 1=1 
+	<if test="redisKey !=null and redisKey !='' ">
+	and redis_key like "%"#{redisKey}"%"
+	</if>
+	<if test="modelName !=null and modelName !='' ">
+	and model_name like "%"#{modelName}"%"
+	</if>
+	</select>
+	
+	<delete id="delLoadConfig" parameterType="int">
+	DELETE FROM sms_core.load_router_config WHERE id=#{id}
+	</delete>
+	
+	<select id="findLoadConfigById" parameterType="int" resultMap="loadconfig">
+	SELECT * FROM sms_core.load_router_config WHERE id=#{id}
+	</select>
+	
+	<update id="updateLoadConfig" parameterType="com.jjxt.ssm.entity.LoadConfig">
+	UPDATE `sms_core`.`load_router_config` 
+	<set>
+	<if test="redisKey !=null and redisKey !='' ">
+	redis_key=#{redisKey},
+	</if>
+	<if test="redisType !=null and redisType !='' ">
+	redis_type=#{redisType},
+	</if>
+	<if test="minimum !=null and minimum !='' ">
+	minimum=#{minimum},
+	</if>
+	<if test="maximum !=null and maximum !='' ">
+	maximum=#{maximum},
+	</if>
+	<if test="timeLimit !=null and timeLimit !='' ">
+	time_limit=#{timeLimit},
+	</if>
+	<if test="printLog !=null and printLog !='' ">
+	print_log=#{printLog},
+	</if>
+	<if test="variant !=null and variant !='' ">
+	variant=#{variant},
+	</if>
+	<if test="redisName !=null and redisName !='' ">
+	redis_name=#{redisName},
+	</if>
+	<if test="modelName !=null and modelName !='' ">
+	model_name=#{modelName},
+	</if>
+	<if test="mapKey !=null and mapKey !='' ">
+	map_key=#{mapKey},
+	</if>
+	</set>
+	WHERE id=#{id}
+	</update>
+	
+</mapper>
+

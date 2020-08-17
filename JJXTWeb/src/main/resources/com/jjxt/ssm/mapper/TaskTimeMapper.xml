@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjxt.ssm.mapper.TaskTimeMapper">
+	<resultMap type="com.jjxt.ssm.entity.TaskTime" id="taskMapper">
+		<id column="id" property="id"/>
+		<result column="task_id" property="taskId"/>
+		<result column="task_time" property="taskTime"/>
+		<result column="app_id" property="appId"/>
+		<result column="app_name" property="appName"/>
+		<result column="file_name" property="fileName"/>
+		<result column="content" property="content"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<select id="findTotal" parameterType="map" resultType="int">
+		select count(1) from khd_task_time 
+		<where>
+			<if test="appId != null and appId != ''">
+				app_id = #{appId}
+			</if>
+			<if test="status !=null and status != ''">
+				and status=#{status}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findTaskTimePageList" parameterType="map" resultMap="taskMapper">
+		select ktt.id,task_id,task_time,app_id,app_name,file_name,content,`status`
+		from khd_task_time ktt
+		left join sms_core.ucenter_application ua on ktt.app_id = ua.id
+		<where>
+			<if test="appId != null and appId != ''">
+				app_id = #{appId}
+			</if>
+			<if test="status !=null and status != ''">
+				and status=#{status}
+			</if>
+		</where>
+		limit #{start},#{end}
+	</select>
+	
+	<select id="findTaskTimeById" parameterType="string" resultMap="taskMapper">
+		select id,task_id,task_time,app_id,file_name,content,`status`
+		from khd_task_time where id = #{id}
+	</select>
+	
+	<delete id="delTaskTime" parameterType="string">
+		delete from khd_task_time where id = #{id}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+

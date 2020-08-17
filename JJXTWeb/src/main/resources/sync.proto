@@ -1,0 +1,264 @@
+option java_package = "com.jjxt.ssm.entity"; 
+option java_outer_classname = "Sync"; 
+   
+  message Account 
+  { 
+   optional int64 id = 1;
+   optional string name = 2;
+   optional string password = 3;
+   optional int64 groupId = 4;
+   optional int64 productId = 5;
+   optional string productType = 6;
+   optional string whiteListedIps = 7;
+   optional string productStatus = 8;
+   optional string testMode = 9;
+   optional string paymentType = 10;
+   optional string serviceTimeBegin = 11;
+   optional string serviceTimeEnd = 12;
+   optional string defaultSign = 13;
+   optional string isSign = 14;
+   optional int64 cmccChannelId = 15;
+   optional int64 unicomChannelId = 16;
+   optional int64 telecomChannelId = 17;
+   optional int64 unknownChannelId = 18;
+   optional int64 intlChannelId = 19;
+   optional string appExtSrc = 20;
+   optional string from = 21;
+   optional int32 priorityLevel = 22;
+   optional string productClass = 23;
+   optional double limitCount = 24;
+   optional double sentCount = 25;
+   optional int32 isExt = 26;
+   optional string sourceSegment = 27;
+   optional string blackLevels = 28;
+   optional string skipMustWords = 29;
+   optional string priority = 30;
+   optional string isMinLimit = 31;
+   optional int32 minLimitCount = 32;
+   optional string isDayLimit = 33;
+   optional int32 dayLimitCount = 34;
+   optional string isDayContentLimit = 35;
+   optional int32 dayLimitConCount = 36;
+   optional int32 groupShuntLevel = 37;
+   optional string rptSyncAddress = 38;
+   optional string rptSyncModel = 39;
+   optional string moSyncAddress = 40;
+   optional string moSyncModel = 41;
+   //最大连接数
+   optional int32 maxConnection = 42;
+   //是否校验扣量手机表数据
+   optional string isShuntPhone = 43;
+    // 上行匹配标志
+   optional int32 moFlag = 44;
+   optional string checkWordsType = 45;
+   optional string isModel = 46;
+   optional string isContAudit = 47;
+   optional int32 contAuditCount = 48;
+   optional string isTemplate = 49;
+   optional string isMonthLimit = 50;
+   optional int32 monthLimitCount = 51;
+   optional string isDayLimitCheck = 52;
+   optional string isDefaultSignSubmit = 53;
+   optional string moSourceSegment = 54;
+   optional string platformFlag = 55;
+   optional string appExtras = 56;
+   optional string isSgip = 57;
+  } 
+  
+  message Channel
+  {
+  	optional int64 id = 1;
+  	optional int64 spId = 2;
+  	optional int64 channelId = 3;
+  	optional string name = 4;
+  	optional string notice = 5;
+  	optional string sourceSegment = 6;
+  	optional string callOut = 7;
+  	optional int64 sourceFullLength = 8;
+	optional string sourceType = 9;
+	optional string toCmcc = 10;
+	optional string toUnicom = 11;
+	optional string toTelecom = 12;
+	optional string toUnknown = 13;
+	optional string msgidType = 14;
+	optional string haveReport = 15;
+	optional string haveMo = 16;
+	optional int64 successRate = 17;
+	optional int64 sizeMax = 18;
+	optional int64 sizeFirst = 19;
+	optional int64 sizeCharge = 20;
+	optional int64 coverKey = 21;
+	optional string submitBegin = 22;
+	optional string submitEnd = 23;
+	optional string autoExtSrc = 24;
+	optional string userExtSrc = 25;
+	optional string channelStatus = 26;
+	optional string baobeiModel = 27;
+	optional string filterGlobalBlack = 28;
+	optional string baobeiBeforePjExtSrc = 29;
+	optional string toIntl = 30;
+	optional string gwType = 31;
+	optional string svcAddr = 32;
+	optional int32 svcPort = 33;
+	optional string account = 34;
+	optional string password = 35;
+	optional int32 linkMax = 36;
+	optional int32 linkSpeed = 37;
+	optional int32 firstMsgChargeLen = 38;
+	optional int32 subseqMsgChargeLen = 39;
+	optional string serviceCode = 40;
+	optional string enterpriseCode = 41;
+	optional string extras = 42;
+	optional string shortNum = 43;
+	optional string variant = 44;
+	optional int64 backupChannelId = 45;
+	optional string autoExtractSigns = 46;
+	optional float channelPrice = 47;
+	optional string model = 48;
+	optional string alarmCode = 49;
+	//logic模块连接数
+	optional string logicModel = 50;
+	//上行匹配方式
+	optional string moMatch = 51;
+	//是否开启通道月限
+	optional string isMonthLimit = 52;
+	//月限条数
+	optional int32 monthLimitCount = 53;
+	optional string platformFlag = 54;
+	optional string allPlatformUsed = 55;
+  }
+  
+    message LgProvinces
+  {
+  	optional int64 id = 1;
+  	optional int64 channelId = 2;
+  	optional string province = 3;
+  	optional string carriers = 4;
+  	optional int64 productId = 5;
+  	optional string updateTime = 6;
+  	optional string contentRule = 7;
+  }
+  
+  message NumSegment
+  {
+  	optional int64 id = 1;
+  	optional string seg = 2;
+  	optional string carrier = 3;
+  }
+  
+  message PreSegment
+  {
+  	optional int64 id = 1;
+  	optional string segment = 2;
+  	optional string province = 3;
+  	optional string city = 4;
+  }
+  
+  message PreBlackKeyword
+  {
+  	optional int64 id = 1;
+  	optional int32 level = 2;
+  	optional string keyword = 3;
+  }
+  
+  message GlobalSetting
+  {
+  	optional string key = 1;
+  	optional string val = 2;
+  }
+  
+  message AccountVersion
+  {
+ 	 optional int64 id = 1;
+ 	 optional int32 version = 2;
+  }
+  
+  message AccountShuntPolicies
+  {
+ 	 optional int64 id = 1;
+ 	 optional int64 appId = 2;
+ 	 optional string ignoredProvinces = 3;
+ 	 optional string ignoredCarriers = 4;
+ 	 optional int64 ignoredPackMin = 5;
+ 	 optional int64 ignoredPackHead = 6;
+ 	 optional int64 ignoredPackTail = 7;
+ 	 optional string content = 8;
+ 	 optional int64 percent = 9;
+  }
+  
+  message LgModelSend
+  {
+  	optional int64 id = 1;
+  	optional int64 cmccChannelId = 2;
+  	optional int64 unicomChannelId = 3;
+  	optional int64 telecomChannelId = 4;
+  	optional string content = 5;
+  	optional string createTime = 6;
+  }
+  
+  message CheckMust
+  {
+  	optional int64 id = 1;
+  	optional string keyWords = 2;
+  	optional string createTime = 3;
+  }
+  
+  message AuditModel
+  {
+  	optional int64 id = 1;
+  	optional string auditFlag = 2;
+  	optional string content = 3;
+  	optional string createTime = 4;
+  	optional int64 appId = 5;
+  }
+ 
+  message ArgsMsgTemplate
+  {
+  	optional int64 id = 1;
+  	optional string templateInfo = 2;
+  	optional string strategy = 3;
+  	optional string result = 4;
+  	optional int64 appId = 5;
+  	optional string keyWord = 6;
+  	optional string rule = 7;
+  	optional int32 ruleIndex = 8;
+  }
+  
+  message ReportConfig
+  {
+  	optional int64 id = 1;
+  	optional string channelId = 2;
+  	optional string uri = 3;
+  	optional string type = 4;
+  }
+  
+    message TimerTask
+  {
+  	optional string task = 1;
+  	optional string firstTime = 2;
+  	optional string unit = 3;
+  	optional string cycle = 4;
+  }
+  
+    message ChannelTemplate
+  {
+    optional int32 id = 1;
+    optional int64 channelId = 2;
+  	optional string channelAppId = 3;
+  	optional string channelTemplateId = 4;
+  	optional string channelTemplate = 5;
+  	optional string template = 6;
+  	optional string extras = 7;
+  }
+  
+    message ResendConfig
+  {
+  	optional int32 id = 1;
+  	optional string status = 2;
+  	optional int32 appChanId = 3;
+  	optional int32 toChannel = 4;
+  	optional string idType = 5;
+  	optional string msgType = 6;
+  	optional string createTime = 7;
+  }
+  

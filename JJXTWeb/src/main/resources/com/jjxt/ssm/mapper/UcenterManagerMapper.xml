@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.UcenterManagerMapper">
+	<resultMap type="com.jjxt.ssm.entity.UcenterManager" id="ucenterManagerResultMap">
+		<id column="id" property="id" />
+		<result column="sp_id" property="spId" />
+		<result column="manager_name" property="managerName" />
+		<result column="manager_password" property="managerPassword" />
+		<result column="chinese_name" property="chineseName" />
+		<result column="title" property="title" />
+		<result column="is_all_customer" property="isAllCustomer" />
+		<result column="is_all_channel" property="isAllChannel" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.ManagerMenu" id="managerMenu">
+		<id column="id" property="id" />
+		<result column="ucenter_manager_id" property="ucenterManagerId" />
+		<result column="ucenter_menu_id" property="ucenterMenuId" />
+		<result column="menu_buttons" property="menuButtons" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.GlobalSetting" id="GlobalSetting">
+		<id column="id" property="id" />
+		<result column="key" property="key" />
+		<result column="val" property="val" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,manager_name,manager_password,chinese_name,title,sp_id,is_all_customer,is_all_channel
+	</sql>
+
+	<!-- 管理员登录 -->
+	<select id="findUcenterManagerByNameAndPwd" resultType="com.jjxt.ssm.entity.UcenterManager"
+		parameterType="map">
+		SELECT id,manager_name as managerName,manager_password
+		as managerPassword,chinese_name as chineseName,sp_id as spId,title,is_all_customer as isAllCustomer,is_all_channel as isAllChannel 
+		FROM ucenter_manager where
+		manager_name = #{managerName} and
+		manager_password = #{managerPassword}
+	</select>
+	<!-- 查询所有管理员 -->
+	<select id="findAllManager" resultType="com.jjxt.ssm.entity.UcenterManager">
+		SELECT
+		id,manager_name,chinese_name,title FROM ucenter_manager
+	</select>
+	<!-- 查询所有销售人员 -->
+	<select id="findSalesManager" resultMap="ucenterManagerResultMap">
+		SELECT id,chinese_name
+		FROM ucenter_manager where title='销售'
+	</select>
+	<!-- 添加管理员 -->
+	<insert id="addUcenterManager" parameterType="com.jjxt.ssm.entity.UcenterManager">
+		INSERT into ucenter_manager
+		(manager_name,manager_password,chinese_name,title,sp_id,is_all_customer,is_all_channel)
+		VALUES
+		(#{managerName,jdbcType=VARCHAR}, #{managerPassword,jdbcType=VARCHAR},
+		#{chineseName,jdbcType=VARCHAR},#{title,jdbcType=VARCHAR},1,#{isAllCustomer,jdbcType=VARCHAR},#{isAllChannel,jdbcType=VARCHAR})
+	</insert>
+	<!-- 批量删除管理员 -->
+	<delete id="deleteUcenterManagerBatch">
+		DELETE FROM ucenter_manager WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 删除管理员 -->
+	<delete id="deleteUcenterManager" parameterType="int">
+		DELETE FROM ucenter_manager WHERE id =#{id}
+	</delete>
+	<!-- 修改管理员 -->
+	<update id="updateUcenterManager" parameterType="com.jjxt.ssm.entity.UcenterManager">
+		UPDATE ucenter_manager
+		<set>
+			<if test="managerName != null">
+				manager_name = #{managerName},
+			</if>
+			<if test="managerPassword != ''">
+				manager_password = #{managerPassword},
+			</if>
+			<if test="chineseName != null">
+				chinese_name = #{chineseName},
+			</if>
+			<if test="title != null">
+				title = #{title},
+			</if>
+			<if test="spId != null">
+				sp_id = #{spId},
+			</if>
+			<if test="isAllCustomer != null">
+				is_all_customer = #{isAllCustomer},
+			</if>
+			<if test="isAllChannel != null">
+				is_all_channel = #{isAllChannel},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	<!-- 通过id查找管理员 -->
+	<select id="findUcenterManagerById" resultMap="ucenterManagerResultMap"
+		parameterType="int">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ucenter_manager WHERE id= #{id}
+	</select>
+	<!-- 使用ajax验证用户名是否正确 -->
+	<select id="findUcenterManagerByName" resultMap="ucenterManagerResultMap"
+		parameterType="com.jjxt.ssm.entity.UcenterManager">
+		SELECT manager_name from ucenter_manager WHERE
+		manager_name=#{managerName}
+	</select>
+	<!-- 查询管理员总数 -->
+	<select id="findManagerTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM ucenter_manager WHERE sp_id=1
+		<if test="searchManagerName != null">
+			AND manager_name like
+			"%"#{searchManagerName,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="searchTitle != ''">
+			AND title = #{searchTitle,jdbcType=VARCHAR}
+		</if>
+		<if test="searchIsAllCustomer != '' and searchIsAllCustomer != null">
+			AND is_all_customer=#{searchIsAllCustomer}
+		</if>
+		<if test="searchIsAllChannel != '' and searchIsAllChannel != null">
+			AND is_all_channel=#{searchIsAllChannel}
+		</if>
+	</select>
+	<!-- 管理员分页列表 -->
+	<select id="findUcenterManagerList" parameterType="map"
+		resultMap="ucenterManagerResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ucenter_manager where sp_id=1
+		<if test="searchManagerName != null">
+			AND manager_name like "%"#{searchManagerName}"%"
+		</if>
+		<if test="searchTitle != ''">
+			AND title=#{searchTitle}
+		</if>
+		<if test="searchIsAllCustomer != '' and searchIsAllCustomer != null">
+			AND is_all_customer=#{searchIsAllCustomer}
+		</if>
+		<if test="searchIsAllChannel != '' and searchIsAllChannel != null">
+			AND is_all_channel=#{searchIsAllChannel}
+		</if>
+		ORDER BY manager_name
+		<if test="sort != null">
+			,${sort} ${sortOrder}
+		</if>
+		limit #{start},#{end}
+	</select>
+	<!-- 查询最后添加用户 -->
+	<select id="findEndAddManager" resultMap="ucenterManagerResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM ucenter_manager ORDER BY id DESC LIMIT 1;
+	</select>
+	<!-- 根据菜单ids进行查询 -->
+	<select id="findUcenterManagerByIds" resultMap="ucenterManagerResultMap"
+		parameterType="int">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM ucenter_manager WHERE id IN
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	<!-- 查询用户菜单 -->
+	<select id="findManagerMenu" resultMap="managerMenu"
+		parameterType="int">
+		SELECT
+		id,ucenter_manager_id,ucenter_menu_id,menu_buttons from
+		ucenter_manager_menu where ucenter_manager_id=#{id}
+	</select>
+	<!-- 用户授权 -->
+	<insert id="authorized" parameterType="java.util.List">
+		INSERT INTO ucenter_manager_menu
+		(ucenter_manager_id,ucenter_menu_id,menu_buttons)
+		VALUES
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.ucenterManagerId},#{item.ucenterMenuId},#{item.menuButtons})
+		</foreach>
+		on duplicate key update menu_buttons =values(menu_buttons)
+	</insert>
+	<!-- 删除权限 -->
+	<delete id="deleteAuthorizedByUcenterManagerId" parameterType="int">
+		DELETE FROM ucenter_manager_menu WHERE
+		ucenter_manager_id=#{_parameter}
+	</delete>
+	<!-- 批量删除权限 -->
+	<delete id="deleteAuthorizedByUcenterManagerIds" parameterType="int">
+		DELETE FROM ucenter_manager_menu WHERE ucenter_manager_id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 查询当前用户的菜单路径 -->
+	<select id="findMenuLinkByUcenterManagerId" resultMap="managerMenu"
+		parameterType="int">
+		SELECT ucenter_menu_id,menu_buttons FROM
+		ucenter_manager_menu WHERE ucenter_manager_id = #{id}
+	</select>
+	
+	
+	<select id="findUcenterManager" parameterType="map" resultMap="ucenterManagerResultMap">
+		select 
+		<include refid="Base_Column_List"/>
+		from sms_manage.ucenter_manager where 1=1 
+		<if test="title != null">
+			and title = #{title}
+		</if>
+	</select>
+	<!-- 查询平台基础配置 -->
+	<select id="findGlobalSetting" resultMap="GlobalSetting">
+		select 
+		`key`,val
+		from sms_manage.base_global_setting
+	</select>
+	
+	<select id="findHeadManager" resultMap="ucenterManagerResultMap">
+		SELECT id,chinese_name
+		FROM ucenter_manager where title='商务'
+	</select>
+	
+	<select id="findSaleAfterManager" resultMap="ucenterManagerResultMap">
+		SELECT id,chinese_name
+		FROM ucenter_manager where title='客服'
+	</select>
+</mapper>

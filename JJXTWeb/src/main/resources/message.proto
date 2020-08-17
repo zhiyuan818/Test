@@ -1,0 +1,41 @@
+option java_package = "com.jjxt.ssm.entity";
+option java_outer_classname = "MessageBean";
+message Message {
+	optional string id = 1;
+	optional string ticket = 2;
+	optional string to = 3;
+	optional string from = 4;
+	optional string ext = 5;
+	optional string content = 6;
+	optional string contentHash = 7;
+	//签名
+	optional string signature = 8;
+	optional string flag = 9;
+	optional string ref = 10;
+	optional int64 accountId = 11;
+	optional int64 productId = 12;
+	optional int32 version = 13;
+	optional int64 priority = 14;
+	optional int32 cls = 15;
+	optional int32 format = 16;
+	optional string dateRequested = 17;
+	optional int32 retries = 18 [default = 1];
+	optional int32 pieceCount = 19 [default = 1];
+	optional int32 rand = 20 [default = 1];
+	optional int32 pieceId = 21 [default = 0];
+	optional string channelMsgId = 22;
+	optional int64 submitRequestTime = 23 [default = 0];
+	optional int32 packSize = 24 [default = 0];
+	optional int32 packIndex = 25 [default = 0];
+	optional string unsplitContent = 26;
+	optional int32 billingLen = 27 [default = 0];
+	optional string dateSubmitted = 28;
+	optional string dateReported = 29;
+	optional int32 channelId = 30 [default = 0];
+	optional int32 type = 31;
+	optional string logicPath = 32;
+	//随机6位扩展
+	optional string ranExt = 33;
+	optional string sendTime = 34;
+	optional string linkId = 35;
+}

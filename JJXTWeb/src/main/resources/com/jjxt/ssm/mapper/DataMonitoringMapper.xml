@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.DataMonitoringMapper">
+	<resultMap type="com.jjxt.ssm.entity.RedisInfo" id="redisInfoMapper">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="key" property="key"/>
+		<result column="remark" property="remark"/>
+		<result column="port" property="port"/>
+		<result column="type" property="type"/>
+		<result column="key_detail" property="keyDetail"/>
+		<result column="value_detail" property="valueDetail"/>
+	</resultMap>
+	<resultMap type="java.util.Map" id="providerMapper">
+		<result column="seg" property="seg"/>
+		<result column="carrier" property="carrier"/>
+	</resultMap>	
+	
+	<select id="findRedisList" resultMap="redisInfoMapper">
+		SELECT id,name,`key`,remark,port,type,key_detail,value_detail 
+		from sms_manage.args_redis_info
+		ORDER BY `port`
+	</select>
+	
+	<select id="findProviderList" resultMap="providerMapper">
+		SELECT seg,carrier FROM sms_core.t_num_segment
+	</select>
+</mapper>

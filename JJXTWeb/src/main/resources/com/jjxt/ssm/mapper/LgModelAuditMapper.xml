@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.LgModelAuditMapper">
+	<resultMap type="com.jjxt.ssm.entity.LgModelAudit" id="lgModelAudit">
+		<id column="id" property="id" />
+		<result column="audit_flag" property="auditFlag" />
+		<result column="content" property="content" />
+		<result column="create_time" property="createTime" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.Application" id="application">
+		<id column="id" property="id" />
+		<result column="app_name" property="appName" />
+	</resultMap>
+	<!-- 添加模板 -->
+	<insert id="addLgModelAudit" parameterType="com.jjxt.ssm.entity.LgModelAudit">
+		insert into
+		sms_core.lg_model_audit(audit_flag,content,create_time,app_id) values(
+		#{auditFlag,jdbcType=VARCHAR},#{content,jdbcType=VARCHAR},#{createTime},#{appId}
+		)
+	</insert>
+
+	<select id="findAddEnd" resultMap="lgModelAudit">
+		select
+		id,audit_flag,content,create_time,app_id from sms_core.lg_model_audit ORDER BY
+		id DESC LIMIT 1;
+	</select>
+
+	<select id="findByContent" resultMap="lgModelAudit"
+		parameterType="string">
+		SELECT id,audit_flag,content,create_time,app_id from
+		sms_core.lg_model_audit WHERE 1=1
+		<if test="content !='' and content != null">
+			and content=#{content}
+		</if>
+	</select>
+	<select id="findByConMap" resultMap="lgModelAudit"
+		parameterType="map">
+		SELECT id,audit_flag,content,create_time,app_id from
+		sms_core.lg_model_audit WHERE 1=1
+		<if test="content !='' and content != null">
+			and content=#{content}
+		</if>
+		<if test="appId !='' and appId != null">
+			and app_id=#{appId}
+		</if>
+	</select>
+
+	<select id="findTotal" resultType="int" parameterType="map">
+		select count(1) from sms_core.lg_model_audit where 1=1
+		<if test="content!='' and content !=null">
+			and content like "%"#{content}"%"
+		</if>
+		<if test="appId!='' and appId!=null">
+			and app_id =#{appId}
+		</if>
+		<if test="auditFlag!='' and auditFlag!=null">
+			and audit_flag =#{auditFlag}
+		</if>
+	</select>
+
+	<select id="findLgModleAuditPageList" resultMap="lgModelAudit"
+		parameterType="map">
+		select aud.id,aud.audit_flag,aud.content,aud.create_time,aud.app_id,app.app_name from sms_core.lg_model_audit aud LEFT JOIN sms_core.ucenter_application app on aud.app_id=app.id where 1=1
+		<if test="content!='' and content !=null">
+			and aud.content like "%"#{content}"%"
+		</if>
+		<if test="appId!='' and appId!=null">
+			and aud.app_id =#{appId}
+		</if>
+		<if test="auditFlag!='' and auditFlag!=null">
+			and aud.audit_flag =#{auditFlag}
+		</if>
+		limit #{start},#{end}
+	</select>
+	<delete id="deleteLgModelAudit" parameterType="int">
+		DELETE FROM
+		sms_core.lg_model_audit where id = #{id}
+	</delete>
+	<delete id="deleteLgModelAuditBatch">
+		DELETE FROM sms_core.lg_model_audit WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="findLgModelAuditByIds" resultMap="lgModelAudit"
+		parameterType="int">
+		SELECT
+		id,content,audit_flag,create_time,app_id
+		FROM sms_core.lg_model_audit
+		WHERE id IN
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	<select id="findLgModelAuditById" resultMap="lgModelAudit"
+		parameterType="int">
+		SELECT
+		id,content,audit_flag,create_time,app_id
+		FROM
+		sms_core.lg_model_audit WHERE id =#{id}
+	</select>
+
+	<update id="updateLgModelAudit" parameterType="com.jjxt.ssm.entity.LgModelAudit">
+		UPDATE sms_core.lg_model_audit
+		<set>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="auditFlag != null">
+				audit_flag = #{auditFlag},
+			</if>
+			<if test="appId != null">
+				app_id = #{appId},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	<select id="findApplicationByAppId" resultMap="application"
+		parameterType="int">
+		select id,app_name,priority from
+		sms_core.ucenter_application where
+		id =#{id}
+	</select>
+
+	<select id="findCompanyNameById" resultType="string"
+		parameterType="int">
+		select com.company_name from
+		sms_manage.ucenter_application_ext ext LEFT JOIN
+		sms_manage.base_company com on com.id=ext.company_id where ext.app_id=#{_parameter}
+	</select>
+</mapper>

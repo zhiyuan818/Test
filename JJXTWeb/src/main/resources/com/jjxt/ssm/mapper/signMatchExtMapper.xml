@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jjxt.ssm.mapper.SignMatchExtMapper">
+	<resultMap type="com.jjxt.ssm.entity.SignMatchExt" id="signMatchExt">
+		<id column="id" property="id" />
+		<result column="app_id" property="appId" />
+		<result column="app_name" property="appName" />
+		<result column="sign" property="sign" />
+		<result column="ext" property="ext" />
+		<result column="ext_length" property="extLength" />
+		<result column="is_sync" property="isSync" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+	
+	<select id="findPageList" resultMap="signMatchExt" parameterType="map">
+		select sme.id,sme.sign,ext,sme.ext_length,sme.app_id,ua.app_name,sme.is_sync,sme.add_time
+		from sms_core.lg_sign_match_ext sme left join sms_core.ucenter_application ua
+		on sme.app_id = ua.id
+		where 1=1 
+		<if test="sign !=''">
+			AND sme.sign like "%"#{sign}"%"
+		</if>
+		<if test="ext !='' and ext !=null ">
+			AND sme.ext = #{ext}
+		</if>
+		<if test="extLength !='' and extLength !=null ">
+			AND sme.ext_length = #{extLength}
+		</if>
+		<if test="appId !='' and appId != null">
+			AND sme.app_id = #{appId}
+		</if>
+		<if test="startTime !=''">
+			AND sme.add_time &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND sme.add_time &lt;= #{endTime}
+		</if>
+		ORDER BY sme.add_time DESC limit #{start},#{end}
+	</select>
+
+	<select id="findTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM sms_core.lg_sign_match_ext sme WHERE 1=1
+		<if test="sign !=''">
+			AND sme.sign like "%"#{sign}"%"
+		</if>
+		<if test="ext !='' and ext !=null ">
+			AND sme.ext = #{ext}
+		</if>
+		<if test="extLength !='' and extLength !=null ">
+			AND sme.ext_length = #{extLength}
+		</if>
+		<if test="appId !='' and appId != null">
+			AND sme.app_id = #{appId}
+		</if>
+		<if test="startTime !=''">
+			AND sme.add_time &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND sme.add_time &lt;= #{endTime}
+		</if>
+	</select>
+	
+	<select id="findMaxExtByAppIdAndExtLength" resultType="Integer" parameterType="com.jjxt.ssm.entity.SignMatchExt">
+		select max(ext) from sms_core.lg_sign_match_ext where app_id=#{appId} and ext_length = #{extLength}
+	</select>
+	
+	<insert id="addSignMatchExt" parameterType="com.jjxt.ssm.entity.SignMatchExt" >
+		insert ignore into sms_core.lg_sign_match_ext(sign,ext,ext_length,is_sync,app_id,add_time) 
+												values(#{sign},#{ext},#{extLength},#{isSync},#{appId},#{addTime})
+	</insert>
+	
+	<delete id="deleteSignMatchExt" parameterType="string">
+		delete from sms_core.lg_sign_match_ext where id = #{id}
+	</delete>
+	
+	<select id="findListId" parameterType="string" resultMap="signMatchExt">
+		select id,sign,ext,app_id,ext_length,app_id,is_sync,add_time from sms_core.lg_sign_match_ext where id = #{id}
+	</select>
+	
+	<select id="findAllList" resultMap="signMatchExt" parameterType="map">
+		select sme.id,sme.sign,ext,sme.ext_length,sme.app_id,ua.app_name,sme.is_sync,sme.add_time
+			from sms_core.lg_sign_match_ext sme left join sms_core.ucenter_application ua
+			on sme.app_id = ua.id
+		where 1=1 
+		<if test="extLength !='' and extLength !=null ">
+			AND sme.ext_length = #{extLength}
+		</if>
+		<if test="appId !='' and appId != null">
+			AND sme.app_id = #{appId}
+		</if>
+		ORDER BY sme.ext asc
+	</select>
+</mapper>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.ProductMapper">
+	<resultMap type="com.jjxt.ssm.entity.Product" id="product">
+		<id column="id" property="id" />
+		<result column="product_type" property="productType" />
+		<result column="product_class" property="productClass" />
+		<result column="product_name" property="productName" />
+		<result column="description" property="description" />
+		<result column="tactics_id" property="tacticsId" />
+		<result column="cmcc_channel_id" property="cmccChannelId" />
+		<result column="cmcc_channel_name" property="cmccChannelName" />
+		<result column="unicom_channel_id" property="unicomChannelId" />
+		<result column="unicom_channel_name" property="unicomChannelName" />
+		<result column="telecom_channel_id" property="telecomChannelId" />
+		<result column="telecom_channel_name" property="telecomChannelName" />
+		<result column="unkown_channel_id" property="unknownChannelId" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="product_status" property="productStatus" />
+		<result column="is_check" property="isCheck" />
+		<result column="is_sign" property="isSign" />
+		<result column="allow_province" property="allowProvince" />
+		<result column="intl_channel_id" property="intlChannelId" />
+		<result column="intl_channel_name" property="intlChannelName" />
+		<result column="appNumber" property="appNumber" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.Application" id="application">
+		<id column="id" property="id" />
+		<result column="app_name" property="appName" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.LgProvincesSend" id="lgProvincesSend">
+		<id column="id" property="id" />
+		<result column="channel_id" property="channelId" />
+		<result column="product_id" property="productId" />
+		<result column="province" property="province" />
+		<result column="carriers" property="carriers" />
+		<result column="update_time" property="updateTime" />
+		<result column="content_rule" property="contentRule"/>
+	</resultMap>
+
+	<resultMap type="java.util.HashMap" id="linkAccount">
+		<id column="id" property="id" />
+		<result column="app_name" property="appName" />
+		<result column="app_status" property="appStatus" />
+		<result column="price" property="price" />
+	</resultMap>
+	<resultMap type="java.util.HashMap" id="linkProduct">
+		<id column="id" property="id" />
+		<result column="product_name" property="productName" />
+		<result column="product_class" property="productClass" />
+		<result column="product_status" property="productStatus" />
+		<result column="is_sign" property="isSign" />
+	</resultMap>
+	<!-- 查询产品总条数 -->
+	<select id="findProductTotal" resultType="int">
+		SELECT COUNT(1) FROM
+		sms_core.fors_product
+	</select>
+	<!-- 查询产品分页列表 -->
+	<select id="findProductPageList" resultMap="product"
+		parameterType="map">
+		SELECT
+		fp.id,fp.product_type,fp.product_class,fp.product_name,fp.description,fp.tactics_id,fp.cmcc_channel_id,(select
+		ac.name from
+		sms_core.args_channel ac where
+		ac.channel_id=fp.cmcc_channel_id)
+		cmcc_channel_name,fp.unicom_channel_id,(select ac.name from
+		sms_core.args_channel ac where ac.channel_id=fp.unicom_channel_id)
+		unicom_channel_name,fp.telecom_channel_id,(select ac.name from
+		sms_core.args_channel ac where ac.channel_id=fp.telecom_channel_id)
+		telecom_channel_name,fp.unknown_channel_id,fp.create_time,fp.update_time,fp.product_status,fp.is_check,fp.is_sign,fp.allow_province,fp.intl_channel_id,(select ac.name from
+		sms_core.args_channel ac where ac.channel_id=fp.intl_channel_id)
+		intl_channel_name,count(fa.id)
+		appNumber from sms_core.fors_product fp LEFT JOIN
+		sms_core.ucenter_application fa on fp.id=fa.product_id
+		where 1=1
+		<if test="productId!=null and productId!=''">
+			and fp.id = #{productId}
+		</if>
+		<if test="channelId != '' and channelId != null">
+			and ( cmcc_channel_id = #{channelId} or unicom_channel_id
+			= #{channelId} or telecom_channel_id = #{channelId} )
+		</if>
+		<if test="productStatus!='' and productStatus !=null">
+			and product_status=#{productStatus}
+		</if>
+		GROUP BY fp.id
+		ORDER BY id DESC LIMIT
+		#{start},#{end}
+	</select>
+	<!-- 查询的产品的账户使用数 -->
+	<select id="findAppNumber" resultType="int" parameterType="int">
+		SELECT COUNT(1) FROM sms_core.ucenter_application WHERE
+		product_id=#{_parameter}
+	</select>
+	<!-- 添加产品 -->
+	<insert id="addProduct" parameterType="com.jjxt.ssm.entity.Product">
+		INSERT INTO
+		sms_core.fors_product(sp_id,product_type,product_class,product_name,description,tactics_id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,unknown_channel_id,create_time,update_time,product_status,is_check,is_sign,allow_province,intl_channel_id)
+		values(1,#{productType},#{productClass},#{productName},#{description},#{tacticsId},#{cmccChannelId},#{unicomChannelId},#{telecomChannelId},#{unknownChannelId},#{createTime},#{updateTime},#{productStatus},#{isCheck},#{isSign},#{allowProvince},#{intlChannelId})
+	</insert>
+	<select id="findEndAddProduct" resultMap="product">
+		SELECT
+		id,product_type,product_class,product_name,description,tactics_id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,unknown_channel_id,create_time,update_time,product_status,is_check,is_sign,allow_province,intl_channel_id
+		FROM sms_core.fors_product ORDER BY id DESC limit 0,1
+	</select>
+	<select id="findProductById" resultMap="product" parameterType="int">
+		SELECT
+		id,product_type,product_class,product_name,description,tactics_id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,unknown_channel_id,create_time,update_time,product_status,is_check,is_sign,allow_province,intl_channel_id
+		FROM sms_core.fors_product where id=#{id}
+	</select>
+	<update id="updateProduct" parameterType="com.jjxt.ssm.entity.Product">
+		UPDATE sms_core.fors_product
+		<set>
+			<if test="productName != null and productName !=''">
+				product_name = #{productName},
+			</if>
+			<if test="description !=null">
+				description = #{description},
+			</if>
+			<if test="cmccChannelId != null">
+				cmcc_channel_id = #{cmccChannelId},
+			</if>
+			<if test="unicomChannelId != null">
+				unicom_channel_id = #{unicomChannelId},
+			</if>
+			<if test="telecomChannelId != null">
+				telecom_channel_id = #{telecomChannelId},
+			</if>
+			<if test="intlChannelId != null">
+				intl_channel_id = #{intlChannelId},
+			</if>
+			<if test="productStatus != null">
+				product_status = #{productStatus},
+			</if>
+			<if test="isSign != null">
+				is_sign = #{isSign},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	<select id="findAllProduct" resultMap="product">
+		SELECT
+		id,product_type,product_class,product_name,description,tactics_id,cmcc_channel_id,unicom_channel_id,telecom_channel_id,unknown_channel_id,create_time,update_time,product_status,is_check,is_sign,allow_province,intl_channel_id
+		FROM sms_core.fors_product where product_status='normal'
+	</select>
+	<select id="findTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM
+		sms_core.fors_product
+		where 1=1
+		<if test="productId!=null and productId!=''">
+			and id = #{productId}
+		</if>
+		<if test="validName!=null and validName!=''">
+			and product_name = #{validName}
+		</if>
+		<if test="channelId != '' and channelId != null">
+			and ( cmcc_channel_id = #{channelId} or unicom_channel_id
+			= #{channelId} or telecom_channel_id = #{channelId} )
+		</if>
+		<if test="productStatus!='' and productStatus !=null">
+			and product_status=#{productStatus}
+		</if>
+	</select>
+
+	<select id="findAccountByProductId" resultMap="application"
+		parameterType="int">
+		select app.id,app.app_name from
+		sms_core.ucenter_application app where app.product_id=#{id} and
+		(app.app_status = 'normal' or app.app_status ='pause')
+	</select>
+
+	<delete id="deleteProvinceConfig" parameterType="map">
+		delete from sms_core.lg_provinces_send where 1=1
+		<if test="productId!=null and productId!=''">
+			and product_id=#{productId}
+		</if>
+		<if test="carriers!=null and carriers!=''">
+			and carriers =#{carriers}
+		</if>
+	</delete>
+
+	<insert id="addProvinceConfig">
+		insert into sms_core.lg_provinces_send
+		(channel_id,province,carriers,product_id,update_time)
+		values
+		<foreach collection="param" item="value" index="item"
+			separator=",">
+			(#{value},#{item},#{privoder},#{productId},now())
+		</foreach>
+	</insert>
+
+	<select id="findLgProvinceSendByAppIdAndPrivoder" resultMap="lgProvincesSend"
+		parameterType="map">
+		select
+		id,channel_id,province,carriers,product_id,update_time
+		from sms_core.lg_provinces_send
+		where 1=1
+		<if test="carriers!=null and carriers !=''">
+			and carriers =#{carriers}
+		</if>
+		<if test="productId!=null and productId!=''">
+			and product_id=#{productId}
+		</if>
+	</select>
+
+	<select id="findLgProvincesSendByPorductId" resultMap="lgProvincesSend"
+		parameterType="int">
+		select
+		id,channel_id,province,carriers,product_id,update_time,content_rule
+		from sms_core.lg_provinces_send where product_id = #{id} GROUP BY
+		province,carriers
+	</select>
+
+	<insert id="addProvinceConfigs" parameterType="java.util.List">
+		insert into sms_core.lg_provinces_send
+		(channel_id,province,carriers,product_id,update_time,content_rule,status)
+		values
+		<foreach collection="param" item="item" index="index"
+			separator=",">
+			(#{item.channelId},#{item.province},#{item.carriers},#{item.productId},now(),#{item.contentRule},#{item.status})
+		</foreach>
+	</insert>
+
+	<!-- 查询产品关联帐户 -->
+	<select id="findLinkAcc" parameterType="int" resultMap="linkAccount">
+		SELECT
+		a.app_name,a.app_status,u.price FROM sms_core.ucenter_application a
+		LEFT JOIN ucenter_application_ext u ON u.app_id=a.id
+		WHERE
+		a.product_id=#{id}
+	</select>
+	
+	<!-- 根据通道ID查询产品-->
+	<select id="findLinkProduct" parameterType="int" resultMap="linkProduct">
+		SELECT
+		id,product_name,product_class,product_status,is_sign
+		from sms_core.fors_product
+		WHERE
+		cmcc_channel_id = #{id} or telecom_channel_id = #{id} OR unicom_channel_id = #{id}
+		ORDER BY product_status,id;
+	</select>
+
+	<select id="findProductByIds" resultMap="product" parameterType="int">
+		SELECT
+		t.id,t.product_type,t.product_class,t.product_name,t.description,t.tactics_id,
+		t.cmcc_channel_id,t.unicom_channel_id,t.telecom_channel_id,t.product_status,
+		(SELECT c.`name` FROM sms_core.args_channel c WHERE channel_id=t.cmcc_channel_id) AS
+		cmccChannelName,
+		(SELECT c.`name` FROM sms_core.args_channel c WHERE channel_id=t.unicom_channel_id)
+		AS unicomChannelName,
+		(SELECT c.`name` FROM sms_core.args_channel c WHERE channel_id=t.telecom_channel_id)
+		AS telecomChannelName,
+		t.create_time,
+		t.update_time,
+		t.is_sign,
+		t.allow_province
+		FROM
+		(
+		SELECT p.id,p.product_type,p.product_class,p.product_name,p.description,p.tactics_id,
+		p.cmcc_channel_id,p.unicom_channel_id,p.telecom_channel_id,p.create_time,p.update_time,
+		p.is_sign,p.allow_province,p.product_status
+		FROM sms_core.fors_product p
+		WHERE id = #{id}
+		) t
+	</select>
+
+	<select id="findLgProvinceSendByMap" parameterType="map" resultMap="lgProvincesSend">
+		select id,channel_id,product_id,province,carriers,status from sms_core.lg_provinces_send
+		<where>
+			<if test="productId != null and productId != ''">
+				product_id = #{productId}
+			</if>
+			<if test="province != null and province != ''">
+				and province = #{province}
+			</if>
+			<if test="carriers != null and carriers != ''">
+				and carriers = #{carriers}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

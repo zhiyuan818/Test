@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<settings>
+			<redises>
+				<common>
+					<redis name="logic" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16381" />
+						<address ip="192.168.2.38" port="16381" />
+						<address ip="192.168.2.39" port="16381" />
+					</redis>
+					<redis name="dynamic" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16384" />
+						<address ip="192.168.2.38" port="16384" />
+						<address ip="192.168.2.39" port="16384" />
+					</redis>
+					<redis name="load" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16385" />
+						<address ip="192.168.2.38" port="16385" />
+						<address ip="192.168.2.39" port="16385" />
+					</redis>
+					<redis name="black" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16386" />
+						<address ip="192.168.2.38" port="16386" />
+						<address ip="192.168.2.39" port="16386" />
+					</redis>
+					<redis name="white" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16387" />
+						<address ip="192.168.2.38" port="16387" />
+						<address ip="192.168.2.39" port="16387" />
+					</redis>
+					<redis name="shuntphone" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16388" />
+						<address ip="192.168.2.38" port="16388" />
+						<address ip="192.168.2.39" port="16388" />
+					</redis>
+					<redis name="longMsg" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16389" />
+						<address ip="192.168.2.38" port="16389" />
+						<address ip="192.168.2.39" port="16389" />
+					</redis>
+					<redis name="priority" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16390" />
+						<address ip="192.168.2.38" port="16390" />
+						<address ip="192.168.2.39" port="16390" />
+					</redis>
+					<redis name="audit" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.33" port="16393" />
+						<address ip="192.168.2.38" port="16393" />
+						<address ip="192.168.2.39" port="16393" />
+					</redis>
+					<redis name="bak" maxActive="100" maxIdle="50" maxWait="1000"
+                   		readTimeout="3000" isSentinel="false" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+                   		<address ip="192.168.2.39" port="6394" />
+                	</redis>
+                	<redis name="monitor" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="false" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+						<address ip="192.168.2.39" port="6393" />
+					</redis>
+				</common>
+				<acc flag="1">
+					<address ip="192.168.2.33"/>
+					<address ip="192.168.2.38"/>
+					<address ip="192.168.2.39"/>
+					<redis name="rep" port="16382" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+				</acc>
+				<acc flag="2">
+					<address ip="192.168.2.33"/>
+					<address ip="192.168.2.38"/>
+					<address ip="192.168.2.39"/>
+					<redis name="rep" port="16382" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+				</acc>
+				<chan flag="1">
+				    <address ip="192.168.2.33"/>
+					<address ip="192.168.2.38"/>
+					<address ip="192.168.2.39"/>
+					<redis name="log" port="16380" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="match" port="16391" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="gwlog" port="16392" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="sync" port="16383" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+				</chan>
+				<chan flag="2">
+					<address ip="192.168.2.33"/>
+					<address ip="192.168.2.38"/>
+					<address ip="192.168.2.39"/>
+					<redis name="log" port="16380" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="match" port="16391" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="gwlog" port="16392" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+					<redis name="sync" port="16383" maxActive="100" maxIdle="50" maxWait="1000"
+						readTimeout="3000" isSentinel="true" isPwd="false" user="rmt" password="Wjk2w1n20160410803" reload="I">
+					</redis>
+				</chan>
+			</redises>
+	</settings>
+</config>

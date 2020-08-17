@@ -1,0 +1,1506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.StatisticsMapper">
+	<resultMap type="com.jjxt.ssm.entity.Statistics" id="statistics">
+		<id column="id" property="id" />
+		<result column="log_date" property="logDate" />
+		<result column="sp_id" property="spId" />
+		<result column="company_id" property="companyId" />
+		<result column="app_id" property="appId" />
+		<result column="channel_id" property="channelId" />
+		<result column="provider" property="provider" />
+		<result column="province" property="province" />
+		<result column="send_total" property="sendTotal" />
+		<result column="send_total_charge" property="sendTotalCharge" />
+		<result column="send_success" property="sendSuccess" />
+		<result column="send_success_charge" property="sendSuccessCharge" />
+		<result column="send_fail" property="sendFail" />
+		<result column="send_fail_charge" property="sendFailCharge" />
+		<result column="reject" property="reject" />
+		<result column="reject_charge" property="rejectCharge" />
+		<result column="report_delivrd" property="reportDelivrd" />
+		<result column="report_delivrd_charge" property="reportDelivrdCharge" />
+		<result column="report_undeliv" property="reportUndeliv" />
+		<result column="report_undeliv_charge" property="reportUndelivCharge" />
+		<result column="report_black" property="reportBlack" />
+		<result column="report_black_charge" property="reportBlackCharge" />
+		<result column="report_unknown" property="reportUnknown" />
+		<result column="report_unknown_charge" property="reportUnknownCharge" />
+		<result column="update_time" property="updateTime" />
+		<result column="company_key" property="companyKey" />
+		<result column="sales" property="sales" />
+		<result column="sale_after" property="saleAfter" />
+		<result column="app_name" property="appName" />
+		<result column="delivrd_rate" property="delivrdRate" />
+		<result column="channel_name" property="channelName" />
+		<result column="shunt_charge" property="shuntCharge" />
+		<result column="shunt_rate" property="shuntRate" />
+		<result column="app_price" property="appPrice" />
+		<result column="channel_price" property="channelPrice" />
+		<result column="profit" property="profit" />
+		<result column="app_report_delivrd_charge" property="appReportDelivrdCharge"/>
+		<result column="channel_report_delivrd_charge" property="channelReportDelivrdCharge"/>
+		<result column="supplier_id" property="supplierId" />
+		<result column="supplier_key" property="supplierKey" />
+		<result column="head" property="head" />
+		<result column="chinese_name" property="chineseName" />
+		<result column="title" property="title" />
+		<result column="is_all_customer" property="isAllCustomer" />
+		<result column="is_all_channel" property="isAllChannel" />
+	</resultMap>
+
+	<resultMap type="com.jjxt.ssm.entity.BaseCompany" id="baseCompany">
+		<id column="id" property="id" />
+		<result column="sales" property="sales" />
+		<result column="company_key" property="companyKey" />
+	</resultMap>
+
+	<resultMap type="java.util.Map" id="chanDetail">
+		<result column="channel_id" property="channelId" />
+		<result column="channel_name" property="channelName" />
+		<result column="channel_status" property="channelStatus" />
+		<result column="channel_speed" property="channelSpeed" />
+		<result column="channel_price" property="channelPrice" />
+	</resultMap>
+
+	<resultMap type="com.jjxt.ssm.entity.ArrivalRate" id="arrivalRate">
+		<result column="hour" property="hour" />
+		<result column="send_total" property="sendTotal" />
+		<result column="report_total" property="reportTotal" />
+		<result column="report_rate" property="reportRate" />
+		<result column="five" property="five" />
+		<result column="five_rate" property="fiveRate" />
+		<result column="ten" property="ten" />
+		<result column="ten_rate" property="tenRate" />
+		<result column="fifteen" property="fifteen" />
+		<result column="fifteen_rate" property="fifteenRate" />
+		<result column="twenty" property="twenty" />
+		<result column="twenty_rate" property="twentyRate" />
+		<result column="more" property="more" />
+		<result column="more_rate" property="moreRate" />
+	</resultMap>
+
+	<resultMap type="com.jjxt.ssm.entity.ReportRate" id="reportRate">
+		<result column="report_status" property="reportStatus" />
+		<result column="provider" property="provider" />
+		<result column="number" property="number" />
+	</resultMap>
+
+	<select id="findChanDetailById" parameterType="string" resultMap="chanDetail">
+		SELECT channel_id,`name` AS channel_name,channel_status,channel_price,link_max*link_speed AS channel_speed 
+		FROM sms_core.args_channel WHERE channel_id=#{channelId}
+	</select>
+
+	<select id="findAppStatisticsList" resultMap="statistics" parameterType="map">
+		SELECT
+		c.company_key,c.sales,c.sale_after,a.app_name,d.log_date
+		,d.app_id,'' as channel_id,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,sum(d.shunt_charge)
+		shunt_charge,CONCAT(ROUND(sum(d.shunt_charge)
+		/sum(d.report_delivrd_charge) * 100, 2),'','%') 
+		as shunt_rate,max(d.update_time) as update_time,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_channel d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND c.sales = #{sales}
+		</if>
+		<if test="saleAfter !=null and saleAfter !=''">
+			AND c.sale_after = #{saleAfter}
+		</if>
+		<if test="channelId !=null and channelId !=''">
+			AND d.channel_id = #{channelId}
+		</if>
+		<if test="productId != null and productId != ''">
+			AND a.product_id = #{productId}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+				
+		GROUP BY d.app_id
+		<if test="statisticType != 'no'">
+			,d.log_date
+		</if>
+		ORDER BY d.log_date ASC,send_total_charge DESC
+	</select>
+	
+	<select id="findAppChanStatisticsList" parameterType="map" resultMap="statistics">
+		SELECT
+		c.company_key,c.sales,c.sale_after,a.app_name,d.log_date
+		,d.app_id,d.channel_id,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,sum(d.shunt_charge)
+		shunt_charge,CONCAT(ROUND(sum(d.shunt_charge)
+		/sum(d.report_delivrd_charge) * 100, 2),'','%') 
+		as shunt_rate,max(d.update_time) as update_time,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_channel d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id = ae.company_id
+		WHERE
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND c.sales = #{sales}
+		</if>
+		<if test="saleAfter !=null and saleAfter !=''">
+			AND c.sale_after = #{saleAfter}
+		</if>
+		<if test="channelId !=null and channelId !=''">
+			AND d.channel_id = #{channelId}
+		</if>
+		<if test="productId != null and productId != ''">
+			AND a.product_id = #{productId}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+				
+		GROUP BY d.app_id,d.channel_id
+		<if test="statisticType != 'no'">
+			,d.log_date
+		</if>
+		ORDER BY d.log_date ASC,send_total_charge DESC
+	</select>
+
+	<select id="findAppStatisticsTotal" resultMap="statistics">
+		SELECT
+		'总计' as company_key,'' as app_name,'' as sales,'' as sale_after,'' as channel_id,sum(d.send_total)
+		as send_total,sum(d.send_total_charge) as
+		send_total_charge,sum(d.send_success_charge) as
+		send_success_charge,sum(d.send_fail_charge) as
+		send_fail_charge,sum(d.reject_charge) as
+		reject_charge,sum(d.report_delivrd_charge) as
+		report_delivrd_charge,sum(d.report_undeliv_charge) as
+		report_undeliv_charge,sum(d.report_black_charge) as
+		report_black_charge,sum(d.report_unknown_charge) as
+		report_unknown_charge,sum(d.shunt_charge) as shunt_charge,
+		CONCAT(ROUND(sum(d.shunt_charge)
+		/sum(d.report_delivrd_charge) * 100, 2),'','%') 
+		as shunt_rate,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_channel d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND c.sales = #{sales}
+		</if>
+		<if test="saleAfter !=null and saleAfter !=''">
+			AND c.sale_after = #{saleAfter}
+		</if>
+		<if test="channelId !=null and channelId !=''">
+			AND d.channel_id = #{channelId}
+		</if>
+		<if test="productId != null and productId != ''">
+			AND a.product_id = #{productId}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+	</select>
+
+	<select id="findChaSattistics" resultMap="statistics"
+		parameterType="map">
+		SELECT
+		<if test="statisticType == 'yes'">
+			s.log_date,
+		</if>
+		s.channel_id channel_id, c.`name` channel_name,
+		b.supplier_key,b.head,
+		SUM(s.send_total)
+		send_total, SUM(s.send_total_charge)
+		send_total_charge,
+		SUM(s.send_success_charge) send_success_charge,
+		SUM(s.send_fail_charge) send_fail_charge,
+		SUM(s.reject_charge)
+		reject_charge, SUM(s.report_delivrd_charge) report_delivrd_charge,
+		SUM(s.report_undeliv_charge) report_undeliv_charge,
+		SUM(s.report_unknown_charge)
+		report_unknown_charge,SUM(s.report_black_charge) report_black_charge,
+		max(s.update_time) update_time,
+		CONCAT(ROUND(SUM(s.report_delivrd_charge)/SUM(s.send_total_charge)*100,2),'%')
+		delivrd_rate
+		FROM sms_statistic.data_statistic_app_channel s 
+		LEFT JOIN sms_core.args_channel c ON s.channel_id=c.channel_id 
+		LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b on b.id = e.supplier_id
+		WHERE 
+			s.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="startTime !=null and startTime !=''">
+			AND s.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND s.log_date &lt;= #{endTime}
+		</if>
+		<if test="channelId !='' and channelId !=null ">
+			AND s.channel_id=#{channelId}
+		</if>
+		<if test="supplierId !='' and supplierId !=null ">
+			AND b.id=#{supplierId}
+		</if>
+		<if test="head !='' and head !=null ">
+			AND b.head=#{head}
+		</if>
+		GROUP BY s.channel_id
+		<if test="statisticType == 'yes'">
+			,s.log_date
+		</if>
+		ORDER BY channel_id DESC
+	</select>
+
+	<select id="findChaSattisticsTotal" resultMap="statistics"
+		parameterType="map">
+		SELECT '总计' channel_name,'' as supplier_key, '' as head, SUM(s.send_total) send_total,
+		SUM(s.send_total_charge) send_total_charge,
+		SUM(s.send_success_charge)
+		send_success_charge, SUM(s.send_fail_charge) send_fail_charge,
+		SUM(s.reject_charge) reject_charge, SUM(s.report_delivrd_charge)
+		report_delivrd_charge,
+		SUM(s.report_undeliv_charge)
+		report_undeliv_charge,
+		SUM(s.report_unknown_charge)
+		report_unknown_charge,SUM(s.report_black_charge) report_black_charge,
+		CONCAT(ROUND(SUM(s.report_delivrd_charge)/SUM(s.send_total_charge)*100,2),'%')
+		delivrd_rate
+		FROM sms_statistic.data_statistic_app_channel s LEFT JOIN
+		sms_core.args_channel c ON
+		s.channel_id=c.channel_id 
+		LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b on b.id = e.supplier_id
+		WHERE 
+			s.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="startTime !=null and startTime !=''">
+			AND s.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND s.log_date &lt;= #{endTime}
+		</if>
+		<if test="channelId !='' and channelId !=null ">
+			AND s.channel_id=#{channelId}
+		</if>
+		<if test="supplierId !='' and supplierId !=null ">
+			AND b.id=#{supplierId}
+		</if>
+		<if test="head !='' and head !=null ">
+			AND b.head=#{head}
+		</if>
+	</select>
+	<select id="findChaAppSattistics" resultMap="statistics" parameterType="map">
+		SELECT
+		s.log_date,
+		s.channel_id channel_id,
+		c.`name` channel_name,
+		b.supplier_key,
+		s.app_id,
+		b.head,
+		SUM(s.send_total) send_total,
+		SUM(s.send_total_charge) send_total_charge,
+		SUM(s.send_success_charge) send_success_charge,
+		SUM(s.send_fail_charge) send_fail_charge,
+		SUM(s.reject_charge) reject_charge,
+		SUM(s.report_delivrd_charge) report_delivrd_charge,
+		SUM(s.report_undeliv_charge) report_undeliv_charge,
+		SUM(s.report_unknown_charge) report_unknown_charge,
+		SUM(s.report_black_charge) report_black_charge,
+		max(s.update_time) update_time,
+		CONCAT(
+		ROUND(
+		SUM(s.report_delivrd_charge) / SUM(s.send_total_charge) * 100,
+		2
+		),
+		'%'
+		) delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_channel s
+		LEFT JOIN sms_core.args_channel c ON s.channel_id = c.channel_id
+		LEFT JOIN args_channel_ext e ON c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b ON b.id = e.supplier_id
+		WHERE
+		s.channel_id IN (
+		SELECT
+		c.channel_id
+		FROM
+		sms_core.args_channel c
+		LEFT JOIN args_channel_ext e ON c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b ON b.id = e.supplier_id
+		WHERE
+		(CASE
+		WHEN '${title}' IN ('商务')
+		AND '${isAllChannel}' IN ('0', '1') THEN
+		b.head = '${chineseName}'
+		WHEN '${title}' IN ('销售', '客服')
+		AND '${isAllCustomer}' IN ('1') THEN
+		''
+		ELSE
+		1 = 1
+		END)
+		<if test="channelId !='' and channelId !=null ">
+			AND s.channel_id=#{channelId}
+		</if>
+		)
+		<if test="startTime !=null and startTime !=''">
+			AND s.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND s.log_date &lt;= #{endTime}
+		</if>
+		GROUP BY
+		s.channel_id,
+		s.app_id
+		ORDER BY
+		s.log_date,
+		s.channel_id,
+		s.app_id ASC
+	</select>
+	<select id="findArrivalRate" resultMap="arrivalRate"
+		parameterType="map">
+		SELECT
+		#{i} hour,
+		m.send_total,
+		m.report_total,
+		CONCAT(
+		ROUND(
+		m.report_total / m.send_total * 100,
+		2
+		),
+		'%'
+		) report_rate,
+		m.five,
+		CONCAT(
+		ROUND(
+		m.five / m.report_total * 100,
+		2
+		),
+		'%'
+		) five_rate,
+		m.ten,
+		CONCAT(
+		ROUND(m.ten / m.report_total * 100, 2),
+		'%'
+		) ten_rate,
+		m.fifteen,
+		CONCAT(
+		ROUND(
+		m.fifteen / m.report_total * 100,
+		2
+		),
+		'%'
+		)
+		fifteen_rate,
+		m.twenty,
+		CONCAT(
+		ROUND(
+		m.twenty / m.report_total * 100,
+		2
+		),
+		'%'
+		) twenty_rate,
+		m.more,
+		CONCAT(
+		ROUND(
+		m.more / m.report_total * 100,
+		2
+		),
+		'%'
+		) more_rate
+		FROM
+		(
+		SELECT
+		SUM(t.lm_total) send_total,
+		SUM(
+		CASE
+		WHEN
+		t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) report_total,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt;= 0
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&lt;= 10
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) five,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 10
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &lt;= 20
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) ten,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&gt; 20
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &lt;= 30
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		)
+		fifteen,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 30
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&lt;= 60
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) twenty,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 60
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) more
+		FROM
+		(
+		SELECT
+		app_id,
+		channel_id,
+		submit_time,
+		report_time,
+		report_status,
+		lm_total
+		FROM
+		sms_log.mt_${logDate}
+		WHERE
+		submit_time &gt;= #{startTime}
+		AND submit_time &lt; #{endTime}
+		<if test="channelId != null and channelId !='' ">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="appId != null and appId !='' ">
+			AND app_id = #{appId}
+		</if>
+
+		) t
+		) m
+	</select>
+
+	<select id="findArrivalRateTotal" resultMap="arrivalRate"
+		parameterType="map">
+		SELECT
+		'全天' hour,
+		m.send_total,
+		m.report_total,
+		CONCAT(
+		ROUND(
+		m.report_total / m.send_total * 100,
+		2
+		),
+		'%'
+		) report_rate,
+		m.five,
+		CONCAT(
+		ROUND(
+		m.five / m.report_total * 100,
+		2
+		),
+		'%'
+		) five_rate,
+		m.ten,
+		CONCAT(
+		ROUND(m.ten / m.report_total * 100, 2),
+		'%'
+		) ten_rate,
+		m.fifteen,
+		CONCAT(
+		ROUND(
+		m.fifteen / m.report_total * 100,
+		2
+		),
+		'%'
+		)
+		fifteen_rate,
+		m.twenty,
+		CONCAT(
+		ROUND(
+		m.twenty / m.report_total * 100,
+		2
+		),
+		'%'
+		) twenty_rate,
+		m.more,
+		CONCAT(
+		ROUND(
+		m.more / m.report_total * 100,
+		2
+		),
+		'%'
+		) more_rate
+		FROM
+		(
+		SELECT
+		SUM(t.lm_total) send_total,
+		SUM(
+		CASE
+		WHEN
+		t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) report_total,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt;= 0
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&lt;= 10
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) five,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 10
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &lt;= 20
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) ten,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&gt; 20
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &lt;= 30
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		)
+		fifteen,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 30
+		)
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time)
+		&lt;= 60
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) twenty,
+		SUM(
+		CASE
+		WHEN t.report_status 
+		<if test="rateButton == 2">
+		='DELIVRD' 
+		</if>
+		<if test="rateButton != 2">
+		is not null 
+		</if>
+		AND (
+		UNIX_TIMESTAMP(t.report_time) - UNIX_TIMESTAMP(t.submit_time) &gt; 60
+		) THEN
+		t.lm_total
+		ELSE
+		0
+		END
+		) more
+		FROM
+		(
+		SELECT
+		app_id,
+		channel_id,
+		submit_time,
+		report_time,
+		report_status,
+		lm_total
+		FROM
+		sms_log.mt_${logDate}
+		WHERE 1=1
+		<if test="channelId != null and channelId !='' ">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="appId != null and appId !='' ">
+			AND app_id = #{appId}
+		</if>
+		) t
+		) m
+	</select>
+
+	<select id="findToatlReportRate" resultMap="reportRate"
+		parameterType="map">
+		SELECT sum(lm_total) as number , report_status , provider from
+		sms_log.mt_${logDate} where 1 = 1
+		<if test="channelId != null and channelId !='' ">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="appId != null and appId !='' ">
+			AND app_id = #{appId}
+		</if>
+		GROUP BY report_status ORDER BY number desc
+	</select>
+
+	<select id="findFailureRate" resultMap="reportRate"
+		parameterType="map">
+		SELECT sum(lm_total) as number , report_status , provider from
+		sms_log.mt_${logDate}
+		where report_status IS not NULL and report_status !='' and report_status
+		!='NULL' and report_status &lt;&gt; 'DELIVRD'
+		<if test="channelId != null and channelId !='' ">
+			AND channel_id = #{channelId}
+		</if>
+		<if test="appId != null and appId !='' ">
+			AND app_id = #{appId}
+		</if>
+		GROUP BY report_status ORDER BY number desc
+	</select>
+
+
+	<select id="findChaRealSattistics" resultMap="statistics"
+		parameterType="map">
+		SELECT
+		<if test="statisticType == 'yes'">
+			s.log_date,
+		</if>
+		s.channel_id channel_id, c.`name` channel_name,
+		b.supplier_key,b.head,
+		SUM(s.send_total)
+		send_total, SUM(s.send_total_charge)
+		send_total_charge,
+		SUM(s.send_success_charge) send_success_charge,
+		SUM(s.send_fail_charge) send_fail_charge,
+		SUM(s.reject_charge)
+		reject_charge, SUM(s.report_delivrd_charge) report_delivrd_charge,
+		SUM(s.report_undeliv_charge) report_undeliv_charge,
+		SUM(s.report_unknown_charge)
+		report_unknown_charge,SUM(s.report_black_charge) report_black_charge,
+		max(s.update_time) update_time,
+		CONCAT(ROUND(SUM(s.report_delivrd_charge)/SUM(s.send_total_charge)*100,2),'%')
+		delivrd_rate
+		FROM sms_statistic.realdata_statistic_app_channel s LEFT JOIN
+		sms_core.args_channel c ON
+		s.channel_id=c.channel_id 
+		LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b on b.id = e.supplier_id
+		WHERE 
+			s.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="startTime !=null and startTime !=''">
+			AND s.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND s.log_date &lt;= #{endTime}
+		</if>
+		<if test="channelId !='' and channelId !=null ">
+			AND s.channel_id=#{channelId}
+		</if>
+		<if test="name !='' and name !=null ">
+			AND c.name like "%"#{name}"%"
+		</if>
+		<if test="supplierId !='' and supplierId !=null ">
+			AND b.id=#{supplierId}
+		</if>
+		<if test="head !='' and head !=null ">
+			AND b.head=#{head}
+		</if>
+		GROUP BY s.channel_id
+		<if test="statisticType == 'yes'">
+			,s.log_date
+		</if>
+		ORDER BY 
+		<if test="statisticType == 'yes'">
+			log_date DESC,
+		</if>
+		channel_id DESC
+	</select>
+
+	<select id="findChaRealSattisticsTotal" resultMap="statistics"
+		parameterType="map">
+		SELECT '总计' channel_name, '' as supplier_key, '' as head, SUM(s.send_total) send_total,
+		SUM(s.send_total_charge) send_total_charge,
+		SUM(s.send_success_charge)
+		send_success_charge, SUM(s.send_fail_charge) send_fail_charge,
+		SUM(s.reject_charge) reject_charge, SUM(s.report_delivrd_charge)
+		report_delivrd_charge,
+		SUM(s.report_undeliv_charge)
+		report_undeliv_charge,
+		SUM(s.report_unknown_charge)
+		report_unknown_charge,SUM(s.report_black_charge) report_black_charge,
+		CONCAT(ROUND(SUM(s.report_delivrd_charge)/SUM(s.send_total_charge)*100,2),'%')
+		delivrd_rate
+		FROM sms_statistic.realdata_statistic_app_channel s LEFT JOIN
+		sms_core.args_channel c ON
+		s.channel_id=c.channel_id 
+		LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id
+		LEFT JOIN base_channel_supplier b on b.id = e.supplier_id
+		WHERE 
+			s.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="startTime !=null and startTime !=''">
+			AND s.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND s.log_date &lt;= #{endTime}
+		</if>
+		<if test="channelId !='' and channelId !=null ">
+			AND s.channel_id=#{channelId}
+		</if>
+		<if test="name !='' and name !=null ">
+			AND c.name like "%"#{name}"%"
+		</if>
+		<if test="supplierId !='' and supplierId !=null ">
+			AND b.id=#{supplierId}
+		</if>
+		<if test="head !='' and head !=null ">
+			AND b.head=#{head}
+		</if>
+	</select>
+
+	<select id="findAppProfitList" resultMap="statistics"
+		parameterType="map">
+	SELECT
+		<if test="statisticType == 'yes'">
+		log_date,
+		</if>
+		company_id,
+		company_key,
+		sales,
+		app_id,
+		app_name,
+		app_report_delivrd_charge,
+		provider,
+		channel_id,
+		channel_name,
+		channel_report_delivrd_charge,
+		channel_price,
+		app_price
+	FROM
+		(
+		select 
+		<if test="statisticType == 'yes'">
+			dsa.log_date,
+		</if>
+		bc.id as
+		company_id,bc.company_key,bc.sales,dsa.app_id,ap.app_name,sum(dsa.report_delivrd_charge) app_report_delivrd_charge,
+		if(ac.to_cmcc='yes' AND ac.to_telecom='yes' AND
+		ac.to_unicom='yes','三网',if(ac.to_cmcc='yes','移动',if(ac.to_unicom='yes','联通',if(ac.to_telecom='yes','电信','-'))))
+		provider
+		,dsa.channel_id,ac.`name` as channel_name,sum(case when rsp.report_delivrd_charge is null then 0 else rsp.report_delivrd_charge end ) channel_report_delivrd_charge,ac.channel_price,
+		CONCAT(if(ac.to_cmcc='yes' AND ac.to_telecom='yes' AND
+		ac.to_unicom='yes',uae.price,if(ac.to_cmcc='yes',uae.price_cmcc,if(ac.to_unicom='yes',uae.price_unicom,if(ac.to_telecom='yes',uae.price_telecom,0)))))
+		as app_price 
+		from sms_statistic.data_statistic_app_channel dsa 
+		LEFT JOIN sms_statistic.realdata_statistic_app_channel rsp on dsa.log_date=rsp.log_date and dsa.app_id=rsp.app_id and dsa.channel_id=rsp.channel_id 
+		LEFT JOIN sms_core.ucenter_application ap on dsa.app_id=ap.id
+		LEFT JOIN sms_manage.ucenter_application_ext uae on uae.app_id=ap.id
+		LEFT JOIN sms_manage.base_company bc on bc.id=uae.company_id
+		LEFT JOIN sms_core.args_channel ac on ac.channel_id=dsa.channel_id where 
+		ap.id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		AND ac.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="startTime !=null and startTime !=''">
+			AND dsa.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND dsa.log_date &lt;= #{endTime}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND dsa.app_id=#{appId}
+		</if>
+		<if test="channelId !=null and channelId !=''">
+			AND dsa.channel_id=#{channelId}
+		</if>
+		<if test="companyId !=null and companyId !=''">
+			AND bc.id=#{companyId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND bc.sales=#{sales}
+		</if>
+		GROUP BY 
+		<if test="statisticType == 'yes'">
+			dsa.log_date,
+		</if>
+		dsa.app_id,dsa.channel_id order by 
+		<if test="statisticType == 'yes'">
+			dsa.log_date desc ,
+		</if>
+		dsa.app_id desc ) re where re.app_report_delivrd_charge &lt;&gt; 0
+	</select>
+	
+	<select id="findProviderStatisticsList" resultMap="statistics"
+		parameterType="map">
+		SELECT
+		c.company_key,c.sales,a.app_name
+		<if test="statisticType == 'yes'">
+			,d.log_date
+		</if>
+		,d.app_id,d.provider,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_provider d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND c.sales = #{sales}
+		</if>
+		<if test="provider !=null and provider !=''">
+			AND d.provider = #{provider}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+		GROUP BY d.app_id,d.provider
+		<if test="statisticType == 'yes'">
+			,d.log_date
+		</if>
+		ORDER BY d.log_date ASC,send_total_charge DESC
+	</select>
+
+	<select id="findProviderStatisticsTotal" resultMap="statistics">
+		SELECT
+		'总计' as company_key,'' as app_name,'' as sales,sum(d.send_total)
+		as send_total,sum(d.send_total_charge) as
+		send_total_charge,sum(d.send_success_charge) as
+		send_success_charge,sum(d.send_fail_charge) as
+		send_fail_charge,sum(d.reject_charge) as
+		reject_charge,sum(d.report_delivrd_charge) as
+		report_delivrd_charge,sum(d.report_undeliv_charge) as
+		report_undeliv_charge,sum(d.report_black_charge) as
+		report_black_charge,sum(d.report_unknown_charge) as
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_provider d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END) 
+		<if test="companyKey !=null and companyKey !=''">
+			AND c.company_key = #{companyKey}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="sales !=null and sales !=''">
+			AND c.sales = #{sales}
+		</if>
+		<if test="provider !=null and provider !=''">
+			AND d.provider = #{provider}
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+	</select>	
+	
+	
+	<select id="findProvinceStatisticsByChannelList" resultMap="statistics"
+		parameterType="map">
+		SELECT
+		<if test="statisticType == 'yes'">
+			d.log_date,
+		</if>
+		a.name channel_name,d.channel_id
+		,d.province,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.realdata_statistic_channel_province d
+		LEFT JOIN sms_core.args_channel 
+		a ON d.channel_id=a.channel_id
+		WHERE 
+			d.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="channelId !=null and channelId !=''">
+			AND d.channel_id = #{channelId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND d.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND d.province in ('unknown','unkown','')
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+		GROUP BY 
+		d.channel_id,d.province
+		<if test="statisticType == 'yes'">
+			,d.log_date
+		</if>
+		ORDER BY d.log_date DESC,send_total_charge DESC
+	</select>
+	
+	<select id="findProvinceStatisticsByAppList" resultMap="statistics"
+		parameterType="map">
+		SELECT
+		<if test="statisticType == 'yes'">
+			d.log_date,
+		</if>
+		c.company_key,a.app_name,d.app_id
+		,d.province,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_province d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="companyId !=null and companyId !=''">
+			AND c.id = #{companyId}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND d.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND d.province in ('unknown','unkown','')
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+		GROUP BY 
+		d.app_id,d.province
+		<if test="statisticType == 'yes'">
+			,d.log_date
+		</if>
+		ORDER BY d.log_date DESC,send_total_charge DESC
+	</select>
+
+	<select id="findProvinceStatisticsByChannelTotal" resultMap="statistics">
+		SELECT
+		'总计' as channel_name,sum(d.send_total)
+		as send_total,sum(d.send_total_charge) as
+		send_total_charge,sum(d.send_success_charge) as
+		send_success_charge,sum(d.send_fail_charge) as
+		send_fail_charge,sum(d.reject_charge) as
+		reject_charge,sum(d.report_delivrd_charge) as
+		report_delivrd_charge,sum(d.report_undeliv_charge) as
+		report_undeliv_charge,sum(d.report_black_charge) as
+		report_black_charge,sum(d.report_unknown_charge) as
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.realdata_statistic_channel_province d
+		LEFT JOIN sms_core.args_channel 
+		a ON d.channel_id=a.channel_id
+		WHERE 
+			d.channel_id in (
+			SELECT c.channel_id FROM
+				sms_core.args_channel c
+				LEFT JOIN args_channel_ext e on c.channel_id = e.channel_id 
+				LEFT JOIN base_channel_supplier b on b.id = e.supplier_id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '商务' )  AND '${isAllChannel}' IN ('0','1') THEN
+					b.head = '${chineseName}'
+				WHEN '${title}' IN ( '销售', '客服' ) AND '${isAllCustomer}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="channelId !=null and channelId !=''">
+			AND d.channel_id = #{channelId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND d.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND d.province in ('unknown','unkown','')
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+	</select>
+	
+	<select id="findProvinceStatisticsByAppTotal" resultMap="statistics">
+		SELECT
+		'总计' as company_key,'' as app_name,sum(d.send_total)
+		send_total,sum(d.send_total_charge)
+		send_total_charge,sum(d.send_success_charge)
+		send_success_charge,sum(d.send_fail_charge)
+		send_fail_charge,sum(d.reject_charge)
+		reject_charge,sum(d.report_delivrd_charge)
+		report_delivrd_charge,sum(d.report_undeliv_charge)
+		report_undeliv_charge,sum(d.report_black_charge)
+		report_black_charge,sum(d.report_unknown_charge)
+		report_unknown_charge,
+		CONCAT(ROUND(sum(d.report_delivrd_charge)
+		/
+		sum(d.send_total_charge) * 100, 2),'','%') as delivrd_rate
+		FROM
+		sms_statistic.data_statistic_app_province d
+		LEFT JOIN sms_core.ucenter_application
+		a ON d.app_id=a.id
+		LEFT JOIN
+		sms_manage.ucenter_application_ext ae ON
+		a.id = ae.app_id
+		LEFT JOIN
+		sms_manage.base_company c ON c.id =
+		ae.company_id
+		WHERE 
+			d.app_id in (
+			SELECT a.id FROM
+				sms_core.ucenter_application a
+				INNER JOIN sms_manage.ucenter_application_ext e ON a.id = e.app_id
+				LEFT JOIN sms_manage.base_company c ON e.company_id = c.id 
+			WHERE
+			CASE
+				WHEN '${title}' IN ( '销售', '客服' )  AND '${isAllCustomer}' IN ('0','1') THEN
+					c.sales = '${chineseName}' or c.sale_after = '${chineseName}'
+				WHEN '${title}' IN ( '商务' ) AND '${isAllChannel}' IN ('1') THEN
+					'' 
+				ELSE
+					1 = 1 
+			END)
+		<if test="companyId !=null and companyId !=''">
+			AND c.id = #{companyId}
+		</if>
+		<if test="appId !=null and appId !=''">
+			AND d.app_id = #{appId}
+		</if>
+		<if test="province !=null and province !='' and province !='未知'">
+			AND d.province = #{province}
+		</if>
+		<if test="province =='未知'">
+			AND d.province in ('unknown','unkown','')
+		</if>
+		<if test="startTime !=null and startTime !=''">
+			AND d.log_date &gt;= #{startTime}
+		</if>
+		<if test="endTime !=null and endTime !=''">
+			AND d.log_date &lt;= #{endTime}
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.NumSegmentMapper">
+	<resultMap type="com.jjxt.ssm.entity.NumSegment" id="NumSegment">
+		<id column="id" property="id" />
+		<result column="seg" property="seg" />
+		<result column="carrier" property="carrier" />
+	</resultMap>
+
+	<select id="findNumSegmentTotal" resultType="int" parameterType="map">
+		SELECT count(1) FROM
+		sms_core.t_num_segment 
+		where 1=1 
+		<if test="seg !=null and seg !=''">
+			and seg=#{seg}
+		</if>
+		<if test="carrier !=null and carrier !=''">
+			and carrier=#{carrier}
+		</if>
+	</select>
+
+	<select id="findNumSegmentList" resultMap="NumSegment" parameterType="map">
+		SELECT id,seg,carrier FROM
+		sms_core.t_num_segment 
+		where 1=1 
+		<if test="seg !=null and seg !=''">
+			and seg=#{seg}
+		</if>
+		<if test="carrier !=null and carrier !=''">
+			and carrier=#{carrier}
+		</if>
+		 order by id desc
+		LIMIT #{start},#{end}
+	</select>
+	
+	<select id="findNumSegmentByCondition" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM
+		sms_core.t_num_segment
+		where 1=1
+		<if test="seg !=null and seg !=''">
+			and seg=#{seg}
+		</if>
+	</select>
+	
+	<insert id="addNumSegment" parameterType="com.jjxt.ssm.entity.NumSegment">
+		INSERT INTO
+		sms_core.t_num_segment (seg,carrier)
+		VALUES(#{seg},#{carrier})
+	</insert>
+	
+	<select id="findNumSegmentById" resultMap="NumSegment"
+		parameterType="int">
+		SELECT  id,seg,carrier FROM sms_core.t_num_segment WHERE id=#{id}
+	</select>
+	
+	<update id="updateNumSegment" parameterType="com.jjxt.ssm.entity.NumSegment">
+		UPDATE sms_core.t_num_segment 
+		<set>
+			<if test="seg != null and seg !=''">
+				seg = #{seg},
+			</if>
+			<if test="carrier != null and carrier !=''">
+				carrier = #{carrier},
+			</if>
+		</set>
+		WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteNumSegById" parameterType="int">
+		DELETE FROM
+		sms_core.t_num_segment WHERE id=#{id}
+	</delete>
+	
+	<select id="findNumSegByIds" resultMap="NumSegment" parameterType="int">
+		select id,seg,carrier
+		from sms_core.t_num_segment where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="delNumSegBatch">
+		DELETE FROM sms_core.t_num_segment WHERE id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	
+</mapper>
+
+
+

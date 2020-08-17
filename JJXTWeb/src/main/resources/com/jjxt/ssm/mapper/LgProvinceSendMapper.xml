@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.LgProvinceSendMapper">
+	<resultMap type="com.jjxt.ssm.entity.LgProvincesSend" id="lgProvincesSend">
+		<id column="id" property="id" />
+		<result column="channel_id" property="channelId" />
+		<result column="channel_name" property="channelName" />
+		<result column="province" property="province" />
+		<result column="carriers" property="carriers" />
+		<result column="product_id" property="productId" />
+		<result column="product_name" property="productName" />
+		<result column="content_rule" property="contentRule" />
+		<result column="update_time" property="updateTime" />
+		<result column="status" property="status" />
+	</resultMap>
+	<select id="findTotal" resultType="int" parameterType="map">
+		select
+		count(1) from sms_core.lg_provinces_send where 1=1
+		<if test="channelId!=null and channelId!=''">
+			and channel_id = #{channelId}
+		</if>
+		<if test="productId!=null and productId!=''">
+			and product_id = #{productId}
+		</if>
+		<if test="province!=null and province!=''">
+			and province = #{province}
+		</if>
+		<if test="carriers!=null and carriers!=''">
+			and carriers = #{carriers}
+		</if>
+		<if test="status!=null and status!=''">
+			and status = #{status}
+		</if>
+	</select>
+
+	<select id="findLgProvinceSendPageList" resultMap="lgProvincesSend"
+		parameterType="map">
+		select
+		lps.id,lps.product_id,lps.carriers,lps.channel_id,lps.province,lps.update_time,lps.content_rule,ac.`name`
+		as channel_name,fp.product_name,lps.status from sms_core.lg_provinces_send lps
+		LEFT JOIN sms_core.fors_product fp on lps.product_id=fp.id LEFT JOIN
+		sms_core.args_channel ac on lps.channel_id=ac.channel_id where 1=1
+		<if test="channelId!=null and channelId!=''">
+			and lps.channel_id = #{channelId}
+		</if>
+		<if test="productId!=null and productId!=''">
+			and lps.product_id = #{productId}
+		</if>
+		<if test="province!=null and province!=''">
+			and province = #{province}
+		</if>
+		<if test="carriers!=null and carriers!=''">
+			and carriers = #{carriers}
+		</if>
+		<if test="status!=null and status!=''">
+			and lps.status = #{status}
+		</if>
+	</select>
+
+	<select id="findLgProvincesSendById" resultMap="lgProvincesSend"
+		parameterType="int">
+		select
+		lps.id,lps.product_id,lps.carriers,lps.channel_id,lps.province,lps.update_time,lps.content_rule,ac.`name`
+		as channel_name,fp.product_name,lps.status from sms_core.lg_provinces_send lps
+		LEFT JOIN sms_core.fors_product fp on lps.product_id=fp.id LEFT JOIN
+		sms_core.args_channel ac on lps.channel_id=ac.channel_id where
+		lps.id=#{id}
+	</select>
+
+	<delete id="delLgProvincesSend" parameterType="int">
+		delete from
+		sms_core.lg_provinces_send where id=#{id}
+	</delete>
+
+	<delete id="delLgProvincesSendBatch">
+		DELETE FROM sms_core.lg_provinces_send WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">#{id}</foreach>
+	</delete>
+	<update id="pauseLgProvincesSendBatch" parameterType="int">
+		UPDATE
+		sms_core.lg_provinces_send SET `status`='paused' WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">#{id}</foreach>
+	</update>
+	<update id="pauseLgProvincesSend" parameterType="int">
+		UPDATE
+		sms_core.lg_provinces_send SET `status`='paused' 
+		WHERE id=#{id}
+	</update>
+	<update id="startLgProvincesSendBatch" parameterType="int">
+		UPDATE
+		sms_core.lg_provinces_send SET `status`='normal' WHERE id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">#{id}</foreach>
+	</update>
+	<update id="startLgProvincesSend" parameterType="int">
+		UPDATE
+		sms_core.lg_provinces_send SET `status`='normal' 
+		WHERE id=#{id}
+	</update>
+	<select id="findLgProvincesSendByIds" resultMap="lgProvincesSend"
+		parameterType="int">
+		select
+		lps.id,lps.product_id,lps.carriers,lps.channel_id,lps.province,lps.update_time,lps.content_rule,ac.`name`
+		as channel_name,fp.product_name,lps.status from sms_core.lg_provinces_send lps
+		LEFT JOIN sms_core.fors_product fp on lps.product_id=fp.id LEFT JOIN
+		sms_core.args_channel ac on lps.channel_id=ac.channel_id where lps.id in
+		<foreach collection="array" index="index" item="id" open="("
+			separator="," close=")">#{id}</foreach>
+	</select>
+</mapper>

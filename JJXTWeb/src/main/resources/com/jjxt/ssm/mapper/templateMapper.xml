@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.TemplateMapper">
+
+	<resultMap type="com.jjxt.ssm.entity.Template" id="template">
+		<id column="id" property="id" />
+		<result column="template_info" property="templateInfo"/>
+		<result column="strategy" property="strategy"/>
+		<result column="result" property="result"/>
+		<result column="app_id" property="appId"/>
+		<result column="app_name" property="appName"/>
+		<result column="key_word" property="keyWord"/>
+		<result column="rule" property="rule"/>
+		<result column="rule_index" property="ruleIndex"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<select id="findTemplateTotal" resultType="int" parameterType="map">
+		select count(1) from sms_core.args_msg_template 
+		where 1=1
+		<if test="appId != null and appId != ''">
+			AND app_id=#{appId}
+		</if>
+		<if test="rule != null and rule != ''">
+			AND rule like "%"#{rule}"%"
+		</if>
+		<if test="templateInfo != null and templateInfo != ''">
+			AND template_info like "%"#{templateInfo}"%"
+		</if>
+		<if test="strategy != null and strategy != ''">
+			AND strategy=#{strategy}
+		</if>
+		<if test="status != null and status != ''">
+			AND status=#{status}
+		</if>
+		<if test="id != null and id !=''">
+			AND id=#{id}
+		</if>
+		<if test="result !=null and result != ''">
+			AND result like "%"#{result}"%"
+		</if>
+	</select>
+	
+	<select id="findTemplatePageList" resultMap="template" parameterType="map">
+		select temp.id,temp.template_info,temp.strategy,temp.result,temp.app_id,app.app_name,temp.key_word,temp.rule,temp.rule_index,temp.status
+		from sms_core.args_msg_template temp left join sms_core.ucenter_application app on temp.app_id=app.id  where 1=1 
+		<if test="appId != null and appId != ''">
+			AND temp.app_id=#{appId}
+		</if>
+		<if test="rule != null and rule != ''">
+			AND temp.rule like "%"#{rule}"%"
+		</if>
+		<if test="templateInfo != null and templateInfo != ''">
+			AND temp.template_info like "%"#{templateInfo}"%"
+		</if>
+		<if test="strategy != null and strategy != ''">
+			AND temp.strategy=#{strategy}
+		</if>
+		<if test="status != null and status != ''">
+			AND temp.status=#{status}
+		</if>
+		<if test="id != null and id !=''">
+			AND temp.id=#{id}
+		</if>
+		<if test="result !=null and result != ''">
+			AND temp.result like "%"#{result}"%"
+		</if>
+		order by temp.app_id desc,temp.rule_index desc
+		limit #{start},#{end}
+	</select>
+	
+	<select id="validatorAppIdAndRule" resultMap="template" parameterType="map">
+		select id,template_info,strategy,app_id,result,key_word,rule,rule_index from sms_core.args_msg_template
+		where app_id=#{appId} and rule = #{rule}
+	</select>
+	
+	<select id="findIdIndex" resultType="int">
+		select max(rule_index) from sms_core.args_msg_template where app_id=#{appId} and strategy=#{strategy}
+	</select>
+	
+	<insert id="addTemplate" parameterType="com.jjxt.ssm.entity.Template" useGeneratedKeys="true" keyProperty="id">
+		insert into sms_core.args_msg_template(template_info,result,strategy,app_id,key_word,rule,rule_index,status)
+		values(#{templateInfo},#{result},#{strategy},#{appId},#{keyWord},#{rule},#{ruleIndex},#{status});
+	</insert>
+	
+	<select id="findTemplateById" parameterType="string" resultMap="template">
+		select id,template_info,result,rule,rule_index,key_word,strategy,app_id,status from sms_core.args_msg_template
+		where id=#{id}
+	</select>
+	
+	<update id="updateTemplate" parameterType="com.jjxt.ssm.entity.Template">
+		update sms_core.args_msg_template 
+		<set>
+			<if test="appId!=null">
+				app_id =#{appId},
+			</if>
+			<if test="rule!=null and rule!=''">
+				rule =#{rule},
+			</if>
+			<if test="strategy!=null and strategy!=''">
+				strategy =#{strategy},
+			</if>
+			<if test="templateInfo!=null">
+				template_info =#{templateInfo},
+			</if>
+			<if test="keyWord!=null">
+				key_word =#{keyWord},
+			</if>
+			<if test="result!=null">
+				result =#{result},
+			</if>
+			<if test="ruleIndex!=null and ruleIndex!=''">
+				rule_index =#{ruleIndex},
+			</if>
+			<if test="status!=null and status!=''">
+				status =#{status},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteTemplate" parameterType="string">
+		delete from sms_core.args_msg_template where id=#{id}
+	</delete>
+	
+	<select id="findTemplateByIds" parameterType="int" resultMap="template">
+		SELECT * FROM sms_core.args_msg_template where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="delTemplateBatch" parameterType="int">
+		delete from sms_core.args_msg_template where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	
+	<update id="pauseTemplateBatch" parameterType="int">
+		update sms_core.args_msg_template set `status`='paused' where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</update>
+	
+	<update id="startTemplateBatch" parameterType="int">
+		update sms_core.args_msg_template set `status`='normal' where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</update>
+	
+	<update id="startTemplate" parameterType="int">
+		update sms_core.args_msg_template set `status`='normal' where id=#{id}
+	</update>
+	
+	<update id="pauseTemplate" parameterType="int">
+		update sms_core.args_msg_template set `status`='paused' where id=#{id}
+	</update>
+	
+</mapper>

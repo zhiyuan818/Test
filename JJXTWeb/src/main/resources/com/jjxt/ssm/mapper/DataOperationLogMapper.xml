@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.DataOperationLogMapper">
+	<resultMap type="com.jjxt.ssm.entity.DataOperationLog" id="dataOperationLogResultMap">
+		<id column="id" property="id" />
+		<result column="bussiness" property="bussiness" />
+		<result column="operation" property="operation" />
+		<result column="date_time" property="dateTime" />
+		<result column="new_data" property="newData" />
+		<result column="old_data" property="oldData" />
+		<result column="ucenter_manager_id" property="ucenterManagerId" />
+		<result column="ucenter_manager_name" property="ucenterManagerName" />
+	</resultMap>
+
+	<insert id="addDataOperationLog" parameterType="com.jjxt.ssm.entity.DataOperationLog">
+		INSERT INTO
+		sms_manage.data_operation_log
+		(bussiness,operation,date_time,new_data,old_data,ucenter_manager_id,ucenter_manager_name)
+		VALUES (#{bussiness,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR},
+		#{dateTime},#{newData,jdbcType=VARCHAR},#{oldData,jdbcType=VARCHAR},#{ucenterManagerId,jdbcType=VARCHAR},
+		#{ucenterManagerName,jdbcType=VARCHAR})
+	</insert>
+
+	<select id="findLogForCount" resultType="int" parameterType="map">
+		SELECT count(1) FROM sms_manage.data_operation_log as log WHERE 1=1
+		<if test="bussiness != ''">
+			AND log.bussiness=#{bussiness}
+		</if>
+		<if test="operation != ''">
+			AND log.operation=#{operation}
+		</if>
+		<if test="newData != ''">
+			AND log.new_data like "%"#{newData,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="oldData != ''">
+			AND log.old_data like "%"#{oldData,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="startTime != ''">
+			AND log.date_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != ''">
+			AND log.date_time &lt;= #{endTime}
+		</if>
+		<if test="userName != ''">
+			AND log.ucenter_manager_name=#{userName}
+		</if>
+
+	</select>
+	<!-- 查询分页列表 -->
+	<select id="findLogForPage" parameterType="map"
+		resultMap="dataOperationLogResultMap">
+		SELECT
+		id,bussiness,operation,new_data,old_data,ucenter_manager_id,ucenter_manager_name,date_time
+		FROM sms_manage.data_operation_log as log WHERE 1=1
+		<if test="bussiness != ''">
+			AND log.bussiness=#{bussiness}
+		</if>
+		<if test="operation != ''">
+			AND log.operation=#{operation}
+		</if>
+		<if test="newData != ''">
+			AND log.new_data like "%"#{newData,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="oldData != ''">
+			AND log.old_data like "%"#{oldData,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="startTime != ''">
+			AND log.date_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != ''">
+			AND log.date_time &lt;= #{endTime}
+		</if>
+		<if test="userName != ''">
+			AND log.ucenter_manager_name=#{userName}
+		</if>
+		ORDER BY log.date_time desc
+		limit #{start},#{end}
+	</select>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jjxt.ssm.mapper.AppComplainMapper">
+<resultMap type="com.jjxt.ssm.entity.AppComplain" id="AppComplain">
+<id column="app_name" property="appName"/>
+<result column="company_key" property="companyName"/>
+<result column="submit_count" property="submitCount"/>
+<result column="succeed_count" property="succeedCount"/>
+<result column="complain_count" property="complainCount"/>
+<result column="complain_rate" property="complainRate"/>
+</resultMap>
+
+
+	<select id="findAllList" resultMap="AppComplain" parameterType="map">
+		SELECT t3.company_key company_key, t1.app_name app_name, SUM(t.send_success_charge) submit_count, SUM(t.report_delivrd_charge) succeed_count,
+		(SELECT COUNT(1) FROM sms_core.pre_complain t4 WHERE t4.app_id = t1.id AND t4.submit_time BETWEEN '${beginTime} 00:00:00' AND '${endTime} 23:59:59') complain_count,
+		ROUND(
+		(
+		(SELECT COUNT(1) FROM sms_core.pre_complain t4 WHERE t4.app_id = t1.id AND t4.submit_time BETWEEN '${beginTime} 00:00:00' AND '${endTime} 23:59:59')
+		) / SUM(t.report_delivrd_charge) * 1000000, 2) complain_rate 
+		FROM sms_statistic.realdata_statistic_app_channel t
+		LEFT JOIN sms_core.ucenter_application t1 ON t.app_id = t1.id
+		LEFT JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+		LEFT JOIN sms_manage.base_company t3 ON t3.id = t2.company_id
+		WHERE t.log_date BETWEEN '${beginTime}' AND '${endTime}'
+		GROUP BY t.app_id
+		HAVING complain_count > 0
+	</select>
+
+
+	<select id="findListByName" resultMap="AppComplain" parameterType="map">
+	SELECT t3.company_key company_key, t1.app_name app_name, SUM(t.send_success_charge) submit_count, SUM(t.report_delivrd_charge) succeed_count,
+		(SELECT COUNT(1) FROM sms_core.pre_complain t4 WHERE t4.app_id = t1.id AND t4.submit_time BETWEEN '${beginTime} 00:00:00' AND '${endTime} 23:59:59') complain_count,
+		ROUND(
+		(
+		(SELECT COUNT(1) FROM sms_core.pre_complain t4 WHERE t4.app_id = t1.id AND t4.submit_time BETWEEN '${beginTime} 00:00:00' AND '${endTime} 23:59:59' )
+		) / SUM(t.report_delivrd_charge) * 1000000, 2) complain_rate 
+		FROM sms_statistic.realdata_statistic_app_channel t
+		LEFT JOIN sms_core.ucenter_application t1 ON t.app_id = t1.id
+		LEFT JOIN sms_manage.ucenter_application_ext t2 ON t1.id = t2.app_id
+		LEFT JOIN sms_manage.base_company t3 ON t3.id = t2.company_id
+		WHERE t.log_date BETWEEN '${beginTime}' AND '${endTime}'
+		<if test="companyName != ''">
+		 AND  t3.company_key = #{companyName}
+		</if>
+		GROUP BY t.app_id
+
+	</select>
+	
+	<select id="findComplainNames" resultType="string">
+	SELECT b.company_key companyName FROM sms_core.pre_complain c LEFT JOIN sms_core.ucenter_application a ON c.app_id=a.id 
+	LEFT JOIN sms_manage.ucenter_application_ext g ON a.id=g.app_id LEFT JOIN sms_manage.base_company b ON g.company_id=b.id 
+	GROUP BY b.company_key
+	</select>
+	
+
+</mapper>

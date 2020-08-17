@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.CheckMustMapper">
+	<resultMap type="com.jjxt.ssm.entity.CheckMust" id="CheckMustMapper">
+		<id column="id" property="id" />
+		<result column="key_words" property="keyWord" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+
+	<insert id="addToCheckMust" parameterType="string">
+		INSERT INTO
+		sms_core.pre_check_must(`id`,`key_words`,`create_time`)
+		VALUES
+		(NULL,#{keyWord},NOW())
+	</insert>
+
+	<select id="findPageList" resultMap="CheckMustMapper"
+		parameterType="map">
+		SELECT id,key_words,create_time FROM sms_core.pre_check_must WHERE 1=1
+		<if test="keyWord !=''">
+			AND key_words like "%"#{keyWord}"%"
+		</if>
+		<if test="startTime !=''">
+			AND create_time &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND create_time &lt;= #{endTime}
+		</if>
+		ORDER BY create_time DESC limit #{start},#{end}
+	</select>
+
+	<select id="findTotal" resultType="int" parameterType="map">
+		SELECT count(1) FROM sms_core.pre_check_must WHERE 1=1
+		<if test="keyWord !=''">
+			AND key_words like "%"#{keyWord}"%"
+		</if>
+		<if test="startTime !=''">
+			AND create_time &gt;= #{startTime}
+		</if>
+		<if test="endTime !=''">
+			AND create_time &lt;= #{endTime}
+		</if>
+	</select>
+
+	<delete id="delCheckMust" parameterType="int">
+		DELETE FROM
+		sms_core.pre_check_must WHERE id=#{id}
+	</delete>
+
+	<select id="findCheckMustById" resultMap="CheckMustMapper"
+		parameterType="int">
+		SELECT id,key_words,create_time FROM
+		sms_core.pre_check_must WHERE id=#{id}
+	</select>
+
+	<update id="updateCheckMust" parameterType="com.jjxt.ssm.entity.CheckMust">
+		UPDATE
+		sms_core.pre_check_must SET key_words=#{keyWord},create_time=NOW()
+		WHERE id=#{id}
+	</update>
+	
+	<select id="findByKeyWord" resultType="int" parameterType="string">
+	SELECT COUNT(1) FROM sms_core.pre_check_must WHERE key_words=#{keyWord}
+	</select>
+
+</mapper>
+

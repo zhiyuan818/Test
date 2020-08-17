@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.MOMapper">
+	<resultMap type="com.jjxt.ssm.entity.MO" id="MOMapper">
+		<id column="id" property="id" />
+		<result column="sp_id" property="spId" />
+		<result column="company_id" property="companyId" />
+		<result column="app_id" property="appId" />
+		<result column="dest_number" property="destNumber" />
+		<result column="src_number" property="srcNumber" />
+		<result column="province" property="province" />
+		<result column="city" property="city" />
+		<result column="content" property="content" />
+		<result column="channel_id" property="channelId" />
+		<result column="channel_msg_id" property="channelMsgId" />
+		<result column="message_id" property="messageId" />
+		<result column="receive_time" property="receiveTime" />
+		<result column="black_flag" property="blackFlag" />
+		<result column="logic_path" property="logicPath" />
+		<result column="channel_name" property="channelName" />
+		<result column="app_name" property="appName" />
+	</resultMap>
+	<resultMap type="com.jjxt.ssm.entity.BlackLevel2" id="blackLevel2">
+		<id column="id" property="id" />
+		<result column="channel_id" property="channelId" />
+		<result column="app_id" property="appId" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+	<!-- 查询所有上行日志 -->
+	<select id="findMO" resultMap="MOMapper">
+		SELECT * FROM sms_log.mo_${logDate}
+	</select>
+	<!-- 按条件查询总条数 -->
+	<select id="findMOTotal" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM sms_log.mo_${logDate} mo WHERE 1=1
+		<if test="appId != null and appId !='' ">
+			AND mo.app_id = #{appId}
+		</if>
+		<if test="srcNumber != null and srcNumber != ''">
+			AND mo.src_number=#{srcNumber}
+		</if>
+		<if test="channelId != null and channelId != ''">
+			AND mo.channel_id=#{channelId}
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mo.receive_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mo.receive_time &lt;= #{endTime}
+		</if>
+		<if test="destNumber != null and destNumber != ''">
+			AND mo.dest_number =#{destNumber}
+		</if>
+		<if test="city != null and city != ''">
+			AND( mo.province LIKE "%"#{city,jdbcType=VARCHAR}"%" OR
+			mo.city LIKE "%"#{city,jdbcType=VARCHAR}"%")
+		</if>
+		<if test="content != null and content != ''">
+			AND mo.content like "%"#{content}"%"
+		</if>
+	</select>
+
+	<!-- 查询上行数据 -->
+	<select id="findMOPageList" resultMap="MOMapper" parameterType="map">
+		SELECT
+		c.name as
+		channel_name,f.app_name,mo.id,mo.app_id,mo.dest_number,mo.src_number,mo.province,mo.city,mo.channel_id,mo.content,mo.receive_time,mo.black_flag,mo.logic_path 
+		FROM sms_log.mo_${logDate} mo LEFT JOIN sms_core.args_channel c ON
+		mo.channel_id=c.channel_id LEFT JOIN sms_core.ucenter_application f ON
+		mo.app_id=f.id WHERE 1=1
+		<if test="appId != null and appId !='' ">
+			AND mo.app_id = #{appId}
+		</if>
+		<if test="srcNumber != null and srcNumber != ''">
+			AND mo.src_number=#{srcNumber}
+		</if>
+		<if test="channelId != null and channelId != ''">
+			AND mo.channel_id=#{channelId}
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND mo.receive_time &gt;= #{startTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND mo.receive_time &lt;= #{endTime}
+		</if>
+		<if test="destNumber != null and destNumber != ''">
+			AND mo.dest_number =#{destNumber}
+		</if>
+		<if test="city != null and city != ''">
+			AND( mo.province LIKE "%"#{city,jdbcType=VARCHAR}"%" OR
+			mo.city LIKE "%"#{city,jdbcType=VARCHAR}"%")
+		</if>
+		<if test="content != null and content != ''">
+			AND mo.content like "%"#{content}"%"
+		</if>
+		ORDER BY mo.receive_time DESC limit #{start},#{end}
+	</select>
+
+	<select id="findMOById" resultMap="MOMapper" parameterType="map">
+		SELECT channel_id,app_id,src_number FROM
+		sms_log.mo_${logDate} WHERE
+		id=#{id}
+
+	</select>
+
+	<!-- 添加二级黑 -->
+	<insert id="addToBlack" parameterType="com.jjxt.ssm.entity.BlackLevel2">
+		INSERT INTO
+		sms_core.pre_black_level_2 (channel_id, app_id,
+		phone_number,
+		add_time)
+		VALUES (#{channelId}, #{appId}, #{phoneNumber},
+		#{addTime});
+	</insert>
+
+	<update id="updateFlag" parameterType="map">
+		UPDATE sms_log.mo_${logDate}
+		SET black_flag="yes" WHERE
+		id = #{id}
+	</update>
+
+	<select id="selectBlackLevel2" resultType="int"
+		parameterType="com.jjxt.ssm.entity.BlackLevel2">
+		SELECT COUNT(1) FROM sms_core.pre_black_level_2 WHERE
+		app_id=#{appId} AND
+		phone_number=#{phoneNumber}
+	</select>
+
+	<select id="findPutMoSum" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM sms_log.mo_${logDate} WHERE 1=1
+		<if test="appId != null and appId!=''">
+			AND app_id=#{appId}
+		</if>
+		<if test="channelId != null and channelId!=''">
+			AND channel_id=#{channelId}
+		</if>
+		<if test="content != null and content!=''">
+		    AND content like "%"#{content,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="srcNumber != null and srcNumber!=''">
+			AND src_number=#{srcNumber}
+		</if>
+		<if test="sourceSegment != null and sourceSegment !=''">
+			AND dest_number=#{sourceSegment}
+		</if>
+		<if test="channelMsgId != null and channelMsgId!=''">
+			AND channel_msg_id=#{channelMsgId}
+		</if>
+		<if test="beginTime != null and beginTime != ''">
+			AND receive_time &gt;= #{beginTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			AND receive_time &lt;= #{endTime}
+		</if>
+	</select>
+
+
+
+
+
+</mapper>

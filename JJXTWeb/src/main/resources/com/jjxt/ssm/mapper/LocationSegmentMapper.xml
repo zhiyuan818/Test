@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.LocationSegmentMapper">
+	<resultMap type="com.jjxt.ssm.entity.LocationSegment" id="LocationSegment">
+		<id column="id" property="id" />
+		<result column="segment" property="segment" />
+		<result column="province" property="province" />
+		<result column="city" property="city" />
+	</resultMap>
+	
+	<select id="findLocationSegmentTotal" resultType="int" parameterType="map">
+		SELECT count(1) FROM
+		sms_core.pre_segment 
+		where 1=1 
+		<if test="segment !=null and segment !=''">
+			and segment like "%"#{segment}"%"
+		</if>
+		<if test="province !=null and province !=''">
+			and province like "%"#{province}"%"
+		</if>
+		<if test="city !=null and city !=''">
+			and city like "%"#{city}"%"
+		</if>
+	</select>
+
+	<select id="findLocationSegmentList" resultMap="LocationSegment" parameterType="map">
+		SELECT id,segment,province,city FROM
+		sms_core.pre_segment 
+		where 1=1 
+		<if test="segment !=null and segment !=''">
+			and segment like "%"#{segment}"%"
+		</if>
+		<if test="province !=null and province !=''">
+			and province like "%"#{province}"%"
+		</if>
+		<if test="city !=null and city !=''">
+			and city like "%"#{city}"%"
+		</if>
+		 order by id desc
+		LIMIT #{start},#{end}
+	</select>
+	
+	<select id="findLocationSegmentByCondition" resultType="int" parameterType="map">
+		SELECT COUNT(1) FROM
+		sms_core.pre_segment
+		where 1=1
+		<if test="segment !=null and segment !=''">
+			and segment=#{segment}
+		</if>
+	</select>
+	
+	<insert id="addLocationSegment" parameterType="com.jjxt.ssm.entity.LocationSegment">
+		INSERT INTO
+		sms_core.pre_segment (segment,province,city)
+		VALUES(#{segment},#{province},#{city})
+	</insert>
+	
+	<select id="findLocationSegmentById" resultMap="LocationSegment"
+		parameterType="int">
+		SELECT  id,segment,province,city FROM sms_core.pre_segment WHERE id=#{id}
+	</select>
+	
+	<update id="updateLocationSegment" parameterType="com.jjxt.ssm.entity.LocationSegment">
+		UPDATE sms_core.pre_segment 
+		<set>
+			<if test="segment !=null and segment !=''">
+				segment=#{segment},
+			</if>
+			<if test="province !=null and province !=''">
+				province=#{province},
+			</if>
+			<if test="city !=null and city !=''">
+				city=#{city},
+			</if>
+		</set>
+		WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteLocationSegById" parameterType="int">
+		DELETE FROM
+		sms_core.pre_segment WHERE id=#{id}
+	</delete>
+	
+	<select id="findLocationSegByIds" resultMap="LocationSegment" parameterType="int">
+		select id,segment,province,city
+		from sms_core.pre_segment where id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+	
+	<delete id="delLocationSegBatch">
+		DELETE FROM sms_core.pre_segment WHERE id in 
+		<foreach collection="array" index="index" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+	
+</mapper>
+
+
+

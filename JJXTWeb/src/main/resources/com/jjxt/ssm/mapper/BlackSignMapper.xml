@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.BlackSignMapper">
+	<resultMap type="com.jjxt.ssm.entity.BlackSign" id="blackSign">
+		<id column="id" property="id" />
+		<result column="sign" property="sign" />
+		<result column="message_type" property="messageType" />
+		<result column="date_banned" property="dateBanned" />
+	</resultMap>
+	<select id="findTotal" resultType="int" parameterType="map">
+		select
+		count(1) from sms_core.pre_black_sign where 1=1
+		<if test="sign!=null and sign!=''">
+			and sign like "%"#{sign}"%"
+		</if>
+		<if test="validate!=null and validate !=''">
+			and sign = #{validate}
+		</if>
+	</select>
+
+	<select id="findBlackSignList" parameterType="map" resultMap="blackSign">
+		select id,sign,message_type,date_banned from sms_core.pre_black_sign where 1=1
+		<if test="sign!=null and sign!=''">
+			and sign like "%"#{sign}"%"
+		</if>
+		ORDER BY date_banned DESC
+		limit #{start},#{end}
+	</select>
+
+	<insert id="addBlackSign" parameterType="com.jjxt.ssm.entity.BlackSign">
+		insert into
+		sms_core.pre_black_sign(sign,message_type,date_banned)
+		values(#{sign},#{messageType},#{dateBanned})
+	</insert>
+
+	<select id="findAddEnd" resultMap="blackSign">
+		select
+		id,sign,message_type,date_banned
+		from sms_core.pre_black_sign order by id desc limit 0,1
+	</select>
+
+	<select id="findBlackSignById" resultMap="blackSign"
+		parameterType="int">
+		select
+		id,sign,message_type,date_banned
+		from sms_core.pre_black_sign where id=#{id}
+	</select>
+
+	<delete id="deleteBlackSign" parameterType="int">
+		delete from
+		sms_core.pre_black_sign where id=#{id}
+	</delete>
+
+	<update id="updateBlackSign" parameterType="com.jjxt.ssm.entity.BlackSign">
+		UPDATE sms_core.pre_black_sign
+		<set>
+			<if test="sign != null ">
+				sign = #{sign},
+			</if>
+			<if test="messageType != null ">
+				message_type = #{messageType},
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+</mapper>

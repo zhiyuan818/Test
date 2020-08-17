@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace一定要对应接口的全类名 -->
+<mapper namespace="com.jjxt.ssm.mapper.DataManageMapper">
+	<resultMap type="com.jjxt.ssm.entity.WhiteLevel" id="whiteLevel">
+		<id column="id" property="id" />
+		<result column="sp_id" property="spId" />
+		<result column="app_id" property="appId" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="content" property="content" />
+	</resultMap>
+
+	<resultMap type="com.jjxt.ssm.entity.BlackLevel1" id="blackLevel1">
+		<id column="id" property="id" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.BlackLevel3" id="blackLevel3">
+		<id column="id" property="id" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+
+	<resultMap type="com.jjxt.ssm.entity.BlackLevel2" id="blackLevel2">
+		<id column="id" property="id" />
+		<result column="channel_id" property="channelId" />
+		<result column="app_id" property="appId" />
+		<result column="phone_number" property="phoneNumber" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+	
+	<resultMap type="com.jjxt.ssm.entity.PhoneStatus" id="phoneStatus">
+		<result column="phone_number" property="phoneNumber" />
+		<result column="tabName" property="status" />
+	</resultMap>
+
+	<!-- 根据条件查询白名单 -->
+	<select id="findPhoneByWhite" resultMap="whiteLevel" parameterType="string">
+		select phone_number from sms_core.pre_white where
+		phone_number=#{phoneNumber}
+	</select>
+
+	<!-- 根据条件查询黑名单1 -->
+	<select id="findPhoneByBlack1" resultMap="blackLevel1" parameterType="string">
+		select phone_number from sms_core.pre_black_level_1 where
+		phone_number=#{phoneNumber}
+	</select>
+
+	<!-- 根据条件查询黑名单2 -->
+	<select id="findPhoneByBlack2" parameterType="java.util.List"  resultMap="blackLevel2">
+		select app_id,phone_number from sms_core.pre_black_level_2 where
+		phone_number in
+		<foreach collection="list" index="index" item="phone" open="("
+			separator="," close=")">
+			#{phone}
+		</foreach>
+	</select>
+	
+
+
+
+
+	<!-- 添加白名单 -->
+	<insert id="addWhite" parameterType="com.jjxt.ssm.entity.WhiteLevel">
+		insert ignore into
+		sms_core.pre_white(sp_id,app_id,phone_number,content)
+		values(
+		#{spId},#{appId},#{phoneNumber},#{content}
+		)
+	</insert>
+
+
+
+	<!-- 添加投诉黑名单 -->
+	<insert id="addBlackLevel1" parameterType="com.jjxt.ssm.entity.BlackLevel1">
+		insert ignore into
+		sms_core.pre_black_level_1(phone_number,add_time)
+		values(
+		#{phoneNumber},#{addTime}
+		)
+	</insert>
+
+	<!-- 添加回复黑名单 -->
+	<insert id="addBlackLevel2" parameterType="com.jjxt.ssm.entity.BlackLevel2">
+		insert ignore into
+		sms_core.pre_black_level_2(channel_id,app_id,phone_number,add_time)
+		values(
+		#{channelId},#{appId},#{phoneNumber},#{addTime})
+	</insert>
+
+
+
+
+
+	<!-- 删除黑白名单 -->
+	<delete id="deletePhone" parameterType="map">
+		DELETE FROM
+		sms_core.${tableName} where phone_number = #{phoneNumber}
+		<if test="appId != null and appId !=''">
+			and app_id = #{appId}
+		</if>
+	</delete>
+	
+	<select id="findPhone" parameterType="java.util.List"  resultMap="phoneStatus">
+		SELECT b1.phone_number,'black1' as tabName FROM sms_core.pre_black_level_1 b1 where b1.phone_number in 
+		<foreach collection="list" index="index" item="phone" open="("
+			separator="," close=")">
+			#{phone}
+		</foreach>
+		UNION ALL SELECT w.phone_number,'white' as tabName FROM sms_core.pre_white w where w.phone_number in 
+		<foreach collection="list" index="index" item="phone" open="("
+			separator="," close=")">
+			#{phone}
+		</foreach>
+	</select>
+	
+	
+	<!-- 添加投诉黑名单 -->
+	<insert id="addBlackLevel1Batch" parameterType="java.util.List">
+		insert ignore into
+		sms_core.pre_black_level_1(phone_number,add_time)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.phoneNumber},now())
+		</foreach>
+	</insert>
+	
+	<insert id="addWhiteBatch" parameterType="java.util.List">
+		insert ignore into
+		sms_core.pre_white(sp_id,app_id,phone_number,content)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(1,0,#{item.phoneNumber},'后台添加')
+		</foreach>
+	</insert>
+	
+</mapper>
